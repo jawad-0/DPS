@@ -29,8 +29,7 @@ const DrtLogin = () => {
 
   const handleLogin = () => {
     if (username === '' && password === '') {
-      console.log('Login Successful!');
-      // navigation.navigate('Screen01');
+      navigation.navigate('DrtScreen01');
       setUsername('');
       setPassword('');
     } else {
@@ -134,7 +133,7 @@ const styles = StyleSheet.create({
     // fontFamily: 'FuzzyBubbles-Regular',
   },
   button: {
-    backgroundColor: '#FFEA00',
+    backgroundColor: '#D2B4DE',
     padding: 10,
     height: 50,
     width: 130,

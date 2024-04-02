@@ -4,7 +4,11 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {Screen} from 'react-native-screens';
 import RoleScreen from './Screens/ROLE_SCREEN';
+
 import DrtLogin from './Screens/Director/DRT_LOGIN';
+import DrtScreen01 from './Screens/Director/DRT_SCREEN_01';
+import DrtScreen02 from './Screens/Director/DRT_SCREEN_02';
+import DrtScreen03 from './Screens/Director/DRT_SCREEN_03';
 
 import DtcLogin from './Screens/Datacell/DTC_LOGIN';
 import DtcScreen01 from './Screens/Datacell/DTC_SCREEN_01';
@@ -202,6 +206,21 @@ export default function App() {
         <Stack1.Screen
           name="DrtLogin"
           component={DrtLogin}
+          options={{headerShown: false}}
+        />
+        <Stack1.Screen
+          name="DrtScreen01"
+          component={DrtScreen01}
+          options={{headerShown: false}}
+        />
+        <Stack1.Screen
+          name="DrtScreen02"
+          component={DrtScreen02}
+          options={{headerShown: false}}
+        />
+        <Stack1.Screen
+          name="DrtScreen03"
+          component={DrtScreen03}
           options={{headerShown: false}}
         />
       </Stack1.Navigator>

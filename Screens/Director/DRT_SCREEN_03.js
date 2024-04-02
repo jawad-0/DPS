@@ -10,21 +10,23 @@ import {
   ImageBackground,
   TouchableOpacity,
 } from 'react-native';
-import {ip, printed_port, feedback_port} from '../CONFIG';
+import {ip, course_port} from '../CONFIG';
 import {useNavigation} from '@react-navigation/native';
 
-const FctScreen14 = ({route}) => {
+const DrtScreen03 = () => {
   const navigation = useNavigation();
-  const {facultyId} = route.params;
   const [facultyMembers, setFacultyMembers] = useState([]);
-  const [feedback, setFeedback] = useState([]);
 
   useEffect(() => {
     fetchData();
   }, []);
 
+  const handleView = item => {
+    navigation.navigate('HodScreen05', {courseId: item.c_id, courseTitle: item.c_title, courseCode: item.c_code});
+  };
+
   const handleSearch = text => {
-    const apiEndpoint = `http://${ip}:${printed_port}/searchprintedpapers?search=${text}`;
+    const apiEndpoint = `http://${ip}:${course_port}/searchCourse?search=${text}`;
 
     if (text.trim() === '') {
       fetchData();
@@ -41,13 +43,13 @@ const FctScreen14 = ({route}) => {
   };
 
   const fetchData = () => {
-    const apiEndpoint = `http://${ip}:${feedback_port}/getFeedback/${facultyId}`;
+    const apiEndpoint = `http://${ip}:${course_port}/getCourse`;
     // Keyboard.dismiss();
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
         // console.log('Data fetched successfully:', data);
-        setFeedback(data);
+        setFacultyMembers(data);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
@@ -56,20 +58,20 @@ const FctScreen14 = ({route}) => {
 
   return (
     <ImageBackground
-      source={require('../../assets/dtc_background.png')}
+      source={require('../../assets/hod_background.png')}
       style={styles.backgroundImage}>
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.navigate('DtcScreen01')}>
+            onPress={() => navigation.navigate('HodScreen01')}>
             <Image
               source={require('../../assets/arrow.png')}
               style={styles.backIcon}
               resizeMode="contain"
             />
           </TouchableOpacity>
-          <Text style={styles.headerText}>Printed Papers</Text>
+          <Text style={styles.headerText}>Course Detail</Text>
         </View>
         {/* <ScrollView> */}
         <View style={styles.form}>
@@ -80,30 +82,33 @@ const FctScreen14 = ({route}) => {
             onChangeText={text => handleSearch(text)}
           />
 
-          <View style={styles.tableheader}>
-            <View style={styles.columnContainer}>
-              <Text style={styles.columnHeader}>Courses</Text>
-            </View>
-            <View style={styles.columnContainer}>
-              {/* <Text style={styles.columnHeader}>Action</Text> */}
-              <Image
-                source={require('../../assets/printed.png')}
-                style={styles.printIcon}
-                resizeMode="contain"
-              />
-            </View>
-          </View>
-
           <FlatList
-            data={feedback}
+            data={facultyMembers}
             style={styles.flatlist}
+            showsVerticalScrollIndicator={false}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item}) => (
               <View style={styles.listItem}>
                 <View style={styles.column}>
-                  <Text style={styles.data_name}>{item.c_code}</Text>
                   <Text style={styles.data_name}>{item.c_title}</Text>
-                  <Text style={styles.data_name}>{item.feedback_details}</Text>
+                </View>
+
+                <View style={styles.column}>
+                  <Text style={styles.data_code}>{item.c_code}</Text>
+                </View>
+
+                <View style={styles.column}>
+                  <View style={styles.buttonsContainer}>
+                    <TouchableOpacity
+                      style={styles.viewButton}
+                      onPress={() => handleView(item)}>
+                      <Image
+                        source={require('../../assets/view_icon.png')}
+                        style={styles.viewIcon}
+                        resizeMode="contain"
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
             )}
@@ -140,24 +145,32 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 15,
-    marginLeft: 90,
+    marginLeft: 65,
     textAlign: 'center',
-    color: 'green',
+    color: 'black',
     width: 60,
     fontWeight: 'bold',
-    // borderWidth: 1,
-    // borderColor: 'black',
     // textDecorationLine: 'underline',
   },
   data_name: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
     color: 'black',
-    marginLeft: 10,
+    marginLeft: 20,
     // textAlign: 'center',
-    width: 240,
-    // borderWidth: 1,
+    // borderWidth: 2,
     // borderColor: 'black',
+    width: 220,
+  },
+  data_code: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: 'blue',
+    marginLeft: 120,
+    textAlign: 'center',
+    // borderWidth: 2,
+    // borderColor: 'black',
+    width: 80,
   },
   input: {
     height: 41,
@@ -174,13 +187,13 @@ const styles = StyleSheet.create({
     height: 40,
     width: 300,
     alignSelf: 'center',
-    borderColor: 'white',
-    borderWidth: 1,
+    borderColor: 'gray',
+    borderWidth: 2,
     borderRadius: 13,
     marginTop: 16,
     paddingHorizontal: 8,
-    color: 'white',
-    backgroundColor: 'black',
+    color: 'black',
+    backgroundColor: '#CDCDCD',
   },
   tableheader: {
     flexDirection: 'row',
@@ -191,26 +204,20 @@ const styles = StyleSheet.create({
     borderBottomColor: 'white',
     backgroundColor: 'black',
   },
-  columnContainer: {
-    flex: 1,
-    // borderWidth: 1,
-    // borderColor: 'yellow',
-  },
   columnHeader: {
     fontSize: 20,
-    width: 250,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
-    // borderWidth: 1,
-    // borderColor: 'white',
   },
   listItem: {
     flexDirection: 'row',
     borderBottomWidth: 2,
     borderBottomColor: 'black',
-    height: 85,
-    borderRadius: 15,
+    height: 45,
+    width: '98%',
+    marginLeft: '1%',
+    borderRadius: 10,
     color: 'black',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -220,7 +227,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flatlist: {
-    marginTop: 5,
+    marginTop: 30,
   },
   backgroundImage: {
     flex: 1,
@@ -235,14 +242,25 @@ const styles = StyleSheet.create({
     height: 20,
     width: 20,
   },
-  printIcon: {
+  buttonsContainer: {
+    flexDirection: 'row',
+    maxWidth: 30,
+    // marginLeft: 10,
+    // borderWidth: 2,
+    // borderColor: 'black',
+    justifyContent: 'center',
+    marginLeft: 85,
+  },
+  viewButton: {
+    padding: 2,
     height: 25,
     width: 25,
-    marginLeft: 50,
-    alignSelf: 'center',
-    // borderWidth: 1,
-    // borderColor: 'white',
+    borderRadius: 13,
+  },
+  viewIcon: {
+    height: 18,
+    width: 18,
   },
 });
 
-export default FctScreen14;
+export default DrtScreen03;

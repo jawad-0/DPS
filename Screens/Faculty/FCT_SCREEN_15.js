@@ -121,7 +121,7 @@ const FctScreen15 = ({route}) => {
                         style={{
                           color: '#EEFF00',
                           textShadowColor: 'black',
-                          textShadowOffset: {width: 1, height: 1},
+                          textShadowOffset: {width: 1.5, height: 1},
                           textShadowRadius: 2,
                           backgroundColor: 'transparent',
                         }}>
@@ -136,7 +136,7 @@ const FctScreen15 = ({route}) => {
                         style={{
                           color: '#00FFFF',
                           textShadowColor: 'black',
-                          textShadowOffset: {width: 1, height: 1},
+                          textShadowOffset: {width: 1.5, height: 1},
                           textShadowRadius: 2,
                           backgroundColor: 'transparent',
                         }}>
@@ -151,7 +151,7 @@ const FctScreen15 = ({route}) => {
                         style={{
                           color: '#0FFF50',
                           textShadowColor: 'black',
-                          textShadowOffset: {width: 1, height: 1},
+                          textShadowOffset: {width: 1.5, height: 1},
                           textShadowRadius: 2,
                           backgroundColor: 'transparent',
                         }}>

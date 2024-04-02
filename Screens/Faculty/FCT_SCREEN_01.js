@@ -31,7 +31,13 @@ const FctScreen01 = ({route}) => {
   };
 
   const handlePress = item => {
-    navigation.navigate('FctScreen02', {courseId: item.c_id, courseName: item.c_title, courseCode: item.c_code, facultyId: item.f_id, facultyRole: item.role});
+    navigation.navigate('FctScreen02', {
+      courseId: item.c_id,
+      courseName: item.c_title,
+      courseCode: item.c_code,
+      facultyId: item.f_id,
+      facultyRole: item.role,
+    });
     // console.log('Item:', item);
   };
 
@@ -63,9 +69,7 @@ const FctScreen01 = ({route}) => {
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerText}>Faculty Dashboard</Text>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={handleLogout}>
+          <TouchableOpacity style={styles.backButton} onPress={handleLogout}>
             <Image
               source={require('../../assets/logout2.png')}
               style={styles.backIcon}
@@ -76,7 +80,9 @@ const FctScreen01 = ({route}) => {
         <View style={styles.buttonsContainer}>
           <TouchableOpacity
             style={styles.mailButton}
-            onPress={() => console.log('Mail Button Pressed')}>
+            onPress={() =>
+              navigation.navigate('FctScreen14', {facultyId: facultyId})
+            }>
             <Image
               source={require('../../assets/mail.png')}
               style={styles.mailIcon}
@@ -85,7 +91,9 @@ const FctScreen01 = ({route}) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.statusButton}
-            onPress={() => navigation.navigate('FctScreen15' ,{facultyId: facultyId})}>
+            onPress={() =>
+              navigation.navigate('FctScreen15', {facultyId: facultyId})
+            }>
             <Image
               source={require('../../assets/status.png')}
               style={styles.statusIcon}
@@ -129,7 +137,7 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
-    marginTop: 70,
+    marginTop: 50,
     alignItems: 'center',
   },
   header: {
@@ -291,6 +299,7 @@ const styles = StyleSheet.create({
   },
   flatlist: {
     marginTop: 5,
+    maxHeight: 500,
   },
   backgroundImage: {
     flex: 1,

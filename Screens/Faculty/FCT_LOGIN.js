@@ -59,7 +59,7 @@ const FctLogin = () => {
   const handleLogin2 = () => {
     if (username === '' && password === '') {
       // console.log('Login Successful!');
-      navigation.navigate('FctScreen01', {facultyId: 19});
+      navigation.navigate('FctScreen01', {facultyId: 1});
       //   navigation.navigate('FctScreen01');
       setUsername('');
       setPassword('');

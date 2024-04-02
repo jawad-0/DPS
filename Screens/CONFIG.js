@@ -13,3 +13,4 @@ export const faculty_port = "8000";
 export const assigned_port = "8000";
 export const clo_port = "8000";
 export const gridview_port = "8000";
+export const feedback_port = "8000";
