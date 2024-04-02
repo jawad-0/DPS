@@ -15,18 +15,14 @@ import {useNavigation} from '@react-navigation/native';
 
 const DrtScreen03 = () => {
   const navigation = useNavigation();
-  const [facultyMembers, setFacultyMembers] = useState([]);
+  const [approvedpapers, setApprovedPapers] = useState([]);
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  const handleView = item => {
-    navigation.navigate('HodScreen05', {courseId: item.c_id, courseTitle: item.c_title, courseCode: item.c_code});
-  };
-
   const handleSearch = text => {
-    const apiEndpoint = `http://${ip}:${course_port}/searchCourse?search=${text}`;
+    const apiEndpoint = `http://${ip}:${course_port}/searchapprovedpapers?search=${text}`;
 
     if (text.trim() === '') {
       fetchData();
@@ -34,7 +30,7 @@ const DrtScreen03 = () => {
       fetch(apiEndpoint)
         .then(response => response.json())
         .then(data => {
-          setFacultyMembers(data);
+          setApprovedPapers(data);
         })
         .catch(error => {
           console.error('Error searching data:', error);
@@ -43,13 +39,13 @@ const DrtScreen03 = () => {
   };
 
   const fetchData = () => {
-    const apiEndpoint = `http://${ip}:${course_port}/getCourse`;
+    const apiEndpoint = `http://${ip}:${course_port}/getapprovedpapers`;
     // Keyboard.dismiss();
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
         // console.log('Data fetched successfully:', data);
-        setFacultyMembers(data);
+        setApprovedPapers(data);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
@@ -58,7 +54,7 @@ const DrtScreen03 = () => {
 
   return (
     <ImageBackground
-      source={require('../../assets/hod_background.png')}
+      source={require('../../assets/drt_background.png')}
       style={styles.backgroundImage}>
       <View style={styles.container}>
         <View style={styles.header}>
@@ -71,7 +67,7 @@ const DrtScreen03 = () => {
               resizeMode="contain"
             />
           </TouchableOpacity>
-          <Text style={styles.headerText}>Course Detail</Text>
+          <Text style={styles.headerText}>Approved Papers</Text>
         </View>
         {/* <ScrollView> */}
         <View style={styles.form}>
@@ -82,8 +78,17 @@ const DrtScreen03 = () => {
             onChangeText={text => handleSearch(text)}
           />
 
+          <View style={styles.tableheader}>
+            <View style={styles.columnContainer1}>
+              <Text style={styles.columnHeader}>Courses</Text>
+            </View>
+            <View style={styles.columnContainer2}>
+              <Text style={styles.columnHeader}>Code</Text>
+            </View>
+          </View>
+
           <FlatList
-            data={facultyMembers}
+            data={approvedpapers}
             style={styles.flatlist}
             showsVerticalScrollIndicator={false}
             keyExtractor={(item, index) => index.toString()}
@@ -100,11 +105,11 @@ const DrtScreen03 = () => {
                 <View style={styles.column}>
                   <View style={styles.buttonsContainer}>
                     <TouchableOpacity
-                      style={styles.viewButton}
-                      onPress={() => handleView(item)}>
+                      style={styles.tickButton}
+                      onPress={() => console.log(item)}>
                       <Image
-                        source={require('../../assets/view_icon.png')}
-                        style={styles.viewIcon}
+                        source={require('../../assets/tick.png')}
+                        style={styles.tickIcon}
                         resizeMode="contain"
                       />
                     </TouchableOpacity>
@@ -199,15 +204,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: 40,
     borderRadius: 40,
-    marginTop: 30,
+    marginTop: 16,
     borderBottomWidth: 4,
     borderBottomColor: 'white',
-    backgroundColor: 'black',
+    backgroundColor: 'black'
+  },
+  columnContainer1: {
+    flex: 1,
+    alignSelf: 'center',
+  },
+  columnContainer2: {
+    flex: 1,
+    alignSelf: 'center',
   },
   columnHeader: {
     fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
+    // borderWidth: 2,
+    // borderColor: 'black',
     textAlign: 'center',
   },
   listItem: {
@@ -227,7 +242,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flatlist: {
-    marginTop: 30,
+    marginTop: 3,
   },
   backgroundImage: {
     flex: 1,
@@ -251,15 +266,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginLeft: 85,
   },
-  viewButton: {
+  tickButton: {
     padding: 2,
     height: 25,
     width: 25,
     borderRadius: 13,
   },
-  viewIcon: {
-    height: 18,
-    width: 18,
+  tickIcon: {
+    height: 20,
+    width: 20,
   },
 });
 

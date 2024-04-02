@@ -34,23 +34,6 @@ const FctScreen15 = ({route}) => {
   //       labelStyle = styles.defaultLabel;
   //   }
 
-  const handleSearch = text => {
-    const apiEndpoint = `http://${ip}:${printed_port}/searchprintedpapers?search=${text}`;
-
-    if (text.trim() === '') {
-      fetchData();
-    } else {
-      fetch(apiEndpoint)
-        .then(response => response.json())
-        .then(data => {
-          setFacultyMembers(data);
-        })
-        .catch(error => {
-          console.error('Error searching data:', error);
-        });
-    }
-  };
-
   const fetchData = () => {
     const apiEndpoint = `http://${ip}:${printed_port}/getPaperStatus/${facultyId}`;
     // Keyboard.dismiss();
@@ -73,33 +56,27 @@ const FctScreen15 = ({route}) => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.navigate('DtcScreen01')}>
+            onPress={() =>
+              navigation.navigate('FctScreen01', {facultyId: facultyId})
+            }>
             <Image
               source={require('../../assets/arrow.png')}
               style={styles.backIcon}
               resizeMode="contain"
             />
           </TouchableOpacity>
-          <Text style={styles.headerText}>Paper Status</Text>
+          <Text style={styles.headerText}>Papers Status</Text>
         </View>
         {/* <ScrollView> */}
         <View style={styles.form}>
-          {/* <TextInput
-            style={styles.searchinput}
-            placeholder="Search"
-            placeholderTextColor={'gray'}
-            onChangeText={text => handleSearch(text)}
-          /> */}
-
           <View style={styles.tableheader}>
             <View style={styles.columnContainer}>
               <Text style={styles.columnHeader}>Courses</Text>
             </View>
             <View style={styles.columnContainer}>
-              {/* <Text style={styles.columnHeader}>Action</Text> */}
               <Image
-                source={require('../../assets/printed.png')}
-                style={styles.printIcon}
+                source={require('../../assets/loading.png')}
+                style={styles.statusIcon}
                 resizeMode="contain"
               />
             </View>
@@ -136,7 +113,7 @@ const FctScreen15 = ({route}) => {
                         style={{
                           color: '#00FFFF',
                           textShadowColor: 'black',
-                          textShadowOffset: {width: 1.5, height: 1},
+                          textShadowOffset: {width: 1, height: 1},
                           textShadowRadius: 2,
                           backgroundColor: 'transparent',
                         }}>
@@ -149,9 +126,9 @@ const FctScreen15 = ({route}) => {
                     <Text style={styles.label}>
                       <Text
                         style={{
-                          color: '#0FFF50',
+                          color: '#00FF7F',
                           textShadowColor: 'black',
-                          textShadowOffset: {width: 1.5, height: 1},
+                          textShadowOffset: {width: 1, height: 1},
                           textShadowRadius: 2,
                           backgroundColor: 'transparent',
                         }}>
@@ -193,7 +170,6 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
-    marginTop: 20,
   },
   header: {
     flexDirection: 'row',
@@ -209,7 +185,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   label: {
-    fontSize: 15,
+    fontSize: 16,
     marginLeft: 80,
     textAlign: 'center',
     color: 'black',
@@ -217,7 +193,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     // borderWidth: 1,
     // borderColor: 'black',
-    // textDecorationLine: 'underline',
   },
   data_name: {
     fontSize: 16,
@@ -229,34 +204,11 @@ const styles = StyleSheet.create({
     // borderWidth: 1,
     // borderColor: 'black',
   },
-  input: {
-    height: 41,
-    width: 340,
-    alignSelf: 'center',
-    borderColor: 'black',
-    borderWidth: 1,
-    borderRadius: 13,
-    marginBottom: 16,
-    paddingHorizontal: 8,
-    color: 'black',
-  },
-  searchinput: {
-    height: 40,
-    width: 300,
-    alignSelf: 'center',
-    borderColor: 'white',
-    borderWidth: 1,
-    borderRadius: 13,
-    marginTop: 16,
-    paddingHorizontal: 8,
-    color: 'white',
-    backgroundColor: 'black',
-  },
   tableheader: {
     flexDirection: 'row',
     height: 40,
     borderRadius: 40,
-    marginTop: 30,
+    marginTop: 20,
     borderBottomWidth: 4,
     borderBottomColor: 'white',
     backgroundColor: 'black',
@@ -305,7 +257,7 @@ const styles = StyleSheet.create({
     height: 20,
     width: 20,
   },
-  printIcon: {
+  statusIcon: {
     height: 25,
     width: 25,
     marginLeft: 50,

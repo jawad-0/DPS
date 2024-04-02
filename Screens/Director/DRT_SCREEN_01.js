@@ -17,12 +17,12 @@ const DrtScreen01 = () => {
 
   const handleLogout = () => {
     ToastAndroid.show('Logged Out!', ToastAndroid.SHORT);
-    navigation.navigate('DtcLogin');
+    navigation.navigate('DrtLogin');
   };
 
   return (
     <ImageBackground
-      source={require('../../assets/dtc_background.png')}
+      source={require('../../assets/drt_background.png')}
       style={styles.backgroundImage}>
       <View style={styles.container}>
         <View style={styles.header}>
@@ -41,12 +41,12 @@ const DrtScreen01 = () => {
         <View style={styles.buttonscontainer}>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate('DtcScreen02')}>
+            onPress={() => navigation.navigate('DrtScreen02')}>
             <Text style={styles.buttonText}>Uploaded{'\n'}Papers</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate('DtcScreen04')}>
+            onPress={() => navigation.navigate('DrtScreen03')}>
             <Text style={styles.buttonText}>Approved{'\n'}Papers</Text>
           </TouchableOpacity>
         </View>

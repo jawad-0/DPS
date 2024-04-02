@@ -4,41 +4,21 @@ import {
   Text,
   Image,
   FlatList,
-  Keyboard,
-  TextInput,
   StyleSheet,
   ImageBackground,
   TouchableOpacity,
 } from 'react-native';
-import {ip, printed_port, feedback_port} from '../CONFIG';
+import {ip, feedback_port} from '../CONFIG';
 import {useNavigation} from '@react-navigation/native';
 
 const FctScreen14 = ({route}) => {
   const navigation = useNavigation();
   const {facultyId} = route.params;
-  const [facultyMembers, setFacultyMembers] = useState([]);
   const [feedback, setFeedback] = useState([]);
 
   useEffect(() => {
     fetchData();
   }, []);
-
-  const handleSearch = text => {
-    const apiEndpoint = `http://${ip}:${printed_port}/searchprintedpapers?search=${text}`;
-
-    if (text.trim() === '') {
-      fetchData();
-    } else {
-      fetch(apiEndpoint)
-        .then(response => response.json())
-        .then(data => {
-          setFacultyMembers(data);
-        })
-        .catch(error => {
-          console.error('Error searching data:', error);
-        });
-    }
-  };
 
   const fetchData = () => {
     const apiEndpoint = `http://${ip}:${feedback_port}/getFeedback/${facultyId}`;
@@ -62,38 +42,19 @@ const FctScreen14 = ({route}) => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.navigate('DtcScreen01')}>
+            onPress={() =>
+              navigation.navigate('FctScreen01', {facultyId: facultyId})
+            }>
             <Image
               source={require('../../assets/arrow.png')}
               style={styles.backIcon}
               resizeMode="contain"
             />
           </TouchableOpacity>
-          <Text style={styles.headerText}>Printed Papers</Text>
+          <Text style={styles.headerText}>Comments</Text>
         </View>
         {/* <ScrollView> */}
         <View style={styles.form}>
-          <TextInput
-            style={styles.searchinput}
-            placeholder="Search"
-            placeholderTextColor={'gray'}
-            onChangeText={text => handleSearch(text)}
-          />
-
-          <View style={styles.tableheader}>
-            <View style={styles.columnContainer}>
-              <Text style={styles.columnHeader}>Courses</Text>
-            </View>
-            <View style={styles.columnContainer}>
-              {/* <Text style={styles.columnHeader}>Action</Text> */}
-              <Image
-                source={require('../../assets/printed.png')}
-                style={styles.printIcon}
-                resizeMode="contain"
-              />
-            </View>
-          </View>
-
           <FlatList
             data={feedback}
             style={styles.flatlist}
@@ -101,9 +62,19 @@ const FctScreen14 = ({route}) => {
             renderItem={({item}) => (
               <View style={styles.listItem}>
                 <View style={styles.column}>
-                  <Text style={styles.data_name}>{item.c_code}</Text>
-                  <Text style={styles.data_name}>{item.c_title}</Text>
-                  <Text style={styles.data_name}>{item.feedback_details}</Text>
+                  <View style={styles.dataContainer}>
+                    <Text style={styles.data_code}>{item.c_code}</Text>
+                    <Text style={styles.data_title}>{item.c_title}</Text>
+                  </View>
+                  {!item.q_id ? (
+                    <Text style={styles.data_feedback}>
+                      {item.feedback_details}
+                    </Text>
+                  ) : (
+                    <Text style={styles.data_feedback}>
+                      Q-No#{item.q_id}: {item.feedback_details}
+                    </Text>
+                  )}
                 </View>
               </View>
             )}
@@ -128,6 +99,10 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
   },
+  dataContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   headerText: {
     height: 70,
     width: 320,
@@ -138,83 +113,48 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'white',
   },
-  label: {
-    fontSize: 15,
-    marginLeft: 90,
-    textAlign: 'center',
-    color: 'green',
-    width: 60,
+  data_code: {
+    fontSize: 13,
     fontWeight: 'bold',
+    color: 'blue',
+    marginLeft: 10,
+    // textAlign: 'center',
+    width: '15%',
     // borderWidth: 1,
     // borderColor: 'black',
-    // textDecorationLine: 'underline',
   },
-  data_name: {
-    fontSize: 16,
+  data_title: {
+    fontSize: 13,
     fontWeight: 'bold',
     color: 'black',
+    marginLeft: 5,
+    // textAlign: 'center',
+    // borderWidth: 1,
+    // borderColor: 'black',
+  },
+  data_feedback: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'green',
     marginLeft: 10,
     // textAlign: 'center',
     width: 240,
     // borderWidth: 1,
     // borderColor: 'black',
   },
-  input: {
-    height: 41,
-    width: 340,
-    alignSelf: 'center',
-    borderColor: 'black',
-    borderWidth: 1,
-    borderRadius: 13,
-    marginBottom: 16,
-    paddingHorizontal: 8,
-    color: 'black',
-  },
-  searchinput: {
-    height: 40,
-    width: 300,
-    alignSelf: 'center',
-    borderColor: 'white',
-    borderWidth: 1,
-    borderRadius: 13,
-    marginTop: 16,
-    paddingHorizontal: 8,
-    color: 'white',
-    backgroundColor: 'black',
-  },
-  tableheader: {
-    flexDirection: 'row',
-    height: 40,
-    borderRadius: 40,
-    marginTop: 30,
-    borderBottomWidth: 4,
-    borderBottomColor: 'white',
-    backgroundColor: 'black',
-  },
-  columnContainer: {
-    flex: 1,
-    // borderWidth: 1,
-    // borderColor: 'yellow',
-  },
-  columnHeader: {
-    fontSize: 20,
-    width: 250,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-    // borderWidth: 1,
-    // borderColor: 'white',
-  },
   listItem: {
     flexDirection: 'row',
     borderBottomWidth: 2,
     borderBottomColor: 'black',
-    height: 85,
-    borderRadius: 15,
+    height: 80,
+    borderRadius: 10,
+    width: '98%',
+    marginLeft: '1%',
     color: 'black',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: 'white',
+    // backgroundColor: '#CDCDCD',
+    // justifyContent: 'space-between',
+    // alignItems: 'center',
   },
   column: {
     flex: 1,
@@ -234,14 +174,6 @@ const styles = StyleSheet.create({
   backIcon: {
     height: 20,
     width: 20,
-  },
-  printIcon: {
-    height: 25,
-    width: 25,
-    marginLeft: 50,
-    alignSelf: 'center',
-    // borderWidth: 1,
-    // borderColor: 'white',
   },
 });
 
