@@ -126,6 +126,7 @@ const HodScreen06 = ({route}) => {
           <FlatList
             data={CLOS}
             style={styles.flatlist}
+            showsVerticalScrollIndicator={false}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item, index}) => (
               <View style={styles.listItemContainer}>
@@ -168,8 +169,7 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
-    marginTop: 70,
-    // alignItems: 'center',
+    marginTop: 20,
   },
   header: {
     flexDirection: 'row',

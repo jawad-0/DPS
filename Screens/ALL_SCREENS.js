@@ -11,6 +11,13 @@ DTC_SCREEN_05.js   // Courses (Edit)
 DTC_SCREEN_06.js   // Approved Papers
 DTC_SCREEN_07.js   // Printed Papers
 
+DRT_LOGIN.js       // Login Screen For DRT
+DRT_SCREEN_01.js   // Director Dashboard with 2 Main Buttons
+DRT_SCREEN_02.js   // Uploaded Papers
+DRT_SCREEN_03.js   // Approved Papers
+DRT_SCREEN_04.js   // Paper Information (Details/Comment_Button/View_Button)
+DRT_SCREEN_05.js   // Comments on Paper (Sending)
+
 HOD_LOGIN.js       // Login Screen For HOD
 HOD_SCREEN_01.js   // HOD Dashboard with 5 Main Buttons
 HOD_SCREEN_02.js   // Faculty Detail (Names/Search/View_Button)
@@ -39,10 +46,3 @@ FCT_SCREEN_12.js   // Covered Topics (View) ------------------------------------
 FCT_SCREEN_13.js   // Topics Progress (View) ------------------------------------------------------
 FCT_SCREEN_14.js   // Paper Notifications (View)
 FCT_SCREEN_15.js   // Paper Status (View)
-
-DRT_LOGIN.js       // Login Screen For DRT
-DRT_SCREEN_01.js   // Director Dashboard with 2 Main Buttons
-DRT_SCREEN_02.js   // Uploaded Papers
-DRT_SCREEN_03.js   // Approved Papers
-DRT_SCREEN_04.js   // Paper Information (Details/Comment_Button/View_Button) ------------ (working)
-DRT_SCREEN_05.js   // Comments on Paper (Sending) -------------------------------------------------

@@ -17,6 +17,7 @@ const DrtScreen04 = ({route}) => {
   const navigation = useNavigation();
   const {paperId} = route.params;
   const [paperheaderfaculty, setPaperHeaderFaculty] = useState('');
+  const [courseId, setCourseId] = useState('');
   const [coursetitle, setCourseTitle] = useState('');
   const [coursecode, setCourseCode] = useState('');
   const [duration, setDuration] = useState('');
@@ -33,12 +34,26 @@ const DrtScreen04 = ({route}) => {
     fetchfacultyData();
   }, []);
 
+  const handleComment = () => {
+    navigation.navigate('DrtScreen05', {
+      paperId: paperId,
+      courseId: courseId,
+      coursecode: coursecode,
+      coursetitle: coursetitle,
+    });
+  };
+
+  const handleView = () => {
+    console.log('View Button Clicked!');
+  };
+
   const fetchData = () => {
     const apiEndpoint = `http://${ip}:${paper_port}/getpaperheader/${paperId}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
         // console.log('Data fetched successfully:', data);
+        setCourseId(data[0].c_id);
         setCourseCode(data[0].c_code);
         setCourseTitle(data[0].c_title);
         setDuration(data[0].duration);
@@ -75,6 +90,17 @@ const DrtScreen04 = ({route}) => {
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerText}>Paper Information</Text>
+        </View>
+        <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+          <TouchableOpacity
+            style={styles.commentButton}
+            onPress={handleComment}>
+            <Image
+              source={require('../../assets/whitecomment.png')}
+              style={styles.commentIcon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
         </View>
         <View style={styles.courseInfo}>
           <Text style={styles.courseText}>{coursetitle}</Text>
@@ -135,6 +161,15 @@ const DrtScreen04 = ({route}) => {
             Total Marks: <Text style={styles.data}>{tmarks}</Text>
           </Text>
         </View>
+        <View>
+          <TouchableOpacity style={styles.viewButton} onPress={handleView}>
+            <Text style={styles.viewText}>View Paper </Text>
+            <Image
+              source={require('../../assets/printed.png')}
+              style={styles.viewIcon}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
     </ImageBackground>
   );
@@ -168,6 +203,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginTop: 5,
+    marginLeft: 10,
   },
   courseText: {
     color: 'white',
@@ -182,8 +218,15 @@ const styles = StyleSheet.create({
     color: 'cyan',
   },
   paperInfo: {
-    marginTop: 30,
+    marginTop: 5,
     marginLeft: 5,
+    width: '94%',
+    marginLeft: '3%',
+    backgroundColor: 'black',
+    borderRadius: 10,
+    borderColor: 'white',
+    borderWidth: 1,
+    padding: 5,
   },
   headerText: {
     height: 70,
@@ -247,6 +290,43 @@ const styles = StyleSheet.create({
     height: 30,
     width: 30,
     alignSelf: 'center',
+  },
+  commentButton: {
+    justifyContent: 'center',
+    borderRadius: 5,
+    height: 30,
+    width: 25,
+    marginRight: 20,
+    // borderWidth: 2,
+    // borderColor: 'white',
+  },
+  commentIcon: {
+    height: 30,
+    width: 30,
+    alignSelf: 'center',
+  },
+  viewButton: {
+    width: 160,
+    height: 45,
+    alignSelf: 'center',
+    marginTop: 30,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'white',
+    backgroundColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  viewText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+    textAlign: 'center',
+  },
+  viewIcon: {
+    height: 30,
+    width: 30,
   },
 });
 

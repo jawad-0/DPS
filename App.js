@@ -10,6 +10,7 @@ import DrtScreen01 from './Screens/Director/DRT_SCREEN_01';
 import DrtScreen02 from './Screens/Director/DRT_SCREEN_02';
 import DrtScreen03 from './Screens/Director/DRT_SCREEN_03';
 import DrtScreen04 from './Screens/Director/DRT_SCREEN_04';
+import DrtScreen05 from './Screens/Director/DRT_SCREEN_05';
 
 import DtcLogin from './Screens/Datacell/DTC_LOGIN';
 import DtcScreen01 from './Screens/Datacell/DTC_SCREEN_01';
@@ -227,6 +228,11 @@ export default function App() {
         <Stack1.Screen
           name="DrtScreen04"
           component={DrtScreen04}
+          options={{headerShown: false}}
+        />
+        <Stack1.Screen
+          name="DrtScreen05"
+          component={DrtScreen05}
           options={{headerShown: false}}
         />
       </Stack1.Navigator>
