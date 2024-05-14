@@ -1,16 +1,11 @@
 // <--!!-->
-// export const ip = "192.168.18.38";
-// export const ip = "192.168.1.103";
-// export const ip = "192.168.169.153";
-// export const ip = "192.168.213.153";
+export const ip = "192.168.18.38";
 // export const ip = "192.168.34.153";
 // export const ip = "192.168.244.154";
 // export const ip = "192.168.244.153";
 // export const ip = "192.168.198.153";
-export const ip = "192.168.157.153";
 
 // <--!!-->
-export const port = "8000";
 export const approved_port = "8000";
 export const printed_port = "8000";
 export const course_port = "8000";

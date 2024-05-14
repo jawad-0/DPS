@@ -23,33 +23,21 @@ const FctScreen04 = ({route}) => {
   const [name, setName] = useState('');
   const [CLOS, setCLOS] = useState([]);
   const [assignedCourses, setAssignedCourses] = useState([]);
-  const [flatListHeight, setFlatListHeight] = useState(0);
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  //   const flatlistHeightCheck = (itemCount) => {
-  //     const itemHeight = 80;
-  //     const itemCount = CLOS.length;
-  //     console.log('Count : ' + itemCount);
-  //     const listHeight = itemHeight * itemCount;
-  //     if (listHeight <= 400) {
-  //       setFlatListHeight(listHeight);
-  //     } else {
-  //       setFlatListHeight(400);
-  //     }
-  //     console.log('Height : ' + flatListHeight);
-  //   };
-
   const checkCLO = item => {
-    console.log(
-      `Text : ${item.clo_text} | clo_id : ${item.clo_id} | c_id : ${item.c_id} | status : ${item.status}`,
-    );
-  };
-
+    console.log(`Text : ${item.clo_text} | clo_id : ${item.clo_id} | c_id : ${item.c_id} | status : ${item.status}`);
+}
   const addCLO = () => {
     console.log('CLO Added!');
+  };
+
+  const handleLogout = () => {
+    ToastAndroid.show('Logged Out!', ToastAndroid.SHORT);
+    navigation.navigate('FctLogin');
   };
 
   const handlePress = item => {
@@ -107,11 +95,8 @@ const FctScreen04 = ({route}) => {
             style={styles.flatlist}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item, index}) => (
-              <TouchableOpacity
-                style={styles.listItem}
-                onPress={() => checkCLO(item)}>
-                {/* <Text style={styles.indexText}>CLO {index+1}:</Text> */}
-                <Text style={styles.indexText}>{item.clo_number}:</Text>
+              <TouchableOpacity style={styles.listItem} onPress={() => checkCLO(item)}>
+                <Text style={styles.indexText}>CLO {index+1}:</Text>
                 <Text style={styles.cloText}>{item.clo_text}</Text>
               </TouchableOpacity>
             )}
@@ -132,9 +117,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 70,
     // alignItems: 'center',
-    // backgroundColor: 'white',
-    borderRadius: 10,
-    maxHeight: 500
   },
   header: {
     flexDirection: 'row',
@@ -199,14 +181,11 @@ const styles = StyleSheet.create({
   listItem: {
     flexDirection: 'row',
     borderBottomWidth: 2,
-    borderBottomColor: '#58FFAB',
+    borderBottomColor: 'black',
     backgroundColor: '#CDCDCD',
-    height: 'auto',
-    width: '96%',
-    marginLeft: '2%',
-    marginTop: 3,
-    borderRadius: 10,
-    // marginTop: 2,
+    height: 80,
+    borderRadius: 15,
+    marginTop: 2,
     color: 'white',
     // justifyContent: 'space-between',
     alignItems: 'center',
@@ -259,7 +238,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flatlist: {
-    marginTop: 5
+    marginTop: 5,
   },
   backgroundImage: {
     flex: 1,

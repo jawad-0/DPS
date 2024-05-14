@@ -10,19 +10,23 @@ import {
   ImageBackground,
   TouchableOpacity,
 } from 'react-native';
-import {ip, course_port} from '../CONFIG';
+import {ip, faculty_port} from '../CONFIG';
 import {useNavigation} from '@react-navigation/native';
 
-const DrtScreen03 = () => {
+const HodScreen02 = () => {
   const navigation = useNavigation();
-  const [approvedpapers, setApprovedPapers] = useState([]);
+  const [facultyMembers, setFacultyMembers] = useState([]);
 
   useEffect(() => {
     fetchData();
   }, []);
 
+  const handleView = item => {
+    navigation.navigate('HodScreen04', {facultyId: item.f_id, facultyName: item.f_name});
+  };
+
   const handleSearch = text => {
-    const apiEndpoint = `http://${ip}:${course_port}/searchapprovedpapers?search=${text}`;
+    const apiEndpoint = `http://${ip}:${faculty_port}/searchFaculty?search=${text}`;
 
     if (text.trim() === '') {
       fetchData();
@@ -30,7 +34,7 @@ const DrtScreen03 = () => {
       fetch(apiEndpoint)
         .then(response => response.json())
         .then(data => {
-          setApprovedPapers(data);
+          setFacultyMembers(data);
         })
         .catch(error => {
           console.error('Error searching data:', error);
@@ -39,13 +43,13 @@ const DrtScreen03 = () => {
   };
 
   const fetchData = () => {
-    const apiEndpoint = `http://${ip}:${course_port}/getapprovedpapers`;
+    const apiEndpoint = `http://${ip}:${faculty_port}/getfaculty`;
     // Keyboard.dismiss();
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
         // console.log('Data fetched successfully:', data);
-        setApprovedPapers(data);
+        setFacultyMembers(data);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
@@ -54,20 +58,20 @@ const DrtScreen03 = () => {
 
   return (
     <ImageBackground
-      source={require('../../assets/drt_background.png')}
+      source={require('../../assets/hod_background.png')}
       style={styles.backgroundImage}>
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.navigate('DrtScreen01')}>
+            onPress={() => navigation.navigate('HodScreen01')}>
             <Image
               source={require('../../assets/arrow.png')}
               style={styles.backIcon}
               resizeMode="contain"
             />
           </TouchableOpacity>
-          <Text style={styles.headerText}>Approved Papers</Text>
+          <Text style={styles.headerText}>Faculty Detail</Text>
         </View>
         {/* <ScrollView> */}
         <View style={styles.form}>
@@ -78,38 +82,25 @@ const DrtScreen03 = () => {
             onChangeText={text => handleSearch(text)}
           />
 
-          <View style={styles.tableheader}>
-            <View style={styles.columnContainer1}>
-              <Text style={styles.columnHeader}>Courses</Text>
-            </View>
-            <View style={styles.columnContainer2}>
-              <Text style={styles.columnHeader}>Code</Text>
-            </View>
-          </View>
-
           <FlatList
-            data={approvedpapers}
+            data={facultyMembers}
             style={styles.flatlist}
             showsVerticalScrollIndicator={false}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item}) => (
               <View style={styles.listItem}>
                 <View style={styles.column}>
-                  <Text style={styles.data_name}>{item.c_title}</Text>
-                </View>
-
-                <View style={styles.column}>
-                  <Text style={styles.data_code}>{item.c_code}</Text>
+                  <Text style={styles.data_name}>{item.f_name}</Text>
                 </View>
 
                 <View style={styles.column}>
                   <View style={styles.buttonsContainer}>
                     <TouchableOpacity
-                      style={styles.tickButton}
-                      onPress={() => console.log(item)}>
+                      style={styles.viewButton}
+                      onPress={() => handleView(item)}>
                       <Image
-                        source={require('../../assets/tick.png')}
-                        style={styles.tickIcon}
+                        source={require('../../assets/view_icon.png')}
+                        style={styles.viewIcon}
                         resizeMode="contain"
                       />
                     </TouchableOpacity>
@@ -161,21 +152,11 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: 'bold',
     color: 'black',
-    marginLeft: 20,
+    marginLeft: 30,
     // textAlign: 'center',
     // borderWidth: 2,
     // borderColor: 'black',
-    width: 220,
-  },
-  data_code: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: 'blue',
-    marginLeft: 120,
-    textAlign: 'center',
-    // borderWidth: 2,
-    // borderColor: 'black',
-    width: 80,
+    width: 260,
   },
   input: {
     height: 41,
@@ -204,25 +185,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: 40,
     borderRadius: 40,
-    marginTop: 16,
+    marginTop: 30,
     borderBottomWidth: 4,
     borderBottomColor: 'white',
-    backgroundColor: 'black'
-  },
-  columnContainer1: {
-    flex: 1,
-    alignSelf: 'center',
-  },
-  columnContainer2: {
-    flex: 1,
-    alignSelf: 'center',
+    backgroundColor: 'black',
   },
   columnHeader: {
     fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
-    // borderWidth: 2,
-    // borderColor: 'black',
     textAlign: 'center',
   },
   listItem: {
@@ -242,7 +213,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flatlist: {
-    marginTop: 3,
+    marginTop: 30,
   },
   backgroundImage: {
     flex: 1,
@@ -259,23 +230,23 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     flexDirection: 'row',
-    maxWidth: 30,
+    maxWidth: 80,
     // marginLeft: 10,
     // borderWidth: 2,
     // borderColor: 'black',
     justifyContent: 'center',
-    marginLeft: 85,
+    marginLeft: 100,
   },
-  tickButton: {
+  viewButton: {
     padding: 2,
     height: 25,
     width: 25,
     borderRadius: 13,
   },
-  tickIcon: {
-    height: 20,
-    width: 20,
+  viewIcon: {
+    height: 18,
+    width: 18,
   },
 });
 
-export default DrtScreen03;
+export default HodScreen02;

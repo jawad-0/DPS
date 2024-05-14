@@ -56,17 +56,6 @@ const DrtScreen05 = ({route}) => {
       style={styles.backgroundImage}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() =>
-              navigation.navigate('DrtScreen04', {paperId: paperId})
-            }>
-            <Image
-              source={require('../../assets/arrow.png')}
-              style={styles.backIcon}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
           <Text style={styles.headerText}>Comments</Text>
         </View>
         <View style={styles.courseInfo}>
@@ -114,12 +103,11 @@ const styles = StyleSheet.create({
     marginLeft: '3%',
     marginTop: 30,
     width: '94%',
-    backgroundColor: 'white',
+    backgroundColor: 'black',
     borderRadius: 10,
-    borderColor: 'black',
+    borderColor: 'white',
     borderWidth: 1,
     padding: 5,
-    alignItems: 'center'
   },
   label: {
     color: 'white',
@@ -142,13 +130,14 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   courseText: {
-    color: 'black',
+    color: 'white',
     fontSize: 20,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    marginLeft: 10,
   },
   headerText: {
     height: 70,
-    width: 320,
+    width: '100%',
     textAlignVertical: 'center',
     justifyContent: 'center',
     fontSize: 26,
@@ -197,12 +186,17 @@ const styles = StyleSheet.create({
   },
   backButton: {
     justifyContent: 'center',
-    borderRadius: 13,
-    marginLeft: 20,
+    borderRadius: 5,
+    height: 30,
+    width: 25,
+    alignSelf: 'center',
+    // borderWidth: 2,
+    // borderColor: 'white',
   },
   backIcon: {
-    height: 20,
-    width: 20,
+    height: 30,
+    width: 30,
+    alignSelf: 'center',
   },
   sendButton: {
     justifyContent: 'center',

@@ -17,9 +17,7 @@ DRT_SCREEN_02.js   // Uploaded Papers
 DRT_SCREEN_03.js   // Approved Papers
 DRT_SCREEN_04.js   // Paper Information (Details/Comment_Button/View_Button)
 DRT_SCREEN_05.js   // Comments on Paper (Sending)
-DRT_SCREEN_06.js   // Paper Accpet/Reject/Comment Questions ----------------------------- (working)
-DRT_SCREEN_07.js   // Additional Questions --------------------------------------------------------
-DRT_SCREEN_08.js   // View Course Topics ----------------------------------------------------------
+DRT_SCREEN_06.js   // Paper Settings --------------------------------------------------- (working)
 
 HOD_LOGIN.js       // Login Screen For HOD
 HOD_SCREEN_01.js   // HOD Dashboard with 5 Main Buttons

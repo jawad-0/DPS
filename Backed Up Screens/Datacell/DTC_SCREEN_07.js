@@ -10,19 +10,19 @@ import {
   ImageBackground,
   TouchableOpacity,
 } from 'react-native';
-import {ip, course_port} from '../CONFIG';
+import {ip, printed_port} from '../CONFIG';
 import {useNavigation} from '@react-navigation/native';
 
-const DrtScreen03 = () => {
+const DtcScreen07 = () => {
   const navigation = useNavigation();
-  const [approvedpapers, setApprovedPapers] = useState([]);
+  const [facultyMembers, setFacultyMembers] = useState([]);
 
   useEffect(() => {
     fetchData();
   }, []);
 
   const handleSearch = text => {
-    const apiEndpoint = `http://${ip}:${course_port}/searchapprovedpapers?search=${text}`;
+    const apiEndpoint = `http://${ip}:${printed_port}/searchprintedpapers?search=${text}`;
 
     if (text.trim() === '') {
       fetchData();
@@ -30,7 +30,7 @@ const DrtScreen03 = () => {
       fetch(apiEndpoint)
         .then(response => response.json())
         .then(data => {
-          setApprovedPapers(data);
+          setFacultyMembers(data);
         })
         .catch(error => {
           console.error('Error searching data:', error);
@@ -39,13 +39,13 @@ const DrtScreen03 = () => {
   };
 
   const fetchData = () => {
-    const apiEndpoint = `http://${ip}:${course_port}/getapprovedpapers`;
+    const apiEndpoint = `http://${ip}:${printed_port}/getprintedpapers`;
     // Keyboard.dismiss();
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
         // console.log('Data fetched successfully:', data);
-        setApprovedPapers(data);
+        setFacultyMembers(data);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
@@ -54,20 +54,20 @@ const DrtScreen03 = () => {
 
   return (
     <ImageBackground
-      source={require('../../assets/drt_background.png')}
+      source={require('../../assets/dtc_background.png')}
       style={styles.backgroundImage}>
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.navigate('DrtScreen01')}>
+            onPress={() => navigation.navigate('DtcScreen01')}>
             <Image
               source={require('../../assets/arrow.png')}
               style={styles.backIcon}
               resizeMode="contain"
             />
           </TouchableOpacity>
-          <Text style={styles.headerText}>Approved Papers</Text>
+          <Text style={styles.headerText}>Printed Papers</Text>
         </View>
         {/* <ScrollView> */}
         <View style={styles.form}>
@@ -79,18 +79,22 @@ const DrtScreen03 = () => {
           />
 
           <View style={styles.tableheader}>
-            <View style={styles.columnContainer1}>
+            <View style={styles.columnContainer}>
               <Text style={styles.columnHeader}>Courses</Text>
             </View>
-            <View style={styles.columnContainer2}>
-              <Text style={styles.columnHeader}>Code</Text>
+            <View style={styles.columnContainer}>
+              {/* <Text style={styles.columnHeader}>Action</Text> */}
+              <Image
+                source={require('../../assets/printed.png')}
+                style={styles.printIcon}
+                resizeMode="contain"
+              />
             </View>
           </View>
 
           <FlatList
-            data={approvedpapers}
+            data={facultyMembers}
             style={styles.flatlist}
-            showsVerticalScrollIndicator={false}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item}) => (
               <View style={styles.listItem}>
@@ -99,21 +103,7 @@ const DrtScreen03 = () => {
                 </View>
 
                 <View style={styles.column}>
-                  <Text style={styles.data_code}>{item.c_code}</Text>
-                </View>
-
-                <View style={styles.column}>
-                  <View style={styles.buttonsContainer}>
-                    <TouchableOpacity
-                      style={styles.tickButton}
-                      onPress={() => console.log(item)}>
-                      <Image
-                        source={require('../../assets/tick.png')}
-                        style={styles.tickIcon}
-                        resizeMode="contain"
-                      />
-                    </TouchableOpacity>
-                  </View>
+                  <Text style={styles.label}>Printed</Text>
                 </View>
               </View>
             )}
@@ -150,32 +140,24 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 15,
-    marginLeft: 65,
+    marginLeft: 90,
     textAlign: 'center',
-    color: 'black',
+    color: 'green',
     width: 60,
     fontWeight: 'bold',
+    // borderWidth: 1,
+    // borderColor: 'black',
     // textDecorationLine: 'underline',
   },
   data_name: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: 'bold',
     color: 'black',
-    marginLeft: 20,
-    // textAlign: 'center',
-    // borderWidth: 2,
-    // borderColor: 'black',
-    width: 220,
-  },
-  data_code: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: 'blue',
-    marginLeft: 120,
+    marginLeft: 10,
     textAlign: 'center',
-    // borderWidth: 2,
+    width: 240,
+    // borderWidth: 1,
     // borderColor: 'black',
-    width: 80,
   },
   input: {
     height: 41,
@@ -192,47 +174,43 @@ const styles = StyleSheet.create({
     height: 40,
     width: 300,
     alignSelf: 'center',
-    borderColor: 'gray',
-    borderWidth: 2,
+    borderColor: 'white',
+    borderWidth: 1,
     borderRadius: 13,
     marginTop: 16,
     paddingHorizontal: 8,
-    color: 'black',
-    backgroundColor: '#CDCDCD',
+    color: 'white',
+    backgroundColor: 'black',
   },
   tableheader: {
     flexDirection: 'row',
     height: 40,
     borderRadius: 40,
-    marginTop: 16,
+    marginTop: 30,
     borderBottomWidth: 4,
     borderBottomColor: 'white',
-    backgroundColor: 'black'
+    backgroundColor: 'black',
   },
-  columnContainer1: {
+  columnContainer: {
     flex: 1,
-    alignSelf: 'center',
-  },
-  columnContainer2: {
-    flex: 1,
-    alignSelf: 'center',
+    // borderWidth: 1,
+    // borderColor: 'yellow',
   },
   columnHeader: {
     fontSize: 20,
+    width: 250,
     fontWeight: 'bold',
     color: 'white',
-    // borderWidth: 2,
-    // borderColor: 'black',
     textAlign: 'center',
+    // borderWidth: 1,
+    // borderColor: 'white',
   },
   listItem: {
     flexDirection: 'row',
     borderBottomWidth: 2,
     borderBottomColor: 'black',
     height: 45,
-    width: '98%',
-    marginLeft: '1%',
-    borderRadius: 10,
+    borderRadius: 15,
     color: 'black',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -242,7 +220,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flatlist: {
-    marginTop: 3,
+    marginTop: 5,
   },
   backgroundImage: {
     flex: 1,
@@ -257,25 +235,14 @@ const styles = StyleSheet.create({
     height: 20,
     width: 20,
   },
-  buttonsContainer: {
-    flexDirection: 'row',
-    maxWidth: 30,
-    // marginLeft: 10,
-    // borderWidth: 2,
-    // borderColor: 'black',
-    justifyContent: 'center',
-    marginLeft: 85,
-  },
-  tickButton: {
-    padding: 2,
+  printIcon: {
     height: 25,
     width: 25,
-    borderRadius: 13,
-  },
-  tickIcon: {
-    height: 20,
-    width: 20,
+    marginLeft: 50,
+    alignSelf: 'center',
+    // borderWidth: 1,
+    // borderColor: 'white',
   },
 });
 
-export default DrtScreen03;
+export default DtcScreen07;

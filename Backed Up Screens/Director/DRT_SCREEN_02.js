@@ -13,16 +13,23 @@ import {
 import {ip, course_port} from '../CONFIG';
 import {useNavigation} from '@react-navigation/native';
 
-const DrtScreen03 = () => {
+const DrtScreen02 = () => {
   const navigation = useNavigation();
+  const [facultyMembers, setFacultyMembers] = useState([]);
   const [approvedpapers, setApprovedPapers] = useState([]);
 
   useEffect(() => {
     fetchData();
   }, []);
 
+  const handleView = item => {
+    navigation.navigate('DrtScreen04', {
+      paperId: item.p_id
+    });
+  };
+
   const handleSearch = text => {
-    const apiEndpoint = `http://${ip}:${course_port}/searchapprovedpapers?search=${text}`;
+    const apiEndpoint = `http://${ip}:${course_port}/searchpendingpapers?search=${text}`;
 
     if (text.trim() === '') {
       fetchData();
@@ -39,7 +46,7 @@ const DrtScreen03 = () => {
   };
 
   const fetchData = () => {
-    const apiEndpoint = `http://${ip}:${course_port}/getapprovedpapers`;
+    const apiEndpoint = `http://${ip}:${course_port}/getpendingpapers`;
     // Keyboard.dismiss();
     fetch(apiEndpoint)
       .then(response => response.json())
@@ -60,14 +67,14 @@ const DrtScreen03 = () => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.navigate('DrtScreen01')}>
+            onPress={() => navigation.navigate('HodScreen01')}>
             <Image
               source={require('../../assets/arrow.png')}
               style={styles.backIcon}
               resizeMode="contain"
             />
           </TouchableOpacity>
-          <Text style={styles.headerText}>Approved Papers</Text>
+          <Text style={styles.headerText}>Uploaded Papers</Text>
         </View>
         {/* <ScrollView> */}
         <View style={styles.form}>
@@ -105,11 +112,11 @@ const DrtScreen03 = () => {
                 <View style={styles.column}>
                   <View style={styles.buttonsContainer}>
                     <TouchableOpacity
-                      style={styles.tickButton}
-                      onPress={() => console.log(item)}>
+                      style={styles.viewButton}
+                      onPress={() => handleView(item)}>
                       <Image
-                        source={require('../../assets/tick.png')}
-                        style={styles.tickIcon}
+                        source={require('../../assets/view_icon.png')}
+                        style={styles.viewIcon}
                         resizeMode="contain"
                       />
                     </TouchableOpacity>
@@ -266,16 +273,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginLeft: 85,
   },
-  tickButton: {
+  viewButton: {
     padding: 2,
     height: 25,
     width: 25,
     borderRadius: 13,
   },
-  tickIcon: {
-    height: 20,
-    width: 20,
+  viewIcon: {
+    height: 18,
+    width: 18,
   },
 });
 
-export default DrtScreen03;
+export default DrtScreen02;

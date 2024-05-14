@@ -67,7 +67,7 @@ const DrtScreen02 = () => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.navigate('HodScreen01')}>
+            onPress={() => navigation.navigate('DrtScreen01')}>
             <Image
               source={require('../../assets/arrow.png')}
               style={styles.backIcon}

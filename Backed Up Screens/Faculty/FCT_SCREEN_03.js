@@ -13,60 +13,31 @@ import {
   ImageBackground,
   TouchableOpacity,
 } from 'react-native';
-import {ip, clo_port} from '../CONFIG';
+import {ip, assigned_port} from '../CONFIG';
 import {useNavigation} from '@react-navigation/native';
 
-const FctScreen04 = ({route}) => {
+const FctScreen03 = ({route}) => {
   const {courseId, courseName, courseCode, facultyId, facultyRole} =
     route.params;
   const navigation = useNavigation();
   const [name, setName] = useState('');
-  const [CLOS, setCLOS] = useState([]);
   const [assignedCourses, setAssignedCourses] = useState([]);
-  const [flatListHeight, setFlatListHeight] = useState(0);
 
   useEffect(() => {
-    fetchData();
+    // fetchAssignedCourses();
   }, []);
-
-  //   const flatlistHeightCheck = (itemCount) => {
-  //     const itemHeight = 80;
-  //     const itemCount = CLOS.length;
-  //     console.log('Count : ' + itemCount);
-  //     const listHeight = itemHeight * itemCount;
-  //     if (listHeight <= 400) {
-  //       setFlatListHeight(listHeight);
-  //     } else {
-  //       setFlatListHeight(400);
-  //     }
-  //     console.log('Height : ' + flatListHeight);
-  //   };
-
-  const checkCLO = item => {
-    console.log(
-      `Text : ${item.clo_text} | clo_id : ${item.clo_id} | c_id : ${item.c_id} | status : ${item.status}`,
-    );
-  };
 
   const addCLO = () => {
     console.log('CLO Added!');
   };
 
-  const handlePress = item => {
-    console.log('Item:', item);
+  const handleLogout = () => {
+    ToastAndroid.show('Logged Out!', ToastAndroid.SHORT);
+    navigation.navigate('FctLogin');
   };
 
-  const fetchData = () => {
-    const apiEndpoint = `http://${ip}:${clo_port}/getCLO/${courseId}`;
-    fetch(apiEndpoint)
-      .then(response => response.json())
-      .then(data => {
-        // console.log(data);
-        setCLOS(data);
-      })
-      .catch(error => {
-        // console.error('Error fetching data:', error);
-      });
+  const handlePress = item => {
+    console.log('Item:', item);
   };
 
   return (
@@ -92,7 +63,7 @@ const FctScreen04 = ({route}) => {
               resizeMode="contain"
             />
           </TouchableOpacity>
-          <Text style={styles.headerText}>CLOS</Text>
+          <Text style={styles.headerText}>Manage CLOS</Text>
         </View>
         <View style={styles.buttonsContainer}></View>
         <View>
@@ -102,20 +73,16 @@ const FctScreen04 = ({route}) => {
           </Text>
         </View>
         <View style={styles.form}>
-          <FlatList
-            data={CLOS}
-            style={styles.flatlist}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({item, index}) => (
-              <TouchableOpacity
-                style={styles.listItem}
-                onPress={() => checkCLO(item)}>
-                {/* <Text style={styles.indexText}>CLO {index+1}:</Text> */}
-                <Text style={styles.indexText}>{item.clo_number}:</Text>
-                <Text style={styles.cloText}>{item.clo_text}</Text>
-              </TouchableOpacity>
-            )}
+          <Text style={styles.label}>Description</Text>
+          <TextInput
+            style={styles.input}
+            multiline={true}
+            placeholder="Enter Description Here"
+            placeholderTextColor={'gray'}
           />
+          <TouchableOpacity style={styles.button} onPress={addCLO}>
+            <Text style={styles.addText}>ADD</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </ImageBackground>
@@ -132,9 +99,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 70,
     // alignItems: 'center',
-    // backgroundColor: 'white',
-    borderRadius: 10,
-    maxHeight: 500
   },
   header: {
     flexDirection: 'row',
@@ -196,34 +160,6 @@ const styles = StyleSheet.create({
     color: 'white',
     marginLeft: 20,
   },
-  listItem: {
-    flexDirection: 'row',
-    borderBottomWidth: 2,
-    borderBottomColor: '#58FFAB',
-    backgroundColor: '#CDCDCD',
-    height: 'auto',
-    width: '96%',
-    marginLeft: '2%',
-    marginTop: 3,
-    borderRadius: 10,
-    // marginTop: 2,
-    color: 'white',
-    // justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  cloText: {
-    fontSize: 20,
-    color: 'black',
-    marginLeft: 20,
-    width: 250,
-    flexWrap: 'wrap',
-  },
-  indexText: {
-    fontSize: 20,
-    color: 'blue',
-    marginLeft: 20,
-    fontWeight: 'bold',
-  },
   button: {
     backgroundColor: '#58FFAB',
     height: 40,
@@ -259,7 +195,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flatlist: {
-    marginTop: 5
+    marginTop: 5,
   },
   backgroundImage: {
     flex: 1,
@@ -291,4 +227,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FctScreen04;
+export default FctScreen03;

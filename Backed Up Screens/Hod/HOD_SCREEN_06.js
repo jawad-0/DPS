@@ -16,40 +16,65 @@ import {
 import {ip, clo_port} from '../CONFIG';
 import {useNavigation} from '@react-navigation/native';
 
-const FctScreen04 = ({route}) => {
-  const {courseId, courseName, courseCode, facultyId, facultyRole} =
-    route.params;
+const HodScreen06 = ({route}) => {
+  const {courseId, courseTitle, courseCode} = route.params;
   const navigation = useNavigation();
-  const [name, setName] = useState('');
   const [CLOS, setCLOS] = useState([]);
   const [assignedCourses, setAssignedCourses] = useState([]);
-  const [flatListHeight, setFlatListHeight] = useState(0);
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  //   const flatlistHeightCheck = (itemCount) => {
-  //     const itemHeight = 80;
-  //     const itemCount = CLOS.length;
-  //     console.log('Count : ' + itemCount);
-  //     const listHeight = itemHeight * itemCount;
-  //     if (listHeight <= 400) {
-  //       setFlatListHeight(listHeight);
-  //     } else {
-  //       setFlatListHeight(400);
-  //     }
-  //     console.log('Height : ' + flatListHeight);
-  //   };
+  const approveCLO = () => {
+    console.log('Approve CLO');
+  };
+
+  const disapproveCLO = () => {
+    console.log('Approve CLO');
+  };
+
+  const handleStatus = (clo_id, status) => {
+    const apiEndpoint = `http://${ip}:${clo_port}/approvedisapproveCLO/${clo_id}`;
+
+    fetch(apiEndpoint, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        status: status,
+      }),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to edit CLO status');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log(data);
+        ToastAndroid.show('CLO status updated', ToastAndroid.SHORT);
+        fetchData();
+      })
+      .catch(error => {
+        console.error(error);
+        ToastAndroid.show('Error: Failed to edit status.', ToastAndroid.SHORT);
+      });
+  };
 
   const checkCLO = item => {
     console.log(
       `Text : ${item.clo_text} | clo_id : ${item.clo_id} | c_id : ${item.c_id} | status : ${item.status}`,
     );
   };
-
   const addCLO = () => {
     console.log('CLO Added!');
+  };
+
+  const handleLogout = () => {
+    ToastAndroid.show('Logged Out!', ToastAndroid.SHORT);
+    navigation.navigate('FctLogin');
   };
 
   const handlePress = item => {
@@ -71,19 +96,15 @@ const FctScreen04 = ({route}) => {
 
   return (
     <ImageBackground
-      source={require('../../assets/fct_background.png')}
+      source={require('../../assets/hod_background.png')}
       style={styles.backgroundImage}>
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
             onPress={() =>
-              navigation.navigate('FctScreen02', {
-                courseId: courseId,
-                courseName: courseName,
-                courseCode: courseCode,
-                facultyId: facultyId,
-                facultyRole: facultyRole,
+              navigation.navigate('HodScreen05', {
+                itemId: courseId,
               })
             }>
             <Image
@@ -96,7 +117,7 @@ const FctScreen04 = ({route}) => {
         </View>
         <View style={styles.buttonsContainer}></View>
         <View>
-          <Text style={styles.nameText}>{courseName}</Text>
+          <Text style={styles.nameText}>{courseTitle}</Text>
           <Text style={styles.codeText}>
             Course Code: <Text style={{color: 'yellow'}}>{courseCode}</Text>
           </Text>
@@ -105,15 +126,33 @@ const FctScreen04 = ({route}) => {
           <FlatList
             data={CLOS}
             style={styles.flatlist}
+            showsVerticalScrollIndicator={false}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item, index}) => (
-              <TouchableOpacity
-                style={styles.listItem}
-                onPress={() => checkCLO(item)}>
-                {/* <Text style={styles.indexText}>CLO {index+1}:</Text> */}
-                <Text style={styles.indexText}>{item.clo_number}:</Text>
-                <Text style={styles.cloText}>{item.clo_text}</Text>
-              </TouchableOpacity>
+              <View style={styles.listItemContainer}>
+                <TouchableOpacity
+                  style={styles.listItem}
+                  onPress={() => checkCLO(item)}>
+                  <Text style={styles.indexText}>CLO {index + 1}:</Text>
+                  <Text style={styles.cloText}>{item.clo_text}</Text>
+                </TouchableOpacity>
+                {(item.status === 'disapproved' && (
+                  <TouchableOpacity
+                    style={styles.approveButton}
+                    onPress={() => handleStatus(item.clo_id, item.status)}>
+                    <Text style={styles.approveButtonText}>Approve</Text>
+                  </TouchableOpacity>
+                )) ||
+                  (item.status === 'approved' && (
+                    <TouchableOpacity
+                      style={styles.disapproveButton}
+                      onPress={() => handleStatus(item.clo_id, item.status)}>
+                      <Text style={styles.disapproveButtonText}>
+                        Disapprove
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+              </View>
             )}
           />
         </View>
@@ -130,11 +169,7 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
-    marginTop: 70,
-    // alignItems: 'center',
-    // backgroundColor: 'white',
-    borderRadius: 10,
-    maxHeight: 500
+    marginTop: 20,
   },
   header: {
     flexDirection: 'row',
@@ -197,19 +232,54 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   listItem: {
+    flex: 1,
     flexDirection: 'row',
     borderBottomWidth: 2,
-    borderBottomColor: '#58FFAB',
+    borderBottomColor: 'black',
     backgroundColor: '#CDCDCD',
-    height: 'auto',
-    width: '96%',
-    marginLeft: '2%',
-    marginTop: 3,
-    borderRadius: 10,
-    // marginTop: 2,
+    height: 80,
+    borderRadius: 15,
+    marginTop: 2,
     color: 'white',
     // justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  listItemContainer: {
+    // flexDirection: 'row',
+    // justifyContent: 'space-between',
+    // alignItems: 'center',
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    // borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  approveButton: {
+    backgroundColor: 'green',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
+    width: 100,
+    marginTop: 5,
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+  },
+  approveButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  disapproveButton: {
+    backgroundColor: 'red',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
+    width: 100,
+    marginTop: 5,
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+  },
+  disapproveButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   cloText: {
     fontSize: 20,
@@ -259,7 +329,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flatlist: {
-    marginTop: 5
+    marginTop: 5,
   },
   backgroundImage: {
     flex: 1,
@@ -291,4 +361,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FctScreen04;
+export default HodScreen06;
