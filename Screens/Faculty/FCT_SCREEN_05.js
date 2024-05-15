@@ -16,19 +16,31 @@ import {
 } from 'react-native';
 import {ip, port} from '../CONFIG';
 import {useNavigation} from '@react-navigation/native';
-
-const FctScreen03 = ({route}) => {
+import CheckBox from '@react-native-community/checkbox';
+const FctScreen05 = ({route}) => {
   const {courseId, courseName, courseCode, facultyId, facultyRole} =
     route.params;
   const navigation = useNavigation();
   const [CLOS, setCLOS] = useState([]);
+  const [topics, setTopics] = useState([]);
   const [clo_id, setCLOid] = useState();
   const [clonumber, setCLOnumber] = useState('');
   const [clotext, setCLOtext] = useState('');
   const [mode, setMode] = useState('add');
+  // const [toggleCheckBox, setToggleCheckBox] = useState(false);
+  const [selectedCLOIds, setSelectedCLOIds] = useState([]);
+
+  const toggleCheckBox = clo_id => {
+    if (selectedCLOIds.includes(clo_id)) {
+      setSelectedCLOIds(selectedCLOIds.filter(id => id !== clo_id));
+    } else {
+      setSelectedCLOIds([...selectedCLOIds, clo_id]);
+    }
+  };
 
   useEffect(() => {
     fetchData();
+    fetchData2();
   }, []);
 
   const handleAddOrUpdateCLO = () => {
@@ -39,16 +51,32 @@ const FctScreen03 = ({route}) => {
     }
   };
 
-  const handleClear = () => {
-    setMode('add');
-    setCLOnumber('');
-    setCLOtext('');
-    Keyboard.dismiss();
-  };
-
   const isValidCLOFormat = clonumber => {
     const regex = /^CLO-\d+$/;
     return regex.test(clonumber);
+  };
+
+  const handleSearch = text => {
+    console.log('yes');
+    // const apiEndpoint = `http://${ip}:${faculty_port}/searchfaculty?search=${text}`;
+
+    // if (text.trim() === '') {
+    //   fetchData();
+    // } else {
+    //   fetch(apiEndpoint)
+    //     .then(response => response.json())
+    //     .then(data => {
+    //       setFacultyMembers(data);
+    //     })
+    //     .catch(error => {
+    //       console.error('Error searching data:', error);
+    //     });
+    // }
+  };
+
+  const addTopic = () => {
+    console.log('Selected CLO IDs:', selectedCLOIds);
+    setSelectedCLOIds([]);
   };
 
   const addCLO = () => {
@@ -156,6 +184,19 @@ const FctScreen03 = ({route}) => {
   };
 
   const fetchData = () => {
+    const apiEndpoint = `http://${ip}:${port}/gettopic/${courseId}`;
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        // console.log(data);
+        setTopics(data);
+      })
+      .catch(error => {
+        // console.error('Error fetching data:', error);
+      });
+  };
+
+  const fetchData2 = () => {
     const apiEndpoint = `http://${ip}:${port}/getCLO/${courseId}`;
     fetch(apiEndpoint)
       .then(response => response.json())
@@ -191,7 +232,7 @@ const FctScreen03 = ({route}) => {
               resizeMode="contain"
             />
           </TouchableOpacity>
-          <Text style={styles.headerText}>Manage CLOS</Text>
+          <Text style={styles.headerText}>Manage Topics</Text>
         </View>
         <View>
           <Text style={styles.nameText}>{courseName}</Text>
@@ -200,51 +241,58 @@ const FctScreen03 = ({route}) => {
           </Text>
         </View>
         <View style={styles.form}>
-          <Text style={styles.label}>CLO Number #</Text>
+          <Text style={styles.label}>Topic Name</Text>
           <TextInput
             style={styles.input1}
             value={clonumber}
-            placeholder="Enter CLO Number Format (CLO-1)"
+            placeholder="Enter Topic Name"
             placeholderTextColor={'gray'}
             onChangeText={text => setCLOnumber(text)}
           />
-          <Text style={styles.label}>Description</Text>
-          <TextInput
-            style={styles.input2}
-            value={clotext}
-            multiline={true}
-            placeholder="Enter Description Here"
-            placeholderTextColor={'gray'}
-            onChangeText={text => setCLOtext(text)}
-          />
-          <View style={styles.mainButtonsContainer}>
-            {mode === 'edit' && (
-              <TouchableOpacity
-                style={styles.clearbutton}
-                onPress={handleClear}>
-                <Text style={styles.clearText}>
-                  CLEAR
-                </Text>
-              </TouchableOpacity>
-            )}
-            <TouchableOpacity
-              style={styles.button}
-              onPress={handleAddOrUpdateCLO}>
-              <Text style={styles.addText}>
-                {mode === 'add' ? 'ADD' : 'UPDATE'}
-              </Text>
-            </TouchableOpacity>
+          <Text style={styles.label}>CLOS</Text>
+          <View style={styles.CLOScontainer}>
+            {CLOS.map((CLO, index) => (
+              <View key={index} style={styles.checkboxContainer}>
+                <TouchableOpacity onPress={() => console.log(CLO.clo_text)}>
+                <Text style={styles.clonumbertext}>{CLO.clo_number}</Text>
+                </TouchableOpacity>
+                {/* <CheckBox
+                  disabled={false}
+                  value={toggleCheckBox}
+                  onValueChange={newValue => setToggleCheckBox(newValue)}
+                /> */}
+                <CheckBox
+                  disabled={false}
+                  value={selectedCLOIds.includes(CLO.clo_id)}
+                  onValueChange={() => toggleCheckBox(CLO.clo_id)}
+                />
+              </View>
+            ))}
           </View>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={addTopic}>
+            <Text style={styles.addText}>
+              {mode === 'add' ? 'ADD' : 'UPDATE'}
+            </Text>
+          </TouchableOpacity>
+
+          <TextInput
+            style={styles.searchinput}
+            placeholder="Search"
+            placeholderTextColor={'white'}
+            onChangeText={text => handleSearch(text)}
+          />
+
           <FlatList
-            data={CLOS}
+            data={topics}
             showsVerticalScrollIndicator={false}
             style={styles.flatlist}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item, index}) => (
-              <TouchableOpacity style={styles.listItem}>
-                {/* <Text style={styles.indexText}>CLO {index + 1}:</Text> */}
-                <Text style={styles.indexText}>{item.clo_number}:</Text>
-                <Text style={styles.cloText}>{item.clo_text}</Text>
+              <View style={styles.listItem}>
+                <Text style={styles.topicText}>{item.t_name}</Text>
                 <View style={styles.column}>
                   <View style={styles.buttonsContainer}>
                     <TouchableOpacity
@@ -256,9 +304,19 @@ const FctScreen03 = ({route}) => {
                         resizeMode="contain"
                       />
                     </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.disableButton}
+                      onPress={() => handleStatus(item.f_id, item.status)}>
+                      <Text style={styles.disablebuttonText}>D</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.addButton}
+                      onPress={() => handleStatus(item.f_id, item.status)}>
+                      <Text style={styles.addbuttonText}>A</Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
-              </TouchableOpacity>
+              </View>
             )}
           />
         </View>
@@ -281,6 +339,24 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
   },
+  CLOScontainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    width: '96%',
+    marginLeft: '2%',
+    // borderWidth: 3,
+    // borderColor: 'yellow',
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    marginLeft: 20,
+    marginRight: 20,
+    // borderWidth: 3,
+    // borderColor: 'green',
+    width: '20%',
+  },
   input1: {
     height: 40,
     width: 360,
@@ -293,12 +369,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 8,
     color: 'black',
-    fontSize: 18,
     backgroundColor: '#CDCDCD',
   },
   input2: {
     height: 100,
-    width: 360,
+    width: 340,
     alignSelf: 'center',
     borderColor: 'gray',
     borderWidth: 3,
@@ -308,7 +383,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 8,
     color: 'black',
-    fontSize: 18,
     backgroundColor: '#CDCDCD',
   },
   headerText: {
@@ -358,7 +432,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#58FFAB',
     height: 40,
     width: 90,
-    // marginRight: 25,
+    marginRight: 25,
     borderWidth: 2,
     borderRadius: 15,
     alignItems: 'flex-end',
@@ -372,17 +446,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: 'poppins',
     textAlign: 'center',
-  },
-  clearbutton: {
-    backgroundColor: 'red',
-    height: 40,
-    width: 90,
-    borderWidth: 2,
-    borderRadius: 15,
-    alignItems: 'flex-end',
-    alignSelf: 'flex-end',
-    justifyContent: 'center',
-    marginBottom: 15,
   },
   deletebuttonText: {
     color: 'white',
@@ -401,7 +464,7 @@ const styles = StyleSheet.create({
   },
   flatlist: {
     marginTop: 5,
-    maxHeight: 300,
+    maxHeight: 240,
     // borderWidth: 3,
     // borderColor: 'yellow'
   },
@@ -409,10 +472,15 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: 'cover',
   },
-  mainButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
+  //   buttonsContainer: {
+  //     flexDirection: 'row',
+  //     maxWidth: '100%',
+  //     // marginLeft: 10,
+  //     marginTop: 30,
+  //     // borderWidth: 2,
+  //     // borderColor: 'yellow',
+  //     justifyContent: 'flex-end',
+  //   },
   backButton: {
     justifyContent: 'center',
     borderRadius: 13,
@@ -428,31 +496,27 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     alignSelf: 'center',
   },
-  clearText: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
-    alignSelf: 'center',
-  },
   listItem: {
     flexDirection: 'row',
-    borderBottomWidth: 2,
-    borderBottomColor: 'green',
-    width: '90%',
+    // borderBottomWidth: 2,
+    // borderBottomColor: 'green',
+    // borderTopWidth: 2,
+    // borderTopColor: 'black',
+    width: '98%',
     backgroundColor: '#CDCDCD',
     height: 'auto',
-    borderRadius: 10,
+    borderRadius: 5,
     marginTop: 4,
-    marginLeft: 2,
+    marginLeft: '1%',
     color: 'white',
     // justifyContent: 'space-between',
     alignItems: 'center',
   },
-  cloText: {
-    fontSize: 20,
+  topicText: {
+    fontSize: 18,
     color: 'black',
     marginLeft: 20,
-    width: 250,
+    width: 286,
     flexWrap: 'wrap',
   },
   indexText: {
@@ -464,7 +528,8 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     flexDirection: 'row',
-    marginLeft: 15,
+    // backgroundColor: 'white',
+    borderRadius: 10,
     // borderWidth: 2,
     // borderColor: 'black',
     justifyContent: 'center',
@@ -473,6 +538,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
     padding: 2,
     height: 25,
     width: 25,
@@ -482,6 +548,50 @@ const styles = StyleSheet.create({
     height: 16,
     width: 16,
   },
+  addButton: {
+    backgroundColor: 'green',
+    borderWidth: 1,
+    padding: 2,
+    height: 25,
+    width: 25,
+    borderRadius: 10,
+    justifyContent: 'center',
+  },
+  addbuttonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  disableButton: {
+    backgroundColor: 'red',
+    borderWidth: 1,
+    padding: 2,
+    height: 25,
+    width: 25,
+    borderRadius: 10,
+    justifyContent: 'center',
+  },
+  disablebuttonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  searchinput: {
+    height: 40,
+    width: 300,
+    alignSelf: 'center',
+    borderColor: 'white',
+    borderWidth: 1,
+    borderRadius: 13,
+    marginBottom: 10,
+    paddingHorizontal: 8,
+    color: 'white',
+  },
+  clonumbertext: {
+    fontSize: 20,
+  },
 });
 
-export default FctScreen03;
+export default FctScreen05;

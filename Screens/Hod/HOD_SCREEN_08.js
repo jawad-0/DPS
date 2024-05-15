@@ -166,8 +166,8 @@ const HodScreen08 = () => {
             }}
             data={facultyMembers}
             save="f_name"
-            placeholder="Select Course"
-            searchPlaceholder="Search Course"
+            placeholder="Select Teacher"
+            searchPlaceholder="Search Teacher"
             boxStyles={{backgroundColor: 'gray'}}
             inputStyles={{color: 'white'}}
             dropdownStyles={{backgroundColor: 'black', borderColor: 'white'}}

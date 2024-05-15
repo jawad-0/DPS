@@ -16,7 +16,7 @@ import {
 import {ip, clo_port} from '../CONFIG';
 import {useNavigation} from '@react-navigation/native';
 
-const FctScreen04 = ({route}) => {
+const FctScreen07 = ({route}) => {
   const {courseId, courseName, courseCode, facultyId, facultyRole} =
     route.params;
   const navigation = useNavigation();
@@ -57,7 +57,7 @@ const FctScreen04 = ({route}) => {
   };
 
   const fetchData = () => {
-    const apiEndpoint = `http://${ip}:${clo_port}/getCLO/${courseId}`;
+    const apiEndpoint = `http://${ip}:${clo_port}/getTopic/${courseId}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
@@ -111,8 +111,7 @@ const FctScreen04 = ({route}) => {
                 style={styles.listItem}
                 onPress={() => checkCLO(item)}>
                 {/* <Text style={styles.indexText}>CLO {index+1}:</Text> */}
-                <Text style={styles.indexText}>{item.clo_number}:</Text>
-                <Text style={styles.cloText}>{item.clo_text}</Text>
+                <Text style={styles.topicText}>{item.t_name}</Text>
               </TouchableOpacity>
             )}
           />
@@ -206,12 +205,11 @@ const styles = StyleSheet.create({
     marginLeft: '2%',
     marginTop: 3,
     borderRadius: 10,
-    // marginTop: 2,
     color: 'white',
     // justifyContent: 'space-between',
     alignItems: 'center',
   },
-  cloText: {
+  topicText: {
     fontSize: 20,
     fontWeight: 'bold',
     color: 'black',
@@ -291,4 +289,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FctScreen04;
+export default FctScreen07;

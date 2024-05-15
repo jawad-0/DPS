@@ -91,7 +91,15 @@ const FctScreen02 = ({route}) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => console.log('View Topics')}>
+            onPress={() =>
+              navigation.navigate('FctScreen07', {
+                courseId: courseId,
+                courseName: courseName,
+                courseCode: courseCode,
+                facultyId: facultyId,
+                facultyRole: facultyRole,
+              })
+            }>
             <Text style={styles.buttonText}>VIEW TOPICS</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -116,7 +124,15 @@ const FctScreen02 = ({route}) => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.button}
-                onPress={() => console.log('Manage Topics')}>
+                onPress={() =>
+                  navigation.navigate('FctScreen05', {
+                    courseId: courseId,
+                    courseName: courseName,
+                    courseCode: courseCode,
+                    facultyId: facultyId,
+                    facultyRole: facultyRole,
+                  })
+                }>
                 <Text style={styles.buttonText}>MANAGE TOPICS</Text>
               </TouchableOpacity>
               <TouchableOpacity

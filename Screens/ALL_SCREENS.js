@@ -36,11 +36,12 @@ HOD_SCREEN_10.js   // Manage CLOS Grid -----------------------------------------
 FCT_LOGIN.js       // Login Screen For FCT
 FCT_SCREEN_01.js   // Faculty Dashboard with Assigned_Courses/Notifications/Status
 FCT_SCREEN_02.js   // Paper Setting Buttons (Junior/Senior)
-FCT_SCREEN_03.js   // Manage CLO (Add/Edit) -------------------------------------------------------
+FCT_SCREEN_03.js   // Manage CLO (Add/Edit)
 FCT_SCREEN_04.js   // View CLO
 FCT_SCREEN_05.js   // Manage Topics (Add/Manage Mapping/Search/Edit_Status/Add_SubTopic_Button) ---
 FCT_SCREEN_06.js   // Manage Topics (Edit/Manage Mapping) -----------------------------------------
 FCT_SCREEN_07.js   // Manage Sub-Topics (Add/Edit_Status) -----------------------------------------
+FCT_SCREEN_07.js   // View Topics (``expected screen``)
 FCT_SCREEN_08.js   // Manage Sub-Topics (Edit) ----------------------------------------------------
 FCT_SCREEN_09.js   // Paper Settings Header (Add/Edit) --------------------------------------------
 FCT_SCREEN_10.js   // Paper CLO Grid (View) -------------------------------------------------------
