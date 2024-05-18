@@ -270,9 +270,7 @@ const FctScreen05 = ({route}) => {
             ))}
           </View>
 
-          <TouchableOpacity
-            style={styles.button}
-            onPress={addTopic}>
+          <TouchableOpacity style={styles.button} onPress={addTopic}>
             <Text style={styles.addText}>
               {mode === 'add' ? 'ADD' : 'UPDATE'}
             </Text>
@@ -304,15 +302,27 @@ const FctScreen05 = ({route}) => {
                         resizeMode="contain"
                       />
                     </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.disableButton}
-                      onPress={() => handleStatus(item.f_id, item.status)}>
-                      <Text style={styles.disablebuttonText}>D</Text>
-                    </TouchableOpacity>
+                    {item.status === 'disabled' ? (
+                      <TouchableOpacity
+                        style={styles.disableButton}
+                        onPress={() => handleStatus(item.f_id, item.status)}>
+                        <Text style={styles.disablebuttonText}>D</Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity
+                        style={styles.enableButton}
+                        onPress={() => handleStatus(item.f_id, item.status)}>
+                        <Text style={styles.enablebuttonText}>E</Text>
+                      </TouchableOpacity>
+                    )}
                     <TouchableOpacity
                       style={styles.addButton}
-                      onPress={() => handleStatus(item.f_id, item.status)}>
-                      <Text style={styles.addbuttonText}>A</Text>
+                      onPress={() => handleEdit(item)}>
+                      <Image
+                        source={require('../../assets/add_icon.png')}
+                        style={styles.addIcon}
+                        resizeMode="contain"
+                      />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -549,13 +559,18 @@ const styles = StyleSheet.create({
     width: 16,
   },
   addButton: {
-    backgroundColor: 'green',
+    backgroundColor: 'white',
     borderWidth: 1,
     padding: 2,
     height: 25,
     width: 25,
     borderRadius: 10,
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addIcon: {
+    height: 30,
+    width: 30,
   },
   addbuttonText: {
     color: 'white',
@@ -574,6 +589,21 @@ const styles = StyleSheet.create({
   },
   disablebuttonText: {
     color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  enableButton: {
+    backgroundColor: '#0DEC09',
+    borderWidth: 1,
+    padding: 2,
+    height: 25,
+    width: 25,
+    borderRadius: 13,
+    justifyContent: 'center',
+  },
+  enablebuttonText: {
+    color: 'black',
     fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',

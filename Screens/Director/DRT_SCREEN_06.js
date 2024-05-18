@@ -113,7 +113,7 @@ const DrtScreen06 = ({route}) => {
   };
 
   const fetchfacultyData = () => {
-    const apiEndpoint = `http://${ip}:${paper_port}/getpaperheaderfaculty/${paperId}`;
+    const apiEndpoint = `http://${ip}:${paper_port}/getpaperheaderfaculty/${courseId}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
