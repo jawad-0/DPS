@@ -22,7 +22,8 @@ const FctScreen07 = ({route}) => {
     route.params;
   const navigation = useNavigation();
   const [name, setName] = useState('');
-  const [CLOS, setCLOS] = useState([]);
+  const [topics, setTopics] = useState([]);
+  const [commontopics, setCommonTopics] = useState([]);
   const [faculty, setCommonFaculty] = useState([]);
   const [topictaught, setTopicTaught] = useState([]);
   const [assignedCourses, setAssignedCourses] = useState([]);
@@ -60,6 +61,8 @@ const FctScreen07 = ({route}) => {
       fetchTopicTaught(facultyId);
     }
     setPressedButton(button);
+    fetchData();
+    fetchData2();
   };
 
   const checkCLO = item => {
@@ -68,34 +71,44 @@ const FctScreen07 = ({route}) => {
     );
   };
 
-  const addCLO = () => {
-    console.log('CLO Added!');
-  };
-
-  const handlePress = item => {
-    console.log('Item:', item);
-  };
-
   const fetchData = () => {
-    const apiEndpoint = `http://${ip}:${port}/getTopic/${courseId}`;
-    fetch(apiEndpoint)
+    const apiEndpoint1 = `http://${ip}:${port}/getTopic/${courseId}`;
+    const apiEndpoint2 = `http://${ip}:${port}/getcommontopictaught3/${courseId}`;
+
+    fetch(apiEndpoint1)
       .then(response => response.json())
       .then(data => {
         // console.log(data);
-        setCLOS(data);
+        setTopics(data);
+      })
+      .catch(error => {
+        // console.error('Error fetching data:', error);
+      });
+
+    fetch(apiEndpoint2)
+      .then(response => response.json())
+      .then(data => {
+        // console.log(data);
+        setCommonTopics(data);
       })
       .catch(error => {
         // console.error('Error fetching data:', error);
       });
   };
 
+  //   const isCommonTopic = topic => {
+  //     commontopics.some(commonTopic => commonTopic.t_id === topic.t_id);
+  //   };
+
+  const isCommonTopic = topic =>
+    commontopics.some(commonTopic => commonTopic.t_id === topic.t_id);
+
   const fetchData2 = () => {
-    console.log('Yes');
     const apiEndpoint = `http://${ip}:${port}/getpaperheaderfaculty/${courseId}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
-        console.log('Data fetched successfully:', data);
+        // console.log('Data fetched successfully:', data);
         const transformedData = data.map(faculty => ({
           key: faculty.f_id,
           value: faculty.f_name,
@@ -123,6 +136,74 @@ const FctScreen07 = ({route}) => {
 
   const isTopicTaught = topicId => {
     return topictaught.some(topic => topic.t_id === topicId);
+  };
+
+  const addTopicTaught = topicId => {
+    console.log('Yes');
+    const apiEndpoint = `http://${ip}:${port}/addtopictaught`;
+    fetch(apiEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        f_id: facultyId,
+        t_id: topicId,
+      }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        ToastAndroid.show('Added Successfully !', ToastAndroid.SHORT);
+        fetchData();
+        fetchData2();
+        fetchTopicTaught(facultyId);
+      })
+      .catch(error => {
+        console.error('Error posting data:', error);
+      });
+  };
+
+  const deleteTopicTaught = topicId => {
+    console.log('Yes');
+    const apiEndpoint = `http://${ip}:${port}/deletetopictaught`;
+    fetch(apiEndpoint, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        t_id: topicId,
+        f_id: facultyId,
+      }),
+    }).then(response => {
+      if (!response.ok) {
+        console.log('Network response was not ok');
+      }
+      fetchData();
+      fetchData2();
+      fetchTopicTaught(facultyId);
+      ToastAndroid.show('Deleted Successfully !', ToastAndroid.SHORT);
+      return response.json();
+    });
+
+    //   const fetchCommonTopicTaught = key => {
+    //     const apiEndpoint = `http://${ip}:${port}/getcommontopictaught/${key}`;
+    //     fetch(apiEndpoint)
+    //       .then(response => response.json())
+    //       .then(data => {
+    //         setTopicTaught(data);
+    //       })
+    //       .catch(error => {
+    //         // console.error('Error fetching data:', error);
+    //       });
+    //   };
+
+    //   const isTopicTaughtByAll = topicId => {
+    //     return topicsStatus.some(
+    //       topic => topic.t_id === topicId && topic.isTaughtByAll,
+    //     );
+    //   };
+
   };
 
   return (
@@ -199,7 +280,7 @@ const FctScreen07 = ({route}) => {
                 Topics :
               </Text>
               <FlatList
-                data={CLOS}
+                data={topics}
                 style={styles.flatlist}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({item, index}) => (
@@ -226,29 +307,33 @@ const FctScreen07 = ({route}) => {
                 Covered Topics :
               </Text>
               <FlatList
-                data={CLOS}
+                data={topics}
                 style={styles.flatlist}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({item, index}) => (
                   <View style={styles.listItem} onPress={() => checkCLO(item)}>
                     {isTopicTaught(item.t_id) ? (
-                      <View style={{marginLeft: 30}}>
-                        <TouchableOpacity style={styles.tickButton}>
+                      <View style={{marginLeft: 15}}>
+                        <TouchableOpacity
+                          style={styles.checkButton}
+                          onPress={() => deleteTopicTaught(item.t_id)}>
                           {/* <Text>✔</Text> */}
                           <Image
-                            source={require('../../assets/tick.png')}
-                            style={styles.tickIcon}
+                            source={require('../../assets/checkedbox.png')}
+                            style={styles.checkIcon}
                             resizeMode="contain"
                           />
                         </TouchableOpacity>
                       </View>
                     ) : (
-                      <View style={{marginLeft: 30}}>
-                        <TouchableOpacity style={styles.tickButton}>
+                      <View style={{marginLeft: 15}}>
+                        <TouchableOpacity
+                          style={styles.uncheckButton}
+                          onPress={() => addTopicTaught(item.t_id)}>
                           {/* <Text>✔</Text> */}
                           <Image
-                            source={require('../../assets/tick.png')}
-                            style={styles.tickIcon}
+                            source={require('../../assets/uncheckedbox.png')}
+                            style={styles.uncheckIcon}
                             resizeMode="contain"
                           />
                         </TouchableOpacity>
@@ -274,7 +359,7 @@ const FctScreen07 = ({route}) => {
                 Common Topics :
               </Text>
               <FlatList
-                data={CLOS}
+                data={topics}
                 style={styles.flatlist}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({item, index}) => (
@@ -283,6 +368,20 @@ const FctScreen07 = ({route}) => {
                     onPress={() => checkCLO(item)}>
                     {/* <Text style={styles.indexText}>CLO {index+1}:</Text> */}
                     <Text style={styles.topicText}>{item.t_name}</Text>
+                    {isCommonTopic(item) ? (
+                      <View>
+                        <View style={styles.tickButton}>
+                          {/* <Text>✔</Text> */}
+                          <Image
+                            source={require('../../assets/tick.png')}
+                            style={styles.tickIcon}
+                            resizeMode="contain"
+                          />
+                        </View>
+                      </View>
+                    ) : (
+                      <Text>❌</Text>
+                    )}
                   </TouchableOpacity>
                 )}
               />
@@ -290,7 +389,7 @@ const FctScreen07 = ({route}) => {
           )}
           {pressedButton === 'button3' && (
             <>
-              <View style={styles.container2}>
+              <View style={styles.container}>
                 {/* <View style={styles.leftHalf}> */}
                 <View style={styles.pickerContainer}>
                   <SelectList
@@ -322,7 +421,7 @@ const FctScreen07 = ({route}) => {
                   Topics / Sub-topics :
                 </Text>
                 <FlatList
-                  data={CLOS}
+                  data={topics}
                   style={styles.progressflatlist}
                   keyExtractor={(item, index) => index.toString()}
                   renderItem={({item, index}) => (
@@ -334,7 +433,7 @@ const FctScreen07 = ({route}) => {
                         {item.t_name}
                       </Text>
                       {isTopicTaught(item.t_id) && (
-                        <View style={{marginLeft: 30}}>
+                        <View>
                           <View style={styles.tickButton}>
                             {/* <Text>✔</Text> */}
                             <Image
@@ -386,8 +485,8 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    borderWidth: 2,
-    borderColor: 'black',
+    // borderWidth: 2,
+    // borderColor: 'black',
   },
   form: {
     flex: 1,
@@ -479,8 +578,8 @@ const styles = StyleSheet.create({
     height: 'auto',
     width: '96%',
     marginLeft: '2%',
-    marginTop: 2,
-    borderRadius: 5,
+    marginTop: 3,
+    borderRadius: 10,
     color: 'white',
     // justifyContent: 'space-between',
     alignItems: 'center',
@@ -489,14 +588,18 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: 'black',
-    marginLeft: 20,
+    marginLeft: 15,
+    width: 320,
     flexWrap: 'wrap',
   },
   progresstopicText: {
     fontSize: 20,
     fontWeight: 'bold',
     color: 'black',
-    marginLeft: 5,
+    marginLeft: 15,
+    width: 320,
+    // borderWidth: 2,
+    // borderColor: 'red',
     flexWrap: 'wrap',
   },
   indexText: {
@@ -577,10 +680,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     alignSelf: 'center',
   },
-  container2: {
-    flex: 1,
-    // flexDirection: 'row',
-  },
   leftHalf: {
     flex: 1,
     // backgroundColor: 'red',
@@ -593,7 +692,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     // borderColor: 'white',
     backgroundColor: 'black',
-    borderRadius: 10,
     width: '45%',
     justifyContent: 'center',
     marginLeft: '50%',
@@ -619,6 +717,31 @@ const styles = StyleSheet.create({
   tickIcon: {
     height: 26,
     width: 27,
+  },
+  checkButton: {
+    padding: 2,
+    borderRadius: 5,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 20,
+    height: 20,
+  },
+  checkIcon: {
+    height: 30,
+    width: 30,
+  },
+  uncheckButton: {
+    padding: 2,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 20,
+    height: 20,
+  },
+  uncheckIcon: {
+    height: 24,
+    width: 24,
   },
 });
 
