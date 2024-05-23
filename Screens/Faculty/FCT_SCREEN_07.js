@@ -96,13 +96,6 @@ const FctScreen07 = ({route}) => {
       });
   };
 
-  //   const isCommonTopic = topic => {
-  //     commontopics.some(commonTopic => commonTopic.t_id === topic.t_id);
-  //   };
-
-  const isCommonTopic = topic =>
-    commontopics.some(commonTopic => commonTopic.t_id === topic.t_id);
-
   const fetchData2 = () => {
     const apiEndpoint = `http://${ip}:${port}/getpaperheaderfaculty/${courseId}`;
     fetch(apiEndpoint)
@@ -134,9 +127,15 @@ const FctScreen07 = ({route}) => {
       });
   };
 
-  const isTopicTaught = topicId => {
-    return topictaught.some(topic => topic.t_id === topicId);
-  };
+  //   const isCommonTopic = topic => {
+  //     commontopics.some(commonTopic => commonTopic.t_id === topic.t_id);
+  //   };
+
+  const  isCommonTopic = topicId =>
+    commontopics.some(commonTopic => commonTopic.t_id === topicId);
+
+  const isTopicTaught = topicId =>
+    topictaught.some(topic => topic.t_id === topicId);
 
   const addTopicTaught = topicId => {
     console.log('Yes');
@@ -363,7 +362,7 @@ const FctScreen07 = ({route}) => {
                   <View style={styles.listItem}>
                     {/* <Text style={styles.indexText}>CLO {index+1}:</Text> */}
                     <Text style={styles.topicText}>{item.t_name}</Text>
-                    {isCommonTopic(item) ? (
+                    {isCommonTopic(item.t_id) ? (
                       <View>
                         <View style={styles.tickButton}>
                           {/* <Text>✔</Text> */}
