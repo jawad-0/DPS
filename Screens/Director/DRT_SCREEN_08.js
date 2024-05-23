@@ -16,12 +16,11 @@ import {
 import {ip, clo_port} from '../CONFIG';
 import {useNavigation} from '@react-navigation/native';
 
-const FctScreen04 = ({route}) => {
-  const {courseId, courseName, courseCode, facultyId, facultyRole} =
-    route.params;
+const DrtScreen08 = ({route}) => {
+  const {courseId,coursecode,coursetitle} = route.params;
   const navigation = useNavigation();
   const [name, setName] = useState('');
-  const [CLOS, setCLOS] = useState([]);
+  const [topics, setTopics] = useState([]);
   const [assignedCourses, setAssignedCourses] = useState([]);
   const [flatListHeight, setFlatListHeight] = useState(0);
 
@@ -57,12 +56,12 @@ const FctScreen04 = ({route}) => {
   };
 
   const fetchData = () => {
-    const apiEndpoint = `http://${ip}:${clo_port}/getCLO/${courseId}`;
+    const apiEndpoint = `http://${ip}:${clo_port}/getTopic/${courseId}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
         // console.log(data);
-        setCLOS(data);
+        setTopics(data);
       })
       .catch(error => {
         // console.error('Error fetching data:', error);
@@ -71,7 +70,7 @@ const FctScreen04 = ({route}) => {
 
   return (
     <ImageBackground
-      source={require('../../assets/fct_background.png')}
+      source={require('../../assets/drt_background.png')}
       style={styles.backgroundImage}>
       <View style={styles.container}>
         <View style={styles.header}>
@@ -92,28 +91,25 @@ const FctScreen04 = ({route}) => {
               resizeMode="contain"
             />
           </TouchableOpacity>
-          <Text style={styles.headerText}>View CLOS</Text>
+          <Text style={styles.headerText}>View Topics</Text>
         </View>
         <View style={styles.buttonsContainer}></View>
         <View>
-          <Text style={styles.nameText}>{courseName}</Text>
+          <Text style={styles.nameText}>{coursetitle}</Text>
           <Text style={styles.codeText}>
-            Course Code: <Text style={{color: 'yellow'}}>{courseCode}</Text>
+            Course Code: <Text style={{color: 'yellow'}}>{coursecode}</Text>
           </Text>
         </View>
         <View style={styles.form}>
           <FlatList
-            data={CLOS}
+            data={topics}
             style={styles.flatlist}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item, index}) => (
-              <TouchableOpacity
-                style={styles.listItem}
-                onPress={() => checkCLO(item)}>
+              <View style={styles.listItem}>
                 {/* <Text style={styles.indexText}>CLO {index+1}:</Text> */}
-                <Text style={styles.indexText}>{item.clo_number}:</Text>
-                <Text style={styles.cloText}>{item.clo_text}</Text>
-              </TouchableOpacity>
+                <Text style={styles.topicText}>{item.t_name}</Text>
+              </View>
             )}
           />
         </View>
@@ -134,7 +130,7 @@ const styles = StyleSheet.create({
     // alignItems: 'center',
     // backgroundColor: 'white',
     borderRadius: 10,
-    maxHeight: 500
+    maxHeight: 500,
   },
   header: {
     flexDirection: 'row',
@@ -201,15 +197,22 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: '#58FFAB',
     backgroundColor: '#CDCDCD',
-    height: 'auto',
+    height: 40,
     width: '96%',
     marginLeft: '2%',
     marginTop: 3,
     borderRadius: 10,
-    // marginTop: 2,
     color: 'white',
     // justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  topicText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'black',
+    marginLeft: 15,
+    width: 320,
+    flexWrap: 'wrap',
   },
   cloText: {
     fontSize: 20,
@@ -259,7 +262,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flatlist: {
-    marginTop: 5
+    marginTop: 5,
   },
   backgroundImage: {
     flex: 1,
@@ -291,4 +294,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FctScreen04;
+export default DrtScreen08;

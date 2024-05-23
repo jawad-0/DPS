@@ -12,6 +12,7 @@ import DrtScreen03 from './Screens/Director/DRT_SCREEN_03';
 import DrtScreen04 from './Screens/Director/DRT_SCREEN_04';
 import DrtScreen05 from './Screens/Director/DRT_SCREEN_05';
 import DrtScreen06 from './Screens/Director/DRT_SCREEN_06';
+import DrtScreen08 from './Screens/Director/DRT_SCREEN_08';
 
 import DtcLogin from './Screens/Datacell/DTC_LOGIN';
 import DtcScreen01 from './Screens/Datacell/DTC_SCREEN_01';
@@ -41,6 +42,7 @@ import FctScreen03 from './Screens/Faculty/FCT_SCREEN_03';
 import FctScreen04 from './Screens/Faculty/FCT_SCREEN_04';
 import FctScreen05 from './Screens/Faculty/FCT_SCREEN_05';
 import FctScreen07 from './Screens/Faculty/FCT_SCREEN_07';
+import FctScreen09 from './Screens/Faculty/FCT_SCREEN_09';
 import FctScreen14 from './Screens/Faculty/FCT_SCREEN_14';
 import FctScreen15 from './Screens/Faculty/FCT_SCREEN_15';
 
@@ -200,9 +202,14 @@ export default function App() {
           component={FctScreen05}
           options={{headerShown: false}}
         />
-         <Stack1.Screen
+        <Stack1.Screen
           name="FctScreen07"
           component={FctScreen07}
+          options={{headerShown: false}}
+        />
+        <Stack1.Screen
+          name="FctScreen09"
+          component={FctScreen09}
           options={{headerShown: false}}
         />
         <Stack1.Screen
@@ -251,6 +258,11 @@ export default function App() {
         <Stack1.Screen
           name="DrtScreen06"
           component={DrtScreen06}
+          options={{headerShown: false}}
+        />
+        <Stack1.Screen
+          name="DrtScreen08"
+          component={DrtScreen08}
           options={{headerShown: false}}
         />
       </Stack1.Navigator>

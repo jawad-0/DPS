@@ -208,8 +208,8 @@ const DrtScreen06 = ({route}) => {
                       <Text style={styles.radioText}>Accept</Text>
                       <RadioButton
                         value={item.q_id}
-                        color='green'
-                        uncheckedColor='green'
+                        color="green"
+                        uncheckedColor="green"
                         status={
                           acceptOptions[item.q_id] ? 'checked' : 'unchecked'
                         }
@@ -220,8 +220,8 @@ const DrtScreen06 = ({route}) => {
                       <Text style={styles.radioText}>Reject</Text>
                       <RadioButton
                         value={item.q_id}
-                        color='red'
-                        uncheckedColor='red'
+                        color="red"
+                        uncheckedColor="red"
                         status={
                           rejectOptions[item.q_id] ? 'checked' : 'unchecked'
                         }
@@ -265,7 +265,9 @@ const DrtScreen06 = ({route}) => {
           />
         </View>
         <View style={styles.buttonscontainer2}>
-          <TouchableOpacity style={styles.topicButton} onPress={handleView}>
+          <TouchableOpacity
+            style={styles.topicButton}
+            onPress={() => navigation.navigate('DrtScreen08', {courseId,coursecode,coursetitle})}>
             <Text style={styles.viewText}>View Topics</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.approveButton} onPress={handleView}>

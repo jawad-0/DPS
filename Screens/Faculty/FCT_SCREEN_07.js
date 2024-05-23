@@ -60,20 +60,20 @@ const FctScreen07 = ({route}) => {
     if (button == 'button1') {
       fetchTopicTaught(facultyId);
     }
-    setPressedButton(button);
     fetchData();
     fetchData2();
+    setPressedButton(button);
   };
 
-  const checkCLO = item => {
-    console.log(
-      `Text : ${item.clo_text} | clo_id : ${item.clo_id} | c_id : ${item.c_id} | status : ${item.status}`,
-    );
-  };
+  //   const checkCLO = item => {
+  //     console.log(
+  //       `Text : ${item.clo_text} | clo_id : ${item.clo_id} | c_id : ${item.c_id} | status : ${item.status}`,
+  //     );
+  //   };
 
   const fetchData = () => {
     const apiEndpoint1 = `http://${ip}:${port}/getTopic/${courseId}`;
-    const apiEndpoint2 = `http://${ip}:${port}/getcommontopictaught3/${courseId}`;
+    const apiEndpoint2 = `http://${ip}:${port}/getcommontopictaught/${courseId}`;
 
     fetch(apiEndpoint1)
       .then(response => response.json())
@@ -203,7 +203,6 @@ const FctScreen07 = ({route}) => {
     //       topic => topic.t_id === topicId && topic.isTaughtByAll,
     //     );
     //   };
-
   };
 
   return (
@@ -229,7 +228,7 @@ const FctScreen07 = ({route}) => {
               resizeMode="contain"
             />
           </TouchableOpacity>
-          <Text style={styles.headerText}>CLOS</Text>
+          <Text style={styles.headerText}>View Topics</Text>
         </View>
         <View>
           <Text style={styles.nameText}>{courseName}</Text>
@@ -284,12 +283,10 @@ const FctScreen07 = ({route}) => {
                 style={styles.flatlist}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({item, index}) => (
-                  <TouchableOpacity
-                    style={styles.listItem}
-                    onPress={() => checkCLO(item)}>
+                  <View style={styles.listItem}>
                     {/* <Text style={styles.indexText}>CLO {index+1}:</Text> */}
                     <Text style={styles.topicText}>{item.t_name}</Text>
-                  </TouchableOpacity>
+                  </View>
                 )}
               />
             </>
@@ -311,7 +308,7 @@ const FctScreen07 = ({route}) => {
                 style={styles.flatlist}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({item, index}) => (
-                  <View style={styles.listItem} onPress={() => checkCLO(item)}>
+                  <View style={styles.listItem}>
                     {isTopicTaught(item.t_id) ? (
                       <View style={{marginLeft: 15}}>
                         <TouchableOpacity
@@ -363,9 +360,7 @@ const FctScreen07 = ({route}) => {
                 style={styles.flatlist}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({item, index}) => (
-                  <TouchableOpacity
-                    style={styles.listItem}
-                    onPress={() => checkCLO(item)}>
+                  <View style={styles.listItem}>
                     {/* <Text style={styles.indexText}>CLO {index+1}:</Text> */}
                     <Text style={styles.topicText}>{item.t_name}</Text>
                     {isCommonTopic(item) ? (
@@ -382,7 +377,7 @@ const FctScreen07 = ({route}) => {
                     ) : (
                       <Text>❌</Text>
                     )}
-                  </TouchableOpacity>
+                  </View>
                 )}
               />
             </>
@@ -425,9 +420,7 @@ const FctScreen07 = ({route}) => {
                   style={styles.progressflatlist}
                   keyExtractor={(item, index) => index.toString()}
                   renderItem={({item, index}) => (
-                    <TouchableOpacity
-                      style={styles.progresslistItem}
-                      onPress={() => checkCLO(item)}>
+                    <View style={styles.progresslistItem}>
                       {/* <Text style={styles.indexText}>CLO {index+1}:</Text> */}
                       <Text style={styles.progresstopicText}>
                         {item.t_name}
@@ -444,7 +437,7 @@ const FctScreen07 = ({route}) => {
                           </View>
                         </View>
                       )}
-                    </TouchableOpacity>
+                    </View>
                   )}
                 />
                 {/* </View> */}

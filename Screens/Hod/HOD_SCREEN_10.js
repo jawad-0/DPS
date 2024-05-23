@@ -5,18 +5,13 @@ import {
   Image,
   FlatList,
   Keyboard,
+  TextInput,
   StyleSheet,
   ToastAndroid,
   ImageBackground,
   TouchableOpacity,
 } from 'react-native';
-import {
-  ip,
-  course_port,
-  faculty_port,
-  gridview_port,
-  assigned_port,
-} from '../CONFIG';
+import {ip, course_port, port, gridview_port, assigned_port} from '../CONFIG';
 import {useNavigation} from '@react-navigation/native';
 import {SelectList} from 'react-native-dropdown-select-list';
 
@@ -25,7 +20,9 @@ const HodScreen10 = () => {
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [assignedTo, setAssignedTo] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [CLOS, setCLOS] = useState([]);
   const [gridViewHeaders, setGridViewHeaders] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -36,38 +33,17 @@ const HodScreen10 = () => {
     console.log('Save Button Clicked');
   };
 
-  const assignRole = item => {
-    setSelectedTeacher(item.f_name);
-    const apiEndpoint = `http://${ip}:${assigned_port}/editRole/${item.c_id}/${item.f_id}`;
-    fetch(apiEndpoint, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then(response => response.json())
-      .then(data => {
-        ToastAndroid.show('Role Updated !', ToastAndroid.SHORT);
-      })
-      .catch(error => {
-        console.error('Error assigning role:', error);
-      });
-  };
-
   const fetchData = () => {
     const apiEndpoint = `http://${ip}:${course_port}/getCourse`;
     Keyboard.dismiss();
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
-        // console.log('Data fetched successfully:', data);
         const transformedData = data.map(course => ({
-          key: course.c_id,
+          key: course.c_id.toString(),
           value: course.c_title,
         }));
-        // console.log(transformedData);
         setCourses(transformedData);
-        // setCourses(data);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
@@ -81,6 +57,22 @@ const HodScreen10 = () => {
       .then(response => response.json())
       .then(data => {
         setGridViewHeaders(data);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  };
+
+  const fetchData2 = key => {
+    const apiEndpoint = `http://${ip}:${port}/getCLO/${key}`;
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        const transformedData = data.map(clo => ({
+          key: clo.clo_id.toString(),
+          value: clo.clo_name,
+        }));
+        setCLOS(transformedData);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
@@ -131,7 +123,8 @@ const HodScreen10 = () => {
           <View style={styles.pickerContainer}>
             <SelectList
               setSelected={key => {
-                fetchAssignedTo(key);
+                fetchData2(key);
+                setSelectedCourse(key);
               }}
               data={courses}
               save="c_title"
@@ -143,6 +136,23 @@ const HodScreen10 = () => {
               dropdownTextStyles={{color: 'white'}}
             />
           </View>
+          {selectedCourse && (
+            <View style={styles.pickerContainer}>
+              <SelectList
+                data={CLOS}
+                save="clo_name"
+                placeholder="Select CLO"
+                searchPlaceholder="Search CLO"
+                boxStyles={{backgroundColor: 'gray'}}
+                inputStyles={{color: 'white'}}
+                dropdownStyles={{
+                  backgroundColor: 'black',
+                  borderColor: 'white',
+                }}
+                dropdownTextStyles={{color: 'white'}}
+              />
+            </View>
+          )}
           <View style={styles.bar1}>
             <Text style={styles.bar1Text}>Assessments</Text>
           </View>
@@ -158,53 +168,74 @@ const HodScreen10 = () => {
             <Text style={styles.bar2Text}>Final Term</Text> */}
           </View>
           <View style={styles.bar3}>
-          {gridViewHeaders.map((item, index) => (
+            {gridViewHeaders.map((item, index) => (
               <Text key={index} style={styles.bar3Text}>
                 {item.weightage} %
               </Text>
             ))}
           </View>
           <View
-          style={{
-            borderBottomColor: 'white',
-            borderBottomWidth: 2,
-            width: '90%',
-            marginTop: 10,
-            alignSelf: 'center',
-          }}></View>
-          {/* <Text style={styles.name}>SENIOR TEACHER</Text> */}
+            style={{
+              borderBottomColor: 'white',
+              borderBottomWidth: 2,
+              width: '90%',
+              marginTop: 10,
+              alignSelf: 'center',
+            }}></View>
 
-          {/* <FlatList
-            data={assignedTo}
+          <FlatList
+            data={CLOS}
             style={styles.flatlist}
             keyExtractor={(item, index) => index.toString()}
-            renderItem={({item}) => (
+            renderItem={({item, index}) => (
               <View style={styles.listItem}>
-                <View style={styles.column}>
-                  <Text style={styles.data_name}>{item.f_name}</Text>
+                <View>
+                  <Text style={styles.indexText}>{item.clo_number}:</Text>
                 </View>
-                <View style={styles.column}>
-                  <View style={styles.radiobuttonContainer}>
-                    <TouchableOpacity
-                      style={styles.radioContainer}
-                      onPress={() => assignRole(item)}>
-                      <View
-                        style={[
-                          styles.radioButton,
-                          {
-                            backgroundColor:
-                              selectedTeacher === item.f_name
-                                ? '#0AC506'
-                                : 'transparent',
-                          },
-                        ]}
-                      />
-                    </TouchableOpacity>
-                  </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                  }}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="- -"
+                    keyboardType="numeric"
+                    placeholderTextColor={'gray'}
+                    onChangeText={text => setWeightage1(text)}
+                  />
+                  <Text style={styles.percent}> %</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="- -"
+                    keyboardType="numeric"
+                    placeholderTextColor={'gray'}
+                    onChangeText={text => setWeightage2(text)}
+                  />
+                  <Text style={styles.percent}> %</Text>
+
+                  <TextInput
+                    style={styles.input}
+                    placeholder="- -"
+                    keyboardType="numeric"
+                    placeholderTextColor={'gray'}
+                    onChangeText={text => setWeightage3(text)}
+                  />
+                  <Text style={styles.percent}> %</Text>
+
+                  <TextInput
+                    style={styles.input}
+                    placeholder="- -"
+                    keyboardType="numeric"
+                    placeholderTextColor={'gray'}
+                    onChangeText={text => setWeightage4(text)}
+                  />
+                  <Text style={styles.percent}> %</Text>
                 </View>
               </View>
             )}
-          /> */}
+          />
+
+          {/* <Text style={styles.name}>SENIOR TEACHER</Text> */}
 
           {/* <View style={styles.savebuttonContainer}>
             <TouchableOpacity
@@ -254,6 +285,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     // textDecorationLine: 'underline',
   },
+  percent: {
+    color: 'black',
+    alignSelf: 'center',
+    fontWeight: 'bold',
+  },
   name: {
     marginTop: 50,
     fontSize: 25,
@@ -272,15 +308,18 @@ const styles = StyleSheet.create({
     width: 280,
   },
   input: {
-    height: 41,
-    width: 340,
-    alignSelf: 'center',
+    height: 40,
+    width: 40,
+    // alignSelf: 'center',
     borderColor: 'black',
-    borderWidth: 1,
-    borderRadius: 13,
-    marginBottom: 16,
+    borderWidth: 2,
+    borderRadius: 5,
+    marginLeft: 30,
     paddingHorizontal: 8,
     color: 'black',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 5,
   },
   searchinput: {
     height: 40,
@@ -309,25 +348,55 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
   },
+  //   listItem: {
+  //     flexDirection: 'row',
+  //     borderBottomWidth: 2,
+  //     borderBottomColor: 'black',
+  //     width: '90%',
+  //     height: 55,
+  //     marginLeft: '5%',
+  //     borderRadius: 15,
+  //     marginTop: 1,
+  //     color: 'black',
+  //     justifyContent: 'space-between',
+  //     alignItems: 'center',
+  //     backgroundColor: '#CDCDCD',
+  //   },
   listItem: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     borderBottomWidth: 2,
-    borderBottomColor: 'black',
-    width: '90%',
-    height: 55,
-    marginLeft: '5%',
-    borderRadius: 15,
-    marginTop: 1,
-    color: 'black',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    borderBottomColor: '#58FFAB',
     backgroundColor: '#CDCDCD',
+    height: 'auto',
+    width: '90%',
+    marginLeft: '5%',
+    marginTop: 3,
+    borderRadius: 10,
+    // marginTop: 2,
+    color: 'white',
+    // justifyContent: 'center',
+    // alignItems: 'center',
+  },
+  cloText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'black',
+    marginLeft: 20,
+    flexWrap: 'wrap',
+  },
+  indexText: {
+    fontSize: 15,
+    color: 'blue',
+    marginLeft: 10,
+    fontWeight: 'bold',
+    marginBottom: 5,
   },
   column: {
     flex: 1,
   },
   flatlist: {
-    marginTop: 30,
+    marginTop: 5,
+    maxHeight: 455,
   },
   backgroundImage: {
     flex: 1,
@@ -458,6 +527,7 @@ const styles = StyleSheet.create({
     color: 'black',
     fontWeight: 'bold',
     textAlign: 'center',
+    // borderWidth: 1
   },
 });
 

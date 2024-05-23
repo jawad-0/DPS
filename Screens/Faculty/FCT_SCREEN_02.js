@@ -119,7 +119,7 @@ const FctScreen02 = ({route}) => {
             <>
               <TouchableOpacity
                 style={styles.button}
-                onPress={() => console.log('Manage Paper')}>
+                onPress={() => navigation.navigate('FctScreen09')}>
                 <Text style={styles.buttonText}>MANAGE PAPER</Text>
               </TouchableOpacity>
               <TouchableOpacity
