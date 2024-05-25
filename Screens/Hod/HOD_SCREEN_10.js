@@ -11,30 +11,54 @@ import {
   ImageBackground,
   TouchableOpacity,
 } from 'react-native';
-import {ip, course_port, port, gridview_port, assigned_port} from '../CONFIG';
+import {ip, port} from '../CONFIG';
 import {useNavigation} from '@react-navigation/native';
 import {SelectList} from 'react-native-dropdown-select-list';
 
 const HodScreen10 = () => {
   const navigation = useNavigation();
   const [selectedTeacher, setSelectedTeacher] = useState(null);
-  const [assignedTo, setAssignedTo] = useState([]);
   const [courses, setCourses] = useState([]);
   const [CLOS, setCLOS] = useState([]);
+  const [CLOWeighatge, setCLOWeightage] = useState([]);
+  const [gridViewWeightage, setGridViewWeightage] = useState([]);
   const [gridViewHeaders, setGridViewHeaders] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedItemIndex, setSelectedItemIndex] = useState(null);
+  const [isButtonVisible, setButtonVisible] = useState(false);
+  const [cloAlert, setCLOAlert] = useState(false);
+  // const [weightages, setWeightages] = useState({});
+  const [clo_id, setCLOid] = useState();
+  const [c_id, setCourseid] = useState();
+  const [weightage1, setWeightage1] = useState(0);
+  const [weightage2, setWeightage2] = useState(0);
+  const [weightage3, setWeightage3] = useState(0);
+  const [weightage4, setWeightage4] = useState(0);
+
+  //   const handleWeightageChange = (cloId, index, value) => {
+  //     setWeightages(prevState => ({
+  //       ...prevState,
+  //       [cloId]: {
+  //         ...prevState[cloId],
+  //         [index]: value,
+  //       },
+  //     }));
+  //   };
 
   useEffect(() => {
-    fetchData();
+    fetchCourses();
     fetchGridViewHeaders();
   }, []);
 
-  const handleSave = () => {
-    console.log('Save Button Clicked');
+  const setWeightageZero = () => {
+    setWeightage1(0);
+    setWeightage2(0);
+    setWeightage3(0);
+    setWeightage4(0);
   };
 
-  const fetchData = () => {
-    const apiEndpoint = `http://${ip}:${course_port}/getCourse`;
+  const fetchCourses = () => {
+    const apiEndpoint = `http://${ip}:${port}/getCourse`;
     Keyboard.dismiss();
     fetch(apiEndpoint)
       .then(response => response.json())
@@ -49,9 +73,38 @@ const HodScreen10 = () => {
         console.error('Error fetching data:', error);
       });
   };
+  //   gridviewRouter.get("/getGridViewWeightage/:clo_id", (req, res) => {
+
+  const fetchCLOWeightage = (clo_id, index) => {
+    setCLOid(clo_id);
+    setButtonVisible(true);
+    setSelectedItemIndex(index);
+    const apiEndpoint = `http://${ip}:${port}/getCLOGridViewWeightage/${clo_id}`;
+    Keyboard.dismiss();
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          setCLOWeightage(data);
+          setWeightage1(data[0].weightage1);
+          setWeightage2(data[0].weightage2);
+          setWeightage3(data[0].weightage3);
+          setWeightage4(data[0].weightage4);
+        } else {
+          console.log('Data is empty or undefined');
+          setWeightage1(0);
+          setWeightage2(0);
+          setWeightage3(0);
+          setWeightage4(0);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  };
 
   const fetchGridViewHeaders = () => {
-    const apiEndpoint = `http://${ip}:${gridview_port}/getGridViewHeaders`;
+    const apiEndpoint = `http://${ip}:${port}/getGridViewHeaders`;
     Keyboard.dismiss();
     fetch(apiEndpoint)
       .then(response => response.json())
@@ -63,40 +116,77 @@ const HodScreen10 = () => {
       });
   };
 
-  const fetchData2 = key => {
+  const fetchCLOS = key => {
     const apiEndpoint = `http://${ip}:${port}/getCLO/${key}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
-        const transformedData = data.map(clo => ({
-          key: clo.clo_id.toString(),
-          value: clo.clo_name,
-        }));
-        setCLOS(transformedData);
+        // console.log(data);
+        // const transformedData = data.map(clo => ({
+        //   key: clo.clo_id.toString(),
+        //   value: clo.clo_name,
+        // }));
+        if (data && data.length > 0) {
+          setCLOS(data);
+        } else {
+          setCLOS([]);
+        }
       })
       .catch(error => {
         console.error('Error fetching data:', error);
       });
   };
 
-  const fetchAssignedTo = key => {
-    const apiEndpoint = `http://${ip}:${assigned_port}/getAssignedTo/${key}`;
+  const fetchGridViewWeightage = key => {
+    const apiEndpoint = `http://${ip}:${port}/getCourseGridViewWeightage/${key}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
-        // const assignedData = data[0];
-        // console.log('Teacher Name:', assignedData.TeacherName);
-        // const ids = data.map(item => item.ac_id);
-        // console.log('All assigned course IDs:', ids);
-        // setName(assignedData.CourseTitle);
-        setAssignedTo(data);
-        const seniorTeacher = data.find(item => item.role === 'senior');
-        if (seniorTeacher) {
-          setSelectedTeacher(seniorTeacher.f_name);
+        // console.log(data);
+        setGridViewWeightage(data);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  };
+
+  const addGridViewWeightage = () => {
+    console.log(
+      `weightage1: ${weightage1}, weightage2: ${weightage2}, weightage3: ${weightage3}, weightage4: ${weightage4}`,
+    );
+
+    const apiEndpoint = `http://${ip}:${port}/addGridViewWeightage`;
+    fetch(apiEndpoint, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        clo_id: clo_id,
+        weightage1: parseFloat(weightage1),
+        weightage2: parseFloat(weightage2),
+        weightage3: parseFloat(weightage3),
+        weightage4: parseFloat(weightage4),
+      }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.errors) {
+          // console.error('Validation errors:', data.errors);
+          data.errors.forEach(error => {
+            ToastAndroid.show(error, ToastAndroid.LONG);
+          });
+        } else {
+          console.log('Data updated successfully:', data);
+          ToastAndroid.show('Updated Successfully!', ToastAndroid.SHORT);
+          Keyboard.dismiss();
+          fetchCourses();
+          fetchGridViewHeaders();
+          fetchGridViewWeightage(c_id);
         }
       })
       .catch(error => {
-        // console.error('Error fetching data:', error);
+        console.error('Error updating data:', error);
       });
   };
 
@@ -123,8 +213,14 @@ const HodScreen10 = () => {
           <View style={styles.pickerContainer}>
             <SelectList
               setSelected={key => {
-                fetchData2(key);
+                fetchCLOS(key);
+                setCourseid(key);
                 setSelectedCourse(key);
+                fetchGridViewWeightage(key);
+                setButtonVisible(false);
+                setWeightageZero();
+                setCLOAlert(true);
+                setSelectedItemIndex(null);
               }}
               data={courses}
               save="c_title"
@@ -136,23 +232,33 @@ const HodScreen10 = () => {
               dropdownTextStyles={{color: 'white'}}
             />
           </View>
-          {selectedCourse && (
-            <View style={styles.pickerContainer}>
-              <SelectList
-                data={CLOS}
-                save="clo_name"
-                placeholder="Select CLO"
-                searchPlaceholder="Search CLO"
-                boxStyles={{backgroundColor: 'gray'}}
-                inputStyles={{color: 'white'}}
-                dropdownStyles={{
-                  backgroundColor: 'black',
-                  borderColor: 'white',
-                }}
-                dropdownTextStyles={{color: 'white'}}
-              />
-            </View>
-          )}
+          <View style={styles.topbar}>
+            {cloAlert && CLOS.length === 0 && (
+              <View style={styles.cloWarning}>
+                <Text
+                  style={{color: 'white', fontWeight: 'bold', fontSize: 20}}>
+                  CLOS Not Created Yet !
+                </Text>
+              </View>
+            )}
+            <FlatList
+              data={CLOS}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.flatlist}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({item, index}) => (
+                <TouchableOpacity
+                  style={[
+                    styles.listItem,
+                    selectedItemIndex === index ? styles.selectedItem : null,
+                  ]}
+                  onPress={() => fetchCLOWeightage(item.clo_id, index)}>
+                  <Text style={styles.indexText}>{item.clo_number}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
           <View style={styles.bar1}>
             <Text style={styles.bar1Text}>Assessments</Text>
           </View>
@@ -162,51 +268,106 @@ const HodScreen10 = () => {
                 {item.name}
               </Text>
             ))}
-            {/* <Text style={styles.bar2Text}>Assignment</Text>
-            <Text style={styles.bar2Text}>Quiz</Text>
-            <Text style={styles.bar2Text}>Mid Term</Text>
-            <Text style={styles.bar2Text}>Final Term</Text> */}
           </View>
-          <View style={styles.bar3}>
+          {/* <View style={styles.bar3}>
             {gridViewHeaders.map((item, index) => (
               <Text key={index} style={styles.bar3Text}>
                 {item.weightage} %
               </Text>
             ))}
-          </View>
-          <View
+          </View> */}
+          {/* <View
             style={{
-              borderBottomColor: 'white',
+              borderBottomColor: 'cyan',
               borderBottomWidth: 2,
               width: '90%',
-              marginTop: 10,
+              marginTop: 5,
               alignSelf: 'center',
-            }}></View>
+            }}></View> */}
+
+          {CLOWeighatge.length === 0 && (
+            <View style={styles.listItem2}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                }}>
+                <TextInput
+                  style={[
+                    styles.input,
+                    weightage1 == '0' ? styles.redText : null,
+                  ]}
+                  value={String(weightage1)}
+                  keyboardType="numeric"
+                  placeholderTextColor={'gray'}
+                  onChangeText={text => setWeightage1(text)}
+                />
+                <Text style={styles.percent}> %</Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    weightage2 == '0' ? styles.redText : null,
+                  ]}
+                  value={String(weightage2)}
+                  keyboardType="numeric"
+                  placeholderTextColor={'gray'}
+                  onChangeText={text => setWeightage2(text)}
+                />
+                <Text style={styles.percent}> %</Text>
+
+                <TextInput
+                  style={[
+                    styles.input,
+                    weightage3 == '0' ? styles.redText : null,
+                  ]}
+                  value={String(weightage3)}
+                  keyboardType="numeric"
+                  placeholderTextColor={'gray'}
+                  onChangeText={text => setWeightage3(text)}
+                />
+                <Text style={styles.percent}> %</Text>
+
+                <TextInput
+                  style={[
+                    styles.input,
+                    weightage4 == '0' ? styles.redText : null,
+                  ]}
+                  value={String(weightage4)}
+                  keyboardType="numeric"
+                  placeholderTextColor={'gray'}
+                  onChangeText={text => setWeightage4(text)}
+                />
+                <Text style={styles.percent}> %</Text>
+              </View>
+            </View>
+          )}
 
           <FlatList
-            data={CLOS}
-            style={styles.flatlist}
+            data={CLOWeighatge}
+            style={styles.flatlist2}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item, index}) => (
-              <View style={styles.listItem}>
-                <View>
-                  <Text style={styles.indexText}>{item.clo_number}:</Text>
-                </View>
+              <View style={styles.listItem2}>
                 <View
                   style={{
                     flexDirection: 'row',
                   }}>
                   <TextInput
-                    style={styles.input}
-                    placeholder="- -"
+                    style={[
+                      styles.input,
+                      weightage1 == '0' ? styles.redText : null,
+                    ]}
+                    value={String(weightage1)}
                     keyboardType="numeric"
                     placeholderTextColor={'gray'}
                     onChangeText={text => setWeightage1(text)}
                   />
                   <Text style={styles.percent}> %</Text>
                   <TextInput
-                    style={styles.input}
-                    placeholder="- -"
+                    style={[
+                      styles.input,
+                      weightage2 == '0' ? styles.redText : null,
+                    ]}
+                    value={String(weightage2)}
                     keyboardType="numeric"
                     placeholderTextColor={'gray'}
                     onChangeText={text => setWeightage2(text)}
@@ -214,8 +375,11 @@ const HodScreen10 = () => {
                   <Text style={styles.percent}> %</Text>
 
                   <TextInput
-                    style={styles.input}
-                    placeholder="- -"
+                    style={[
+                      styles.input,
+                      weightage3 == '0' ? styles.redText : null,
+                    ]}
+                    value={String(weightage3)}
                     keyboardType="numeric"
                     placeholderTextColor={'gray'}
                     onChangeText={text => setWeightage3(text)}
@@ -223,8 +387,11 @@ const HodScreen10 = () => {
                   <Text style={styles.percent}> %</Text>
 
                   <TextInput
-                    style={styles.input}
-                    placeholder="- -"
+                    style={[
+                      styles.input,
+                      weightage4 == '0' ? styles.redText : null,
+                    ]}
+                    value={String(weightage4)}
                     keyboardType="numeric"
                     placeholderTextColor={'gray'}
                     onChangeText={text => setWeightage4(text)}
@@ -234,17 +401,77 @@ const HodScreen10 = () => {
               </View>
             )}
           />
-
-          {/* <Text style={styles.name}>SENIOR TEACHER</Text> */}
-
-          {/* <View style={styles.savebuttonContainer}>
-            <TouchableOpacity
-              style={styles.saveButton}
-              onPress={() => handleSave()}>
-              <Text style={styles.saveText}>Save Changes</Text>
-            </TouchableOpacity>
-          </View> */}
+          {isButtonVisible && (
+            <View style={{alignItems: 'flex-end'}}>
+              <TouchableOpacity
+                style={styles.updateButton}
+                onPress={addGridViewWeightage}>
+                <Text style={styles.updateText}>Update</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
+        {gridViewWeightage.length > 0 && (
+          <View style={styles.table}>
+            <View style={styles.bar4}>
+              <Text style={styles.bar4Text}>Assessments</Text>
+            </View>
+            <View style={styles.bar5}>
+              {gridViewHeaders.map((item, index) => (
+                <Text key={index} style={styles.bar5Text}>
+                  {item.name}
+                </Text>
+              ))}
+            </View>
+            <View style={styles.bar6}>
+              {gridViewHeaders.map((item, index) => (
+                <Text key={index} style={styles.bar6Text}>
+                  {item.weightage}%
+                </Text>
+              ))}
+            </View>
+            <FlatList
+              data={gridViewWeightage}
+              style={styles.flatlist3}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({item, index}) => (
+                <View style={styles.rowContainer}>
+                  <Text style={styles.cloText2}>{item.clo_number}</Text>
+                  <View style={[styles.listItem3]}>
+                    <Text
+                      style={[
+                        styles.weightageText,
+                        item.weightage1 === 0 && styles.zeroWeightageText,
+                      ]}>
+                      {item.weightage1}%
+                    </Text>
+                    <Text
+                      style={[
+                        styles.weightageText,
+                        item.weightage2 === 0 && styles.zeroWeightageText,
+                      ]}>
+                      {item.weightage2}%
+                    </Text>
+                    <Text
+                      style={[
+                        styles.weightageText,
+                        item.weightage3 === 0 && styles.zeroWeightageText,
+                      ]}>
+                      {item.weightage3}%
+                    </Text>
+                    <Text
+                      style={[
+                        styles.weightageText,
+                        item.weightage4 === 0 && styles.zeroWeightageText,
+                      ]}>
+                      {item.weightage4}%
+                    </Text>
+                  </View>
+                </View>
+              )}
+            />
+          </View>
+        )}
         {/* </ScrollView> */}
       </View>
     </ImageBackground>
@@ -265,6 +492,11 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
   },
+  table: {
+    marginTop: 80,
+    width: '100%',
+    // backgroundColor: 'black',
+  },
   headerText: {
     height: 70,
     width: 320,
@@ -274,6 +506,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: 'white',
+  },
+  topbar: {
+    marginLeft: 15,
+    marginTop: 20,
+    marginBottom: 20,
   },
   label: {
     marginTop: 20,
@@ -311,6 +548,7 @@ const styles = StyleSheet.create({
     height: 40,
     width: 40,
     // alignSelf: 'center',
+    backgroundColor: 'white',
     borderColor: 'black',
     borderWidth: 2,
     borderRadius: 5,
@@ -319,6 +557,22 @@ const styles = StyleSheet.create({
     color: 'black',
     fontWeight: 'bold',
     textAlign: 'center',
+    marginTop: 5,
+    marginBottom: 5,
+  },
+  redText: {
+    height: 40,
+    width: 40,
+    // alignSelf: 'center',
+    borderColor: 'red',
+    borderWidth: 2,
+    borderRadius: 5,
+    marginLeft: 30,
+    paddingHorizontal: 8,
+    color: 'black',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 5,
     marginBottom: 5,
   },
   searchinput: {
@@ -348,21 +602,22 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
   },
-  //   listItem: {
-  //     flexDirection: 'row',
-  //     borderBottomWidth: 2,
-  //     borderBottomColor: 'black',
-  //     width: '90%',
-  //     height: 55,
-  //     marginLeft: '5%',
-  //     borderRadius: 15,
-  //     marginTop: 1,
-  //     color: 'black',
-  //     justifyContent: 'space-between',
-  //     alignItems: 'center',
-  //     backgroundColor: '#CDCDCD',
-  //   },
   listItem: {
+    flexDirection: 'row',
+    borderBottomWidth: 2,
+    borderBottomColor: '#58FFAB',
+    backgroundColor: '#CDCDCD',
+    borderWidth: 2,
+    borderColor: 'white',
+    height: 'auto',
+    width: 'auto',
+    marginLeft: 5,
+    marginTop: 3,
+    borderRadius: 10,
+    color: 'white',
+    alignItems: 'center',
+  },
+  listItem2: {
     flexDirection: 'column',
     borderBottomWidth: 2,
     borderBottomColor: '#58FFAB',
@@ -370,12 +625,28 @@ const styles = StyleSheet.create({
     height: 'auto',
     width: '90%',
     marginLeft: '5%',
-    marginTop: 3,
+    marginTop: 1,
     borderRadius: 10,
     // marginTop: 2,
     color: 'white',
     // justifyContent: 'center',
     // alignItems: 'center',
+  },
+  listItem3: {
+    flexDirection: 'row',
+    borderBottomWidth: 2,
+    borderBottomColor: '#58FFAB',
+    backgroundColor: '#CDCDCD',
+    marginLeft: '1%',
+    width: '90%',
+    marginTop: 1,
+    borderRadius: 10,
+    // marginTop: 2,
+    // justifyContent: 'center',
+    // alignItems: 'center',
+  },
+  selectedItem: {
+    backgroundColor: '#58FFAB',
   },
   cloText: {
     fontSize: 20,
@@ -384,19 +655,68 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     flexWrap: 'wrap',
   },
+  cloText2: {
+    backgroundColor: 'black',
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: 'white',
+    alignItems: 'center',
+    marginLeft: '1%',
+    borderWidth: 1,
+    // flexWrap: 'wrap',
+  },
   indexText: {
+    fontSize: 14,
+    color: 'black',
+    marginLeft: 10,
+    marginRight: 10,
+    fontWeight: 'bold',
+    marginBottom: 3,
+    marginTop: 3,
+  },
+  indexText2: {
     fontSize: 15,
     color: 'blue',
     marginLeft: 10,
     fontWeight: 'bold',
     marginBottom: 5,
   },
+  weightageText: {
+    fontSize: 15,
+    color: 'black',
+    width: '25%',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    marginBottom: 3,
+    marginTop: 3,
+  },
+  zeroWeightageText: {
+    fontSize: 15,
+    color: 'red',
+    width: '25%',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    marginBottom: 3,
+    marginTop: 3,
+  },
   column: {
     flex: 1,
   },
   flatlist: {
     marginTop: 5,
+    maxWidth: 350,
+  },
+  flatlist2: {
+    // marginTop: 3,
     maxHeight: 455,
+  },
+  flatlist3: {
+    // marginTop: 1,
+    maxHeight: 155,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   backgroundImage: {
     flex: 1,
@@ -480,7 +800,7 @@ const styles = StyleSheet.create({
     color: 'black',
     height: 40,
     width: '90%',
-    marginTop: 10,
+    // marginTop: 10,
     marginLeft: '5%',
     borderRadius: 10,
     justifyContent: 'center',
@@ -496,7 +816,7 @@ const styles = StyleSheet.create({
     color: 'black',
     height: 40,
     width: '90%',
-    marginTop: 5,
+    marginTop: 1,
     marginLeft: '5%',
     borderRadius: 10,
     justifyContent: 'center',
@@ -509,6 +829,9 @@ const styles = StyleSheet.create({
     color: 'black',
     fontWeight: 'bold',
     textAlign: 'center',
+    borderRightWidth: 1,
+    height: '80%',
+    textAlignVertical: 'center',
   },
   bar3: {
     flexDirection: 'row',
@@ -527,7 +850,92 @@ const styles = StyleSheet.create({
     color: 'black',
     fontWeight: 'bold',
     textAlign: 'center',
-    // borderWidth: 1
+  },
+  bar4: {
+    backgroundColor: 'yellow',
+    color: 'black',
+    height: 40,
+    width: '90%',
+    // marginTop: 10,
+    marginLeft: '10%',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bar4Text: {
+    color: 'black',
+    fontWeight: 'bold',
+  },
+  bar5: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    color: 'black',
+    height: 40,
+    width: '90%',
+    marginTop: 1,
+    marginLeft: '10%',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bar5Text: {
+    flex: 1,
+    // borderWidth: 1,
+    // borderColor: 'black',
+    color: 'black',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    borderRightWidth: 1,
+    height: '80%',
+    textAlignVertical: 'center',
+  },
+  bar6: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    color: 'black',
+    height: 40,
+    width: '90%',
+    marginTop: 1,
+    marginLeft: '10%',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bar6Text: {
+    flex: 1,
+    color: 'black',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    borderRightWidth: 1,
+    height: '80%',
+    textAlignVertical: 'center',
+  },
+  updateButton: {
+    backgroundColor: '#58FFAB',
+    width: '20%',
+    borderWidth: 2,
+    borderColor: 'white',
+    alignItems: 'center',
+    borderRadius: 10,
+    padding: 3,
+    marginRight: 20,
+    marginTop: 10,
+  },
+  updateText: {
+    color: 'black',
+    fontWeight: 'bold',
+    fontSize: 18,
+  },
+  cloWarning: {
+    backgroundColor: 'red',
+    borderWidth: 1,
+    borderColor: 'white',
+    borderRadius: 10,
+    width: '92%',
+    marginLeft: '2%',
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

@@ -131,7 +131,7 @@ const FctScreen07 = ({route}) => {
   //     commontopics.some(commonTopic => commonTopic.t_id === topic.t_id);
   //   };
 
-  const  isCommonTopic = topicId =>
+  const isCommonTopic = topicId =>
     commontopics.some(commonTopic => commonTopic.t_id === topicId);
 
   const isTopicTaught = topicId =>
