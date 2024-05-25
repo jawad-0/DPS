@@ -23,9 +23,11 @@ const FctScreen07 = ({route}) => {
   const navigation = useNavigation();
   const [name, setName] = useState('');
   const [topics, setTopics] = useState([]);
+  const [subtopics, setSubTopics] = useState([]);
   const [commontopics, setCommonTopics] = useState([]);
   const [faculty, setCommonFaculty] = useState([]);
   const [topictaught, setTopicTaught] = useState([]);
+  const [subtopictaught, setSubTopicTaught] = useState([]);
   const [assignedCourses, setAssignedCourses] = useState([]);
   const [flatListHeight, setFlatListHeight] = useState(0);
   const [pressedButton, setPressedButton] = useState('initial');
@@ -59,6 +61,7 @@ const FctScreen07 = ({route}) => {
     // Set the pressed button
     if (button == 'button1') {
       fetchTopicTaught(facultyId);
+      fetchSubTopicTaught(facultyId);
     }
     fetchData();
     fetchData2();
@@ -80,9 +83,12 @@ const FctScreen07 = ({route}) => {
       .then(data => {
         // console.log(data);
         setTopics(data);
+        data.forEach(topic => {
+          fetchSubtopics(topic.t_id);
+        });
       })
       .catch(error => {
-        // console.error('Error fetching data:', error);
+        console.error('Error fetching data:', error);
       });
 
     fetch(apiEndpoint2)
@@ -93,6 +99,27 @@ const FctScreen07 = ({route}) => {
       })
       .catch(error => {
         // console.error('Error fetching data:', error);
+      });
+  };
+
+  const fetchSubtopics = t_id => {
+    const apiEndpoint = `http://${ip}:${port}/getSubTopic/${t_id}`;
+
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        // console.log(data);
+        setSubTopics(prevSubtopics => ({
+          ...prevSubtopics,
+          [t_id]: data,
+        }));
+      })
+      .catch(error => {
+        console.error('Error fetching subtopics:', error);
+        setSubTopics(prevSubtopics => ({
+          ...prevSubtopics,
+          [t_id]: [],
+        }));
       });
   };
 
@@ -127,6 +154,18 @@ const FctScreen07 = ({route}) => {
       });
   };
 
+  const fetchSubTopicTaught = key => {
+    const apiEndpoint = `http://${ip}:${port}/getsubtopictaught/${key}`;
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        setSubTopicTaught(data);
+      })
+      .catch(error => {
+        // console.error('Error fetching data:', error);
+      });
+  };
+
   //   const isCommonTopic = topic => {
   //     commontopics.some(commonTopic => commonTopic.t_id === topic.t_id);
   //   };
@@ -137,8 +176,12 @@ const FctScreen07 = ({route}) => {
   const isTopicTaught = topicId =>
     topictaught.some(topic => topic.t_id === topicId);
 
+  const isSubTopicTaught = subtopicId =>
+    subtopictaught.some(subtopic => subtopic.st_id === subtopicId);
+
   const addTopicTaught = topicId => {
     console.log('Yes');
+    console.log(topicId);
     const apiEndpoint = `http://${ip}:${port}/addtopictaught`;
     fetch(apiEndpoint, {
       method: 'POST',
@@ -184,7 +227,6 @@ const FctScreen07 = ({route}) => {
       ToastAndroid.show('Deleted Successfully !', ToastAndroid.SHORT);
       return response.json();
     });
-
     //   const fetchCommonTopicTaught = key => {
     //     const apiEndpoint = `http://${ip}:${port}/getcommontopictaught/${key}`;
     //     fetch(apiEndpoint)
@@ -202,6 +244,59 @@ const FctScreen07 = ({route}) => {
     //       topic => topic.t_id === topicId && topic.isTaughtByAll,
     //     );
     //   };
+  };
+
+  const addSubTopicTaught = subtopicId => {
+    console.log('Yes');
+    console.log(subtopicId);
+    const apiEndpoint = `http://${ip}:${port}/addsubtopictaught`;
+    fetch(apiEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        f_id: facultyId,
+        st_id: subtopicId,
+      }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        ToastAndroid.show('Added Successfully !', ToastAndroid.SHORT);
+        fetchData();
+        fetchData2();
+        fetchTopicTaught(facultyId);
+        fetchSubTopicTaught(facultyId);
+      })
+      .catch(error => {
+        console.error('Error posting data:', error);
+      });
+  };
+
+  const deleteSubTopicTaught = subtopicId => {
+    console.log('Yes');
+    console.log(subtopicId);
+    const apiEndpoint = `http://${ip}:${port}/deletesubtopictaught`;
+    fetch(apiEndpoint, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        st_id: subtopicId,
+        f_id: facultyId,
+      }),
+    }).then(response => {
+      if (!response.ok) {
+        console.log('Network response was not ok');
+      }
+      fetchData();
+      fetchData2();
+      fetchTopicTaught(facultyId);
+      fetchSubTopicTaught(facultyId);
+      ToastAndroid.show('Deleted Successfully !', ToastAndroid.SHORT);
+      return response.json();
+    });
   };
 
   return (
@@ -275,16 +370,27 @@ const FctScreen07 = ({route}) => {
                   marginLeft: 10,
                   marginTop: 20,
                 }}>
-                Topics :
+                Topics / Subtopics :
               </Text>
               <FlatList
                 data={topics}
                 style={styles.flatlist}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({item, index}) => (
-                  <View style={styles.listItem}>
-                    {/* <Text style={styles.indexText}>CLO {index+1}:</Text> */}
+                  <View style={styles.initiallistItem}>
                     <Text style={styles.topicText}>{item.t_name}</Text>
+                    <View style={styles.subtopicContainer}>
+                      {subtopics[item.t_id] &&
+                        subtopics[item.t_id].map(subtopic => (
+                          <TouchableOpacity
+                            key={subtopic.st_id}
+                            style={styles.subtopicButton}>
+                            <Text style={styles.subtopicText}>
+                              {subtopic.st_name}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                    </View>
                   </View>
                 )}
               />
@@ -307,36 +413,79 @@ const FctScreen07 = ({route}) => {
                 style={styles.flatlist}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({item, index}) => (
-                  <View style={styles.listItem}>
-                    {isTopicTaught(item.t_id) ? (
-                      <View style={{marginLeft: 15}}>
-                        <TouchableOpacity
-                          style={styles.checkButton}
-                          onPress={() => deleteTopicTaught(item.t_id)}>
-                          {/* <Text>✔</Text> */}
-                          <Image
-                            source={require('../../assets/checkedbox.png')}
-                            style={styles.checkIcon}
-                            resizeMode="contain"
-                          />
-                        </TouchableOpacity>
-                      </View>
-                    ) : (
-                      <View style={{marginLeft: 15}}>
-                        <TouchableOpacity
-                          style={styles.uncheckButton}
-                          onPress={() => addTopicTaught(item.t_id)}>
-                          {/* <Text>✔</Text> */}
-                          <Image
-                            source={require('../../assets/uncheckedbox.png')}
-                            style={styles.uncheckIcon}
-                            resizeMode="contain"
-                          />
-                        </TouchableOpacity>
-                      </View>
-                    )}
-                    {/* <Text style={styles.indexText}>CLO {index+1}:</Text> */}
-                    <Text style={styles.topicText}>{item.t_name}</Text>
+                  <View style={styles.coveredlistItem}>
+                    <View style={styles.topicRow}>
+                      {isTopicTaught(item.t_id) ? (
+                        <View style={{marginLeft: 15}}>
+                          <TouchableOpacity
+                            style={styles.checkButton}
+                            onPress={() => deleteTopicTaught(item.t_id)}>
+                            {/* <Text>✔</Text> */}
+                            <Image
+                              source={require('../../assets/checkedbox.png')}
+                              style={styles.checkIcon}
+                              resizeMode="contain"
+                            />
+                          </TouchableOpacity>
+                        </View>
+                      ) : (
+                        <View style={{marginLeft: 15}}>
+                          <TouchableOpacity
+                            style={styles.uncheckButton}
+                            onPress={() => addTopicTaught(item.t_id)}>
+                            <Image
+                              source={require('../../assets/uncheckedbox.png')}
+                              style={styles.uncheckIcon}
+                              resizeMode="contain"
+                            />
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                      <Text style={styles.topicText}>{item.t_name}</Text>
+                    </View>
+                    <View style={styles.subtopicContainer}>
+                      {subtopics[item.t_id] &&
+                        subtopics[item.t_id].map(subtopic => (
+                          <TouchableOpacity
+                            key={subtopic.st_id}
+                            style={styles.subtopicButton}>
+                            <View style={styles.subtopicRow}>
+                              {isSubTopicTaught(subtopic.st_id) ? (
+                                <View style={{marginLeft: 15}}>
+                                  <TouchableOpacity
+                                    style={styles.checkButton}
+                                    onPress={() =>
+                                      deleteSubTopicTaught(subtopic.st_id)
+                                    }>
+                                    <Image
+                                      source={require('../../assets/checkedbox.png')}
+                                      style={styles.checkIcon}
+                                      resizeMode="contain"
+                                    />
+                                  </TouchableOpacity>
+                                </View>
+                              ) : (
+                                <View style={{marginLeft: 15}}>
+                                  <TouchableOpacity
+                                    style={styles.uncheckButton}
+                                    onPress={() =>
+                                      addSubTopicTaught(subtopic.st_id)
+                                    }>
+                                    <Image
+                                      source={require('../../assets/uncheckedbox.png')}
+                                      style={styles.uncheckIcon}
+                                      resizeMode="contain"
+                                    />
+                                  </TouchableOpacity>
+                                </View>
+                              )}
+                              <Text style={styles.subtopicText}>
+                                {subtopic.st_name}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        ))}
+                    </View>
                   </View>
                 )}
               />
@@ -562,6 +711,34 @@ const styles = StyleSheet.create({
     // justifyContent: 'space-between',
     alignItems: 'center',
   },
+  initiallistItem: {
+    // flexDirection: 'row',
+    borderBottomWidth: 2,
+    borderBottomColor: '#58FFAB',
+    backgroundColor: '#CDCDCD',
+    height: 'auto',
+    width: '96%',
+    marginLeft: '2%',
+    marginTop: 3,
+    borderRadius: 10,
+    color: 'white',
+    // justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  coveredlistItem: {
+    // flexDirection: 'row',
+    borderBottomWidth: 2,
+    borderBottomColor: '#58FFAB',
+    backgroundColor: '#CDCDCD',
+    height: 'auto',
+    width: '96%',
+    marginLeft: '2%',
+    marginTop: 3,
+    borderRadius: 10,
+    color: 'white',
+    // justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   progresslistItem: {
     flexDirection: 'row',
     borderBottomWidth: 2,
@@ -580,6 +757,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: 'black',
+    marginLeft: 15,
+    width: 320,
+    flexWrap: 'wrap',
+  },
+  subtopicText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'blue',
     marginLeft: 15,
     width: 320,
     flexWrap: 'wrap',
@@ -611,6 +796,15 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     marginBottom: 15,
+  },
+  subtopicButton: {
+    // backgroundColor: 'white',
+    marginLeft: 30,
+  },
+  subtopicContainer: {
+    backgroundColor: 'white',
+    width: '100%',
+    borderRadius: 10,
   },
   activeButton: {
     backgroundColor: '#58FFAB',
@@ -734,6 +928,16 @@ const styles = StyleSheet.create({
   uncheckIcon: {
     height: 24,
     width: 24,
+  },
+  topicRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  subtopicRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
   },
 });
 

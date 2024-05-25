@@ -31,7 +31,7 @@ HOD_SCREEN_06.js   // Manage CLOS (Approve/Disapprove)
 HOD_SCREEN_07.js   // Assign Course
 HOD_SCREEN_08.js   // Assign Course
 HOD_SCREEN_09.js   // Assign Role
-HOD_SCREEN_10.js   // Manage CLOS Grid -------------------------------------------------- (working)
+HOD_SCREEN_10.js   // Manage CLOS Grid
 
 FCT_LOGIN.js       // Login Screen For FCT
 FCT_SCREEN_01.js   // Faculty Dashboard with Assigned_Courses/Notifications/Status
