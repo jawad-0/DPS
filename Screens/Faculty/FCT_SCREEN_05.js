@@ -21,191 +21,180 @@ const FctScreen05 = ({route}) => {
   const {courseId, courseName, courseCode, facultyId, facultyRole} =
     route.params;
   const navigation = useNavigation();
+  const [topicname, setTopicName] = useState('');
   const [CLOS, setCLOS] = useState([]);
   const [topics, setTopics] = useState([]);
-  const [clo_id, setCLOid] = useState();
-  const [clonumber, setCLOnumber] = useState('');
-  const [clotext, setCLOtext] = useState('');
   const [mode, setMode] = useState('add');
-  // const [toggleCheckBox, setToggleCheckBox] = useState(false);
+  const [selectedTopic, setSelectedTopic] = useState(null);
   const [selectedCLOIds, setSelectedCLOIds] = useState([]);
 
   const toggleCheckBox = clo_id => {
-    if (selectedCLOIds.includes(clo_id)) {
+    if (selectedCLOIds && selectedCLOIds.includes(clo_id)) {
       setSelectedCLOIds(selectedCLOIds.filter(id => id !== clo_id));
     } else {
       setSelectedCLOIds([...selectedCLOIds, clo_id]);
     }
   };
 
+  //   const toggleCheckBox = clo_id => {
+  //     setSelectedCLOIds(prevIds => {
+  //       if (prevIds.includes(clo_id)) {
+  //         return prevIds.filter(id => id !== clo_id);
+  //       } else {
+  //         return [...prevIds, clo_id];
+  //       }
+  //     });
+  //   };
+
+  //   const toggleCheckBox = clo_id => {
+  //     if (selectedCLOIds.includes(clo_id)) {
+  //       setSelectedCLOIds(selectedCLOIds.filter(id => id !== clo_id));
+  //     } else {
+  //       setSelectedCLOIds([...selectedCLOIds, clo_id]);
+  //     }
+  //   };
+
   useEffect(() => {
-    fetchData();
-    fetchData2();
+    fetchCourse();
+    fetchCLOS();
   }, []);
 
   const handleAddOrUpdateCLO = () => {
     if (mode === 'add') {
-      addCLO();
+      addTopic();
     } else if (mode === 'edit') {
-      editCLO();
+      saveTopic();
     }
-  };
-
-  const isValidCLOFormat = clonumber => {
-    const regex = /^CLO-\d+$/;
-    return regex.test(clonumber);
   };
 
   const handleSearch = text => {
     console.log('yes');
-    // const apiEndpoint = `http://${ip}:${faculty_port}/searchfaculty?search=${text}`;
-
-    // if (text.trim() === '') {
-    //   fetchData();
-    // } else {
-    //   fetch(apiEndpoint)
-    //     .then(response => response.json())
-    //     .then(data => {
-    //       setFacultyMembers(data);
-    //     })
-    //     .catch(error => {
-    //       console.error('Error searching data:', error);
-    //     });
-    // }
+    // Add search functionality if needed
   };
 
   const addTopic = () => {
+    console.log(topicname);
     console.log('Selected CLO IDs:', selectedCLOIds);
-    setSelectedCLOIds([]);
-  };
 
-  const addCLO = () => {
-    setMode('add');
-    if (clonumber.trim() === '' || clotext.trim() === '') {
-      ToastAndroid.show('Error: Please fill all fields.', ToastAndroid.SHORT);
-      return;
-    }
-    if (!isValidCLOFormat(clonumber)) {
-      ToastAndroid.show(
-        'Invalid CLO Number format. Correct format "CLO-1"',
-        ToastAndroid.LONG,
-      );
-      return;
-    }
-    const apiEndpoint = `http://${ip}:${port}/addCLO`;
-    fetch(apiEndpoint, {
+    fetch(`http://${ip}:${port}/addtopic`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         c_id: courseId,
-        clo_number: clonumber,
-        clo_text: clotext,
+        t_name: topicname,
+        clo_ids: selectedCLOIds,
       }),
     })
       .then(response => {
-        if (response.status === 400) {
-          return response.json().then(data => {
-            ToastAndroid.show(data.error, ToastAndroid.LONG);
-            throw new Error(data.error);
-          });
-        } else if (!response.ok) {
-          throw new Error('Network response was not ok');
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('Failed to add topic');
         }
-        return response.json();
       })
       .then(data => {
-        console.log('CLO posted successfully:', data);
-        ToastAndroid.show('Added Successfully !', ToastAndroid.SHORT);
-        Keyboard.dismiss();
-        fetchData();
+        Alert.alert('Success', 'Topic added successfully');
+        setTopicName('');
+        setSelectedCLOIds([]);
+        fetchCourse(); // Refresh topics list
       })
       .catch(error => {
-        // console.error('Error posting data:', error);
-      });
-  };
-
-  const editCLO = () => {
-    setMode('edit');
-    if (clonumber.trim() === '' || clotext.trim() === '') {
-      ToastAndroid.show('Error: Please fill all fields.', ToastAndroid.SHORT);
-      return;
-    }
-    if (!isValidCLOFormat(clonumber)) {
-      ToastAndroid.show(
-        'Invalid CLO Number format. Correct format "CLO-1"',
-        ToastAndroid.LONG,
-      );
-      return;
-    }
-    const apiEndpoint = `http://${ip}:${port}/editCLO/${clo_id}`;
-    fetch(apiEndpoint, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        c_id: courseId,
-        clo_number: clonumber,
-        clo_text: clotext,
-      }),
-    })
-      .then(response => {
-        if (response.status === 400) {
-          return response.json().then(data => {
-            ToastAndroid.show(data.error, ToastAndroid.LONG);
-            throw new Error(data.error);
-          });
-        } else if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('CLO updated successfully:', data);
-        ToastAndroid.show('Updated Successfully !', ToastAndroid.SHORT);
-        Keyboard.dismiss();
-        setCLOnumber('');
-        setCLOtext('');
-        setMode('add');
-        fetchData();
-      })
-      .catch(error => {
-        // console.error('Error posting data:', error);
+        console.error('Error adding topic:', error);
+        Alert.alert(
+          'Error',
+          error.message || 'Failed to add topic. Please try again.',
+        );
       });
   };
 
   const handleEdit = item => {
     setMode('edit');
-    setCLOid(item.clo_id);
-    setCLOnumber(item.clo_number);
-    setCLOtext(item.clo_text);
+    const apiEndpoint = `http://${ip}:${port}/getTopic/${item.t_id}`;
+
+    fetch(apiEndpoint)
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('Failed to fetch topic details');
+        }
+      })
+      .then(data => {
+        setTopicName(data.t_name);
+        setSelectedCLOIds(data.clo_ids); // Assuming your API returns clo_ids
+        setSelectedTopic(data);
+      })
+      .catch(error => {
+        console.error('Error fetching topic details:', error);
+        Alert.alert(
+          'Error',
+          error.message || 'Failed to fetch topic details. Please try again.',
+        );
+      });
   };
 
-  const fetchData = () => {
+  const saveTopic = () => {
+    if (!selectedTopic) {
+      return;
+    }
+
+    fetch(`http://${ip}:${port}/updateTopic/${selectedTopic.t_id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        t_name: topicname,
+        clo_ids: selectedCLOIds,
+      }),
+    })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('Failed to update topic');
+        }
+      })
+      .then(data => {
+        Alert.alert('Success', 'Topic updated successfully');
+        setTopicName('');
+        setSelectedCLOIds([]);
+        setMode('add');
+        setSelectedTopic(null);
+        fetchCourse(); // Refresh topics list
+      })
+      .catch(error => {
+        console.error('Error updating topic:', error);
+        Alert.alert(
+          'Error',
+          error.message || 'Failed to update topic. Please try again.',
+        );
+      });
+  };
+
+  const fetchCourse = () => {
     const apiEndpoint = `http://${ip}:${port}/gettopic/${courseId}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
-        // console.log(data);
         setTopics(data);
       })
       .catch(error => {
-        // console.error('Error fetching data:', error);
+        console.error('Error fetching data:', error);
       });
   };
 
-  const fetchData2 = () => {
+  const fetchCLOS = () => {
     const apiEndpoint = `http://${ip}:${port}/getCLO/${courseId}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
-        // console.log(data);
         setCLOS(data);
       })
       .catch(error => {
-        // console.error('Error fetching data:', error);
+        console.error('Error fetching data:', error);
       });
   };
 
@@ -244,23 +233,18 @@ const FctScreen05 = ({route}) => {
           <Text style={styles.label}>Topic Name</Text>
           <TextInput
             style={styles.input1}
-            value={clonumber}
+            value={topicname}
             placeholder="Enter Topic Name"
             placeholderTextColor={'gray'}
-            onChangeText={text => setCLOnumber(text)}
+            onChangeText={text => setTopicName(text)}
           />
           <Text style={styles.label}>CLOS</Text>
           <View style={styles.CLOScontainer}>
             {CLOS.map((CLO, index) => (
               <View key={index} style={styles.checkboxContainer}>
                 <TouchableOpacity onPress={() => console.log(CLO.clo_text)}>
-                <Text style={styles.clonumbertext}>{CLO.clo_number}</Text>
+                  <Text style={styles.clonumbertext}>{CLO.clo_number}</Text>
                 </TouchableOpacity>
-                {/* <CheckBox
-                  disabled={false}
-                  value={toggleCheckBox}
-                  onValueChange={newValue => setToggleCheckBox(newValue)}
-                /> */}
                 <CheckBox
                   disabled={false}
                   value={selectedCLOIds.includes(CLO.clo_id)}
@@ -270,7 +254,9 @@ const FctScreen05 = ({route}) => {
             ))}
           </View>
 
-          <TouchableOpacity style={styles.button} onPress={addTopic}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleAddOrUpdateCLO}>
             <Text style={styles.addText}>
               {mode === 'add' ? 'ADD' : 'UPDATE'}
             </Text>

@@ -21,23 +21,19 @@ const FctScreen07 = ({route}) => {
   const {courseId, courseName, courseCode, facultyId, facultyRole} =
     route.params;
   const navigation = useNavigation();
-  const [name, setName] = useState('');
   const [topics, setTopics] = useState([]);
   const [subtopics, setSubTopics] = useState([]);
   const [commontopics, setCommonTopics] = useState([]);
+  const [commonsubtopics, setCommonSubTopics] = useState([]);
   const [faculty, setCommonFaculty] = useState([]);
   const [topictaught, setTopicTaught] = useState([]);
   const [subtopictaught, setSubTopicTaught] = useState([]);
-  const [assignedCourses, setAssignedCourses] = useState([]);
-  const [flatListHeight, setFlatListHeight] = useState(0);
   const [pressedButton, setPressedButton] = useState('initial');
-  const [content1, setContent1] = useState([]);
-  const [content2, setContent2] = useState([]);
-  const [content3, setContent3] = useState([]);
 
   useEffect(() => {
     fetchData();
     fetchData2();
+    fetchCommonSubTopics(courseId);
   }, []);
 
   const handleButtonPress = button => {
@@ -123,6 +119,20 @@ const FctScreen07 = ({route}) => {
       });
   };
 
+  const fetchCommonSubTopics = courseId => {
+    const apiEndpoint = `http://${ip}:${port}/getcommonsubtopictaught/${courseId}`;
+
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        setCommonSubTopics(data);
+      })
+      .catch(error => {
+        // console.error('Error fetching data:', error);
+      });
+  };
+
   const fetchData2 = () => {
     const apiEndpoint = `http://${ip}:${port}/getpaperheaderfaculty/${courseId}`;
     fetch(apiEndpoint)
@@ -172,6 +182,9 @@ const FctScreen07 = ({route}) => {
 
   const isCommonTopic = topicId =>
     commontopics.some(commonTopic => commonTopic.t_id === topicId);
+
+  const isCommonSubTopic = subtopicId =>
+    commonsubtopics.some(commonSubTopic => commonSubTopic.st_id === subtopicId);
 
   const isTopicTaught = topicId =>
     topictaught.some(topic => topic.t_id === topicId);
@@ -446,7 +459,7 @@ const FctScreen07 = ({route}) => {
                     <View style={styles.subtopicContainer}>
                       {subtopics[item.t_id] &&
                         subtopics[item.t_id].map(subtopic => (
-                          <TouchableOpacity
+                          <View
                             key={subtopic.st_id}
                             style={styles.subtopicButton}>
                             <View style={styles.subtopicRow}>
@@ -483,7 +496,7 @@ const FctScreen07 = ({route}) => {
                                 {subtopic.st_name}
                               </Text>
                             </View>
-                          </TouchableOpacity>
+                          </View>
                         ))}
                     </View>
                   </View>
@@ -508,11 +521,10 @@ const FctScreen07 = ({route}) => {
                 style={styles.flatlist}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({item, index}) => (
-                  <View style={styles.listItem}>
-                    {/* <Text style={styles.indexText}>CLO {index+1}:</Text> */}
-                    <Text style={styles.topicText}>{item.t_name}</Text>
-                    {isCommonTopic(item.t_id) ? (
-                      <View>
+                  <View style={styles.commonlistItem}>
+                    <View style={styles.topicRow}>
+                      {/* <Text style={styles.indexText}>CLO {index+1}:</Text> */}
+                      {isCommonTopic(item.t_id) ? (
                         <View style={styles.tickButton}>
                           {/* <Text>✔</Text> */}
                           <Image
@@ -521,10 +533,51 @@ const FctScreen07 = ({route}) => {
                             resizeMode="contain"
                           />
                         </View>
-                      </View>
-                    ) : (
-                      <Text>❌</Text>
-                    )}
+                      ) : (
+                        <View style={styles.crossButton}>
+                          {/* <Text>✔</Text> */}
+                          <Image
+                            source={require('../../assets/cross.png')}
+                            style={styles.crossIcon}
+                            resizeMode="contain"
+                          />
+                        </View>
+                      )}
+                      <Text style={styles.topicText}>{item.t_name}</Text>
+                    </View>
+                    <View style={styles.subtopicContainer}>
+                      {subtopics[item.t_id] &&
+                        subtopics[item.t_id].map(subtopic => (
+                          <TouchableOpacity
+                            key={subtopic.st_id}
+                            style={styles.subtopicButton}>
+                            <View style={styles.subtopicRow}>
+                              {isCommonSubTopic(subtopic.st_id) ? (
+                                <View style={styles.tickButton}>
+                                  {/* <Text>✔</Text> */}
+                                  <Image
+                                    source={require('../../assets/tick.png')}
+                                    style={styles.tickIcon}
+                                    resizeMode="contain"
+                                  />
+                                </View>
+                              ) : (
+                                <View style={styles.crossButton}>
+                                  {/* <Text>✔</Text> */}
+                                  <Image
+                                    source={require('../../assets/cross.png')}
+                                    style={styles.crossIcon}
+                                    resizeMode="contain"
+                                  />
+                                </View>
+                              )}
+                              <Text style={styles.subtopicText}>
+                                {subtopic.st_name}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        ))}
+                    </View>
                   </View>
                 )}
               />
@@ -538,6 +591,7 @@ const FctScreen07 = ({route}) => {
                   <SelectList
                     setSelected={key => {
                       fetchTopicTaught(key);
+                      fetchSubTopicTaught(key);
                     }}
                     data={faculty}
                     save="f_name"
@@ -569,12 +623,9 @@ const FctScreen07 = ({route}) => {
                   keyExtractor={(item, index) => index.toString()}
                   renderItem={({item, index}) => (
                     <View style={styles.progresslistItem}>
-                      {/* <Text style={styles.indexText}>CLO {index+1}:</Text> */}
-                      <Text style={styles.progresstopicText}>
-                        {item.t_name}
-                      </Text>
-                      {isTopicTaught(item.t_id) && (
-                        <View>
+                      <View style={styles.topicRow}>
+                        {/* <Text style={styles.indexText}>CLO {index+1}:</Text> */}
+                        {isTopicTaught(item.t_id) ? (
                           <View style={styles.tickButton}>
                             {/* <Text>✔</Text> */}
                             <Image
@@ -583,28 +634,55 @@ const FctScreen07 = ({route}) => {
                               resizeMode="contain"
                             />
                           </View>
-                        </View>
-                      )}
+                        ) : (
+                          <View style={styles.crossButton}>
+                            {/* <Text>✔</Text> */}
+                            <Image
+                              source={require('../../assets/cross.png')}
+                              style={styles.crossIcon}
+                              resizeMode="contain"
+                            />
+                          </View>
+                        )}
+                        <Text style={styles.progresstopicText}>
+                          {item.t_name}
+                        </Text>
+                      </View>
+                      <View style={styles.subtopicContainer}>
+                        {subtopics[item.t_id] &&
+                          subtopics[item.t_id].map(subtopic => (
+                            <View
+                              key={subtopic.st_id}
+                              style={styles.subtopicButton}>
+                              <View style={styles.subtopicRow}>
+                                {isSubTopicTaught(subtopic.st_id) ? (
+                                  <View style={styles.tickButton}>
+                                    <Image
+                                      source={require('../../assets/tick.png')}
+                                      style={styles.tickIcon}
+                                      resizeMode="contain"
+                                    />
+                                  </View>
+                                ) : (
+                                  <View style={styles.crossButton}>
+                                    <Image
+                                      source={require('../../assets/cross.png')}
+                                      style={styles.crossIcon}
+                                      resizeMode="contain"
+                                    />
+                                  </View>
+                                )}
+                                <Text style={styles.subtopicText}>
+                                  {subtopic.st_name}
+                                </Text>
+                              </View>
+                            </View>
+                          ))}
+                      </View>
                     </View>
                   )}
                 />
-                {/* </View> */}
-                {/* <View style={styles.rightHalf}> */}
-                {/* <ScrollView
-                    horizontal={true}
-                    style={{flex: 1, width: '100%'}}>
-                    <View style={styles.item}>
-                      <Text style={{fontSize: 20, color: 'black'}}>Item 1</Text>
-                    </View>
-                    <View style={styles.item}>
-                      <Text style={{fontSize: 20, color: 'black'}}>Item 2</Text>
-                    </View>
-                    <View style={styles.item}>
-                      <Text style={{fontSize: 20, color: 'black'}}>Item 3</Text>
-                    </View>
-                  </ScrollView> */}
               </View>
-              {/* </View> */}
             </>
           )}
         </View>
@@ -739,8 +817,22 @@ const styles = StyleSheet.create({
     // justifyContent: 'space-between',
     alignItems: 'center',
   },
+  commonlistItem: {
+    // flexDirection: 'row',
+    borderBottomWidth: 2,
+    borderBottomColor: '#58FFAB',
+    backgroundColor: '#CDCDCD',
+    height: 'auto',
+    width: '96%',
+    marginLeft: '2%',
+    marginTop: 3,
+    borderRadius: 10,
+    color: 'white',
+    // justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   progresslistItem: {
-    flexDirection: 'row',
+    // flexDirection: 'row',
     borderBottomWidth: 2,
     borderBottomColor: '#58FFAB',
     backgroundColor: '#CDCDCD',
@@ -897,10 +989,24 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 15,
+    width: 20,
+    height: 20,
+  },
+  crossButton: {
+    padding: 2,
+    // backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 15,
     width: 20,
     height: 20,
   },
   tickIcon: {
+    height: 26,
+    width: 27,
+  },
+  crossIcon: {
     height: 26,
     width: 27,
   },
