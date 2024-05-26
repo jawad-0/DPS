@@ -38,9 +38,8 @@ FCT_SCREEN_01.js   // Faculty Dashboard with Assigned_Courses/Notifications/Stat
 FCT_SCREEN_02.js   // Paper Setting Buttons (Junior/Senior)
 FCT_SCREEN_03.js   // Manage CLO (Add/Edit)
 FCT_SCREEN_04.js   // View CLO
-FCT_SCREEN_05.js   // Manage Topics (Add/Manage Mapping/Search/Edit_Status/Add_SubTopic_Button) ---
-FCT_SCREEN_06.js   // Manage Topics (Edit/Manage Mapping) -----------------------------------------
-FCT_SCREEN_07.js   // Manage Sub-Topics (Add/Edit_Status) -----------------------------------------
+FCT_SCREEN_05.js   // Manage Topics (Add/Edit/Manage Mapping/Search/Edit_Status/Add_SubTopic_Button)
+FCT_SCREEN_06.js   // Manage Sub-Topics (Add/Edit/) -----------------------------------------------
 FCT_SCREEN_07.js   // View Topics -> Covered/Common/Progress
 FCT_SCREEN_08.js   // Manage Sub-Topics (Edit) ----------------------------------------------------
 FCT_SCREEN_09.js   // Paper Settings Header (Add/Edit) --------------------------------------------

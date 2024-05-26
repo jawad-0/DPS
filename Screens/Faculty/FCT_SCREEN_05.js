@@ -28,13 +28,13 @@ const FctScreen05 = ({route}) => {
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [selectedCLOIds, setSelectedCLOIds] = useState([]);
 
-  const toggleCheckBox = clo_id => {
-    if (selectedCLOIds && selectedCLOIds.includes(clo_id)) {
-      setSelectedCLOIds(selectedCLOIds.filter(id => id !== clo_id));
-    } else {
-      setSelectedCLOIds([...selectedCLOIds, clo_id]);
-    }
-  };
+  //   const toggleCheckBox = clo_id => {
+  //     if (selectedCLOIds && selectedCLOIds.includes(clo_id)) {
+  //       setSelectedCLOIds(selectedCLOIds.filter(id => id !== clo_id));
+  //     } else {
+  //       setSelectedCLOIds([...selectedCLOIds, clo_id]);
+  //     }
+  //   };
 
   //   const toggleCheckBox = clo_id => {
   //     setSelectedCLOIds(prevIds => {
@@ -54,6 +54,14 @@ const FctScreen05 = ({route}) => {
   //     }
   //   };
 
+  const toggleCheckBox = clo_id => {
+    if (selectedCLOIds.includes(clo_id)) {
+      setSelectedCLOIds(selectedCLOIds.filter(id => id !== clo_id));
+    } else {
+      setSelectedCLOIds([...selectedCLOIds, clo_id]);
+    }
+  };
+
   useEffect(() => {
     fetchCourse();
     fetchCLOS();
@@ -63,7 +71,7 @@ const FctScreen05 = ({route}) => {
     if (mode === 'add') {
       addTopic();
     } else if (mode === 'edit') {
-      saveTopic();
+      updateTopic();
     }
   };
 
@@ -75,7 +83,10 @@ const FctScreen05 = ({route}) => {
   const addTopic = () => {
     console.log(topicname);
     console.log('Selected CLO IDs:', selectedCLOIds);
-
+    if (topicname.trim() === '') {
+      ToastAndroid.show('Error: Please fill all fields.', ToastAndroid.SHORT);
+      return;
+    }
     fetch(`http://${ip}:${port}/addtopic`, {
       method: 'POST',
       headers: {
@@ -95,8 +106,9 @@ const FctScreen05 = ({route}) => {
         }
       })
       .then(data => {
-        Alert.alert('Success', 'Topic added successfully');
+        ToastAndroid.show('Topic Added Successfully!', ToastAndroid.SHORT);
         setTopicName('');
+        Keyboard.dismiss();
         setSelectedCLOIds([]);
         fetchCourse(); // Refresh topics list
       })
@@ -109,45 +121,92 @@ const FctScreen05 = ({route}) => {
       });
   };
 
-  const handleEdit = item => {
-    setMode('edit');
-    const apiEndpoint = `http://${ip}:${port}/getTopic/${item.t_id}`;
+  const handleStatus = (t_id, status) => {
+    const apiEndpoint = `http://${ip}:${port}/enabledisabletopic/${t_id}`;
 
-    fetch(apiEndpoint)
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error('Failed to fetch topic details');
-        }
-      })
-      .then(data => {
-        setTopicName(data.t_name);
-        setSelectedCLOIds(data.clo_ids); // Assuming your API returns clo_ids
-        setSelectedTopic(data);
-      })
-      .catch(error => {
-        console.error('Error fetching topic details:', error);
-        Alert.alert(
-          'Error',
-          error.message || 'Failed to fetch topic details. Please try again.',
-        );
-      });
-  };
-
-  const saveTopic = () => {
-    if (!selectedTopic) {
-      return;
-    }
-
-    fetch(`http://${ip}:${port}/updateTopic/${selectedTopic.t_id}`, {
+    fetch(apiEndpoint, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        status: status,
+      }),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to edit topic status');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log(data);
+        ToastAndroid.show('Topic status updated', ToastAndroid.SHORT);
+        fetchCourse();
+        fetchCLOS();
+      })
+      .catch(error => {
+        console.error(error);
+        ToastAndroid.show('Error: Failed to edit status.', ToastAndroid.SHORT);
+      });
+  };
+
+  const handleEdit = item => {
+    setMode('edit');
+    const apiEndpoint = `http://${ip}:${port}/getsingletopic/${item.t_id}`;
+
+    fetch(apiEndpoint)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Failed to fetch topic details: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.length > 0) {
+          const topic = data[0];
+          console.log(topic);
+          setTopicName(topic.t_name);
+          let cloIds = topic.clo_ids || [];
+          if (!Array.isArray(cloIds)) {
+            cloIds = cloIds.split(',').map(Number);
+          }
+          console.log('Formatted clo_ids:', cloIds);
+          setSelectedCLOIds(cloIds);
+          setSelectedTopic(topic);
+        } else {
+          console.error('No topic data found');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching topic details:', error);
+      });
+  };
+
+  const updateTopic = () => {
+    if (!selectedTopic) {
+      return;
+    }
+    const {t_id} = selectedTopic;
+    const add_clo_ids = selectedCLOIds.filter(
+      id => !selectedTopic.clo_ids.includes(id),
+    );
+    const remove_clo_ids = selectedTopic.clo_ids.filter(
+      id => !selectedCLOIds.includes(id),
+    );
+
+    const apiEndpoint = `http://${ip}:${port}/editTopic`;
+
+    fetch(apiEndpoint, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        t_id,
         t_name: topicname,
-        clo_ids: selectedCLOIds,
+        add_clo_ids,
+        remove_clo_ids,
       }),
     })
       .then(response => {
@@ -158,19 +217,16 @@ const FctScreen05 = ({route}) => {
         }
       })
       .then(data => {
-        Alert.alert('Success', 'Topic updated successfully');
         setTopicName('');
         setSelectedCLOIds([]);
         setMode('add');
         setSelectedTopic(null);
-        fetchCourse(); // Refresh topics list
+        fetchCourse();
+        Keyboard.dismiss();
+        ToastAndroid.show('Topic updated successfully', ToastAndroid.SHORT);
       })
       .catch(error => {
         console.error('Error updating topic:', error);
-        Alert.alert(
-          'Error',
-          error.message || 'Failed to update topic. Please try again.',
-        );
       });
   };
 
@@ -240,6 +296,7 @@ const FctScreen05 = ({route}) => {
           />
           <Text style={styles.label}>CLOS</Text>
           <View style={styles.CLOScontainer}>
+            {/* {console.log('selectedCLOIds:', selectedCLOIds)} */}
             {CLOS.map((CLO, index) => (
               <View key={index} style={styles.checkboxContainer}>
                 <TouchableOpacity onPress={() => console.log(CLO.clo_text)}>
@@ -247,7 +304,7 @@ const FctScreen05 = ({route}) => {
                 </TouchableOpacity>
                 <CheckBox
                   disabled={false}
-                  value={selectedCLOIds.includes(CLO.clo_id)}
+                  value={selectedCLOIds && selectedCLOIds.includes(CLO.clo_id)}
                   onValueChange={() => toggleCheckBox(CLO.clo_id)}
                 />
               </View>
@@ -291,19 +348,18 @@ const FctScreen05 = ({route}) => {
                     {item.status === 'disabled' ? (
                       <TouchableOpacity
                         style={styles.disableButton}
-                        onPress={() => handleStatus(item.f_id, item.status)}>
+                        onPress={() => handleStatus(item.t_id, item.status)}>
                         <Text style={styles.disablebuttonText}>D</Text>
                       </TouchableOpacity>
                     ) : (
                       <TouchableOpacity
                         style={styles.enableButton}
-                        onPress={() => handleStatus(item.f_id, item.status)}>
+                        onPress={() => handleStatus(item.t_id, item.status)}>
                         <Text style={styles.enablebuttonText}>E</Text>
                       </TouchableOpacity>
                     )}
-                    <TouchableOpacity
-                      style={styles.addButton}
-                      onPress={() => handleEdit(item)}>
+                    <TouchableOpacity style={styles.addButton}>
+                      {/* onPress={() => handleEdit(item)} */}
                       <Image
                         source={require('../../assets/add_icon.png')}
                         style={styles.addIcon}
@@ -315,6 +371,15 @@ const FctScreen05 = ({route}) => {
               </View>
             )}
           />
+          <Text style={styles.infoText}>
+            Click{' '}
+            <Image
+              source={require('../../assets/add_icon.png')}
+              style={styles.infoIcon}
+              resizeMode="contain"
+            />{' '}
+            button to add Sub-Topics
+          </Text>
         </View>
       </View>
     </ImageBackground>
@@ -460,7 +525,7 @@ const styles = StyleSheet.create({
   },
   flatlist: {
     marginTop: 5,
-    maxHeight: 240,
+    maxHeight: 230,
     // borderWidth: 3,
     // borderColor: 'yellow'
   },
@@ -494,8 +559,8 @@ const styles = StyleSheet.create({
   },
   listItem: {
     flexDirection: 'row',
-    // borderBottomWidth: 2,
-    // borderBottomColor: 'green',
+    borderBottomWidth: 2,
+    borderBottomColor: 'green',
     // borderTopWidth: 2,
     // borderTopColor: 'black',
     width: '98%',
@@ -505,15 +570,16 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginLeft: '1%',
     color: 'white',
-    // justifyContent: 'space-between',
     alignItems: 'center',
   },
   topicText: {
     fontSize: 18,
     color: 'black',
-    marginLeft: 20,
-    width: 286,
-    flexWrap: 'wrap',
+    marginLeft: 10,
+    width: 282,
+    fontWeight: 'bold',
+    marginTop: 3,
+    marginBottom: 3,
   },
   indexText: {
     fontSize: 17,
@@ -521,6 +587,15 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     fontWeight: 'bold',
     width: 65,
+  },
+  infoText: {
+    fontSize: 15,
+    color: 'white',
+    height: 30,
+    textAlignVertical: 'center',
+    fontWeight: 'bold',
+    marginBottom: 3,
+    alignSelf: 'center',
   },
   buttonsContainer: {
     flexDirection: 'row',
@@ -545,8 +620,9 @@ const styles = StyleSheet.create({
     width: 16,
   },
   addButton: {
-    backgroundColor: 'white',
-    borderWidth: 1,
+    // backgroundColor: 'white',
+    // borderWidth: 1,
+    marginLeft: 5,
     padding: 2,
     height: 25,
     width: 25,
@@ -567,10 +643,11 @@ const styles = StyleSheet.create({
   disableButton: {
     backgroundColor: 'red',
     borderWidth: 1,
+    marginLeft: 5,
     padding: 2,
     height: 25,
     width: 25,
-    borderRadius: 10,
+    borderRadius: 13,
     justifyContent: 'center',
   },
   disablebuttonText: {
@@ -582,6 +659,7 @@ const styles = StyleSheet.create({
   enableButton: {
     backgroundColor: '#0DEC09',
     borderWidth: 1,
+    marginLeft: 5,
     padding: 2,
     height: 25,
     width: 25,
@@ -593,6 +671,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  infoButton: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    padding: 2,
+    height: 25,
+    width: 25,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  infoIcon: {
+    height: 25,
+    width: 25,
   },
   searchinput: {
     height: 40,
