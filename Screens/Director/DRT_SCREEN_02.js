@@ -15,29 +15,36 @@ import {useNavigation} from '@react-navigation/native';
 
 const DrtScreen02 = () => {
   const navigation = useNavigation();
-  const [facultyMembers, setFacultyMembers] = useState([]);
-  const [approvedpapers, setApprovedPapers] = useState([]);
+  const [pressedButton, setPressedButton] = useState('button1');
+  const [uploadedpapers, setUploadedPapers] = useState([]);
+  const [pendingpapers, setPendingPapers] = useState([]);
 
   useEffect(() => {
-    fetchData();
+    fetchUploaded();
+    fetchPending();
   }, []);
+
+  const handleButtonPress = button => {
+    // Set the pressed button
+    setPressedButton(button);
+  };
 
   const handleView = item => {
     navigation.navigate('DrtScreen04', {
-      paperId: item.p_id
+      paperId: item.p_id,
     });
   };
 
-  const handleSearch = text => {
-    const apiEndpoint = `http://${ip}:${course_port}/searchpendingpapers?search=${text}`;
+  const handleSearch1 = text => {
+    const apiEndpoint = `http://${ip}:${course_port}/searchuploadedpapers?search=${text}`;
 
     if (text.trim() === '') {
-      fetchData();
+      fetchUploaded();
     } else {
       fetch(apiEndpoint)
         .then(response => response.json())
         .then(data => {
-          setApprovedPapers(data);
+          setUploadedPapers(data);
         })
         .catch(error => {
           console.error('Error searching data:', error);
@@ -45,14 +52,45 @@ const DrtScreen02 = () => {
     }
   };
 
-  const fetchData = () => {
+  const handleSearch2 = text => {
+    const apiEndpoint = `http://${ip}:${course_port}/searchpendingpapers?search=${text}`;
+
+    if (text.trim() === '') {
+      fetchPending();
+    } else {
+      fetch(apiEndpoint)
+        .then(response => response.json())
+        .then(data => {
+          setPendingPapers(data);
+        })
+        .catch(error => {
+          console.error('Error searching data:', error);
+        });
+    }
+  };
+
+  const fetchUploaded = () => {
+    const apiEndpoint = `http://${ip}:${course_port}/getuploadedpapers`;
+    // Keyboard.dismiss();
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        // console.log('Data fetched successfully:', data);
+        setUploadedPapers(data);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  };
+
+  const fetchPending = () => {
     const apiEndpoint = `http://${ip}:${course_port}/getpendingpapers`;
     // Keyboard.dismiss();
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
         // console.log('Data fetched successfully:', data);
-        setApprovedPapers(data);
+        setPendingPapers(data);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
@@ -74,16 +112,52 @@ const DrtScreen02 = () => {
               resizeMode="contain"
             />
           </TouchableOpacity>
-          <Text style={styles.headerText}>Uploaded Papers</Text>
+          {pressedButton === 'button1' && (
+            <Text style={styles.headerText}>Uploaded Papers</Text>
+          )}
+          {pressedButton === 'button2' && (
+            <Text style={styles.headerText}>Pending Papers</Text>
+          )}
         </View>
         {/* <ScrollView> */}
         <View style={styles.form}>
-          <TextInput
-            style={styles.searchinput}
-            placeholder="Search"
-            placeholderTextColor={'gray'}
-            onChangeText={text => handleSearch(text)}
-          />
+          <View style={styles.buttonsContainer2}>
+            <TouchableOpacity
+              style={[
+                styles.button2,
+                pressedButton === 'button1' && styles.activeButton,
+              ]}
+              onPress={() => handleButtonPress('button1')}
+              activeOpacity={0.7}>
+              <Text style={styles.buttonText}>Uploaded</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.button2,
+                pressedButton === 'button2' && styles.activeButton,
+              ]}
+              onPress={() => handleButtonPress('button2')}
+              activeOpacity={0.7}>
+              <Text style={styles.buttonText}>Pending</Text>
+            </TouchableOpacity>
+          </View>
+
+          {pressedButton === 'button1' && (
+            <TextInput
+              style={styles.searchinput}
+              placeholder="Search By Title or Code"
+              placeholderTextColor={'white'}
+              onChangeText={text => handleSearch1(text)}
+            />
+          )}
+          {pressedButton === 'button2' && (
+            <TextInput
+              style={styles.searchinput}
+              placeholder="Search By Title or Code"
+              placeholderTextColor={'white'}
+              onChangeText={text => handleSearch2(text)}
+            />
+          )}
 
           <View style={styles.tableheader}>
             <View style={styles.columnContainer1}>
@@ -93,38 +167,76 @@ const DrtScreen02 = () => {
               <Text style={styles.columnHeader}>Code</Text>
             </View>
           </View>
+          {pressedButton === 'button1' && (
+            <>
+              <FlatList
+                data={uploadedpapers}
+                style={styles.flatlist}
+                showsVerticalScrollIndicator={false}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({item}) => (
+                  <View style={styles.listItem}>
+                    <View style={styles.column}>
+                      <Text style={styles.data_name}>{item.c_title}</Text>
+                    </View>
 
-          <FlatList
-            data={approvedpapers}
-            style={styles.flatlist}
-            showsVerticalScrollIndicator={false}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({item}) => (
-              <View style={styles.listItem}>
-                <View style={styles.column}>
-                  <Text style={styles.data_name}>{item.c_title}</Text>
-                </View>
+                    <View style={styles.column}>
+                      <Text style={styles.data_code}>{item.c_code}</Text>
+                    </View>
 
-                <View style={styles.column}>
-                  <Text style={styles.data_code}>{item.c_code}</Text>
-                </View>
-
-                <View style={styles.column}>
-                  <View style={styles.buttonsContainer}>
-                    <TouchableOpacity
-                      style={styles.viewButton}
-                      onPress={() => handleView(item)}>
-                      <Image
-                        source={require('../../assets/view_icon.png')}
-                        style={styles.viewIcon}
-                        resizeMode="contain"
-                      />
-                    </TouchableOpacity>
+                    <View style={styles.column}>
+                      <View style={styles.buttonsContainer}>
+                        <TouchableOpacity
+                          style={styles.viewButton}
+                          onPress={() => handleView(item)}>
+                          <Image
+                            source={require('../../assets/view_icon.png')}
+                            style={styles.viewIcon}
+                            resizeMode="contain"
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
                   </View>
-                </View>
-              </View>
-            )}
-          />
+                )}
+              />
+            </>
+          )}
+          {pressedButton === 'button2' && (
+            <>
+              <FlatList
+                data={pendingpapers}
+                style={styles.flatlist}
+                showsVerticalScrollIndicator={false}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({item}) => (
+                  <View style={styles.listItem}>
+                    <View style={styles.column}>
+                      <Text style={styles.data_name}>{item.c_title}</Text>
+                    </View>
+
+                    <View style={styles.column}>
+                      <Text style={styles.data_code}>{item.c_code}</Text>
+                    </View>
+
+                    <View style={styles.column}>
+                      {/* <View style={styles.buttonsContainer}>
+                        <TouchableOpacity
+                          style={styles.viewButton}
+                          onPress={() => handleView(item)}>
+                          <Image
+                            source={require('../../assets/view_icon.png')}
+                            style={styles.viewIcon}
+                            resizeMode="contain"
+                          />
+                        </TouchableOpacity>
+                      </View> */}
+                    </View>
+                  </View>
+                )}
+              />
+            </>
+          )}
         </View>
         {/* </ScrollView> */}
       </View>
@@ -140,7 +252,7 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
-    marginTop: 20,
+    marginTop: 40,
   },
   header: {
     flexDirection: 'row',
@@ -199,13 +311,13 @@ const styles = StyleSheet.create({
     height: 40,
     width: 300,
     alignSelf: 'center',
-    borderColor: 'gray',
+    borderColor: 'white',
     borderWidth: 2,
     borderRadius: 13,
     marginTop: 16,
     paddingHorizontal: 8,
-    color: 'black',
-    backgroundColor: '#CDCDCD',
+    color: 'white',
+    backgroundColor: 'black',
   },
   tableheader: {
     flexDirection: 'row',
@@ -214,7 +326,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     borderBottomWidth: 4,
     borderBottomColor: 'white',
-    backgroundColor: 'black'
+    backgroundColor: 'black',
   },
   columnContainer1: {
     flex: 1,
@@ -282,6 +394,32 @@ const styles = StyleSheet.create({
   viewIcon: {
     height: 18,
     width: 18,
+  },
+  buttonsContainer2: {
+    flexDirection: 'row',
+    maxWidth: '100%',
+  },
+  button2: {
+    backgroundColor: 'white',
+    height: 40,
+    width: '50%',
+    // marginRight: 25,
+    borderWidth: 2,
+    borderRadius: 7,
+    alignItems: 'center',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    marginBottom: 15,
+  },
+  activeButton: {
+    backgroundColor: '#58FFAB',
+  },
+  buttonText: {
+    color: 'black',
+    fontSize: 20,
+    fontWeight: 'bold',
+    fontFamily: 'poppins',
+    textAlign: 'center',
   },
 });
 

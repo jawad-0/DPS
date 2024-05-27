@@ -15,17 +15,25 @@ import {useNavigation} from '@react-navigation/native';
 
 const DrtScreen03 = () => {
   const navigation = useNavigation();
+  const [pressedButton, setPressedButton] = useState('button1');
   const [approvedpapers, setApprovedPapers] = useState([]);
+  const [printedpapers, setPrintedPapers] = useState([]);
 
   useEffect(() => {
-    fetchData();
+    fetchApproved();
+    fetchPrinted();
   }, []);
 
-  const handleSearch = text => {
+  const handleButtonPress = button => {
+    // Set the pressed button
+    setPressedButton(button);
+  };
+
+  const handleSearch1 = text => {
     const apiEndpoint = `http://${ip}:${course_port}/searchapprovedpapers?search=${text}`;
 
     if (text.trim() === '') {
-      fetchData();
+      fetchApproved();
     } else {
       fetch(apiEndpoint)
         .then(response => response.json())
@@ -38,7 +46,24 @@ const DrtScreen03 = () => {
     }
   };
 
-  const fetchData = () => {
+  const handleSearch2 = text => {
+    const apiEndpoint = `http://${ip}:${course_port}/searchprintedpapers?search=${text}`;
+
+    if (text.trim() === '') {
+      fetchPrinted();
+    } else {
+      fetch(apiEndpoint)
+        .then(response => response.json())
+        .then(data => {
+          setPrintedPapers(data);
+        })
+        .catch(error => {
+          console.error('Error searching data:', error);
+        });
+    }
+  };
+
+  const fetchApproved = () => {
     const apiEndpoint = `http://${ip}:${course_port}/getapprovedpapers`;
     // Keyboard.dismiss();
     fetch(apiEndpoint)
@@ -46,6 +71,20 @@ const DrtScreen03 = () => {
       .then(data => {
         // console.log('Data fetched successfully:', data);
         setApprovedPapers(data);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  };
+
+  const fetchPrinted = () => {
+    const apiEndpoint = `http://${ip}:${course_port}/getprintedpapers`;
+    // Keyboard.dismiss();
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        console.log('Data fetched successfully:', data);
+        setPrintedPapers(data);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
@@ -67,16 +106,52 @@ const DrtScreen03 = () => {
               resizeMode="contain"
             />
           </TouchableOpacity>
-          <Text style={styles.headerText}>Approved Papers</Text>
+          {pressedButton === 'button1' && (
+            <Text style={styles.headerText}>Approved Papers</Text>
+          )}
+          {pressedButton === 'button2' && (
+            <Text style={styles.headerText}>Printed Papers</Text>
+          )}
         </View>
         {/* <ScrollView> */}
         <View style={styles.form}>
-          <TextInput
-            style={styles.searchinput}
-            placeholder="Search"
-            placeholderTextColor={'gray'}
-            onChangeText={text => handleSearch(text)}
-          />
+          <View style={styles.buttonsContainer2}>
+            <TouchableOpacity
+              style={[
+                styles.button2,
+                pressedButton === 'button1' && styles.activeButton,
+              ]}
+              onPress={() => handleButtonPress('button1')}
+              activeOpacity={0.7}>
+              <Text style={styles.buttonText}>Approved</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.button2,
+                pressedButton === 'button2' && styles.activeButton,
+              ]}
+              onPress={() => handleButtonPress('button2')}
+              activeOpacity={0.7}>
+              <Text style={styles.buttonText}>Printed</Text>
+            </TouchableOpacity>
+          </View>
+
+          {pressedButton === 'button1' && (
+            <TextInput
+              style={styles.searchinput}
+              placeholder="Search By Title or Code"
+              placeholderTextColor={'white'}
+              onChangeText={text => handleSearch1(text)}
+            />
+          )}
+          {pressedButton === 'button2' && (
+            <TextInput
+              style={styles.searchinput}
+              placeholder="Search By Title or Code"
+              placeholderTextColor={'white'}
+              onChangeText={text => handleSearch2(text)}
+            />
+          )}
 
           <View style={styles.tableheader}>
             <View style={styles.columnContainer1}>
@@ -87,37 +162,76 @@ const DrtScreen03 = () => {
             </View>
           </View>
 
-          <FlatList
-            data={approvedpapers}
-            style={styles.flatlist}
-            showsVerticalScrollIndicator={false}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({item}) => (
-              <View style={styles.listItem}>
-                <View style={styles.column}>
-                  <Text style={styles.data_name}>{item.c_title}</Text>
-                </View>
+          {pressedButton === 'button1' && (
+            <>
+              <FlatList
+                data={approvedpapers}
+                style={styles.flatlist}
+                showsVerticalScrollIndicator={false}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({item}) => (
+                  <View style={styles.listItem}>
+                    <View style={styles.column}>
+                      <Text style={styles.data_name}>{item.c_title}</Text>
+                    </View>
 
-                <View style={styles.column}>
-                  <Text style={styles.data_code}>{item.c_code}</Text>
-                </View>
+                    <View style={styles.column}>
+                      <Text style={styles.data_code}>{item.c_code}</Text>
+                    </View>
 
-                <View style={styles.column}>
-                  <View style={styles.buttonsContainer}>
-                    <TouchableOpacity
-                      style={styles.tickButton}
-                      onPress={() => console.log(item)}>
-                      <Image
-                        source={require('../../assets/tick.png')}
-                        style={styles.tickIcon}
-                        resizeMode="contain"
-                      />
-                    </TouchableOpacity>
+                    <View style={styles.column}>
+                      <View style={styles.buttonsContainer}>
+                        <TouchableOpacity
+                          style={styles.tickButton}
+                          onPress={() => console.log(item)}>
+                          <Image
+                            source={require('../../assets/tick.png')}
+                            style={styles.tickIcon}
+                            resizeMode="contain"
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
                   </View>
-                </View>
-              </View>
-            )}
-          />
+                )}
+              />
+            </>
+          )}
+          {pressedButton === 'button2' && (
+            <>
+              <FlatList
+                data={printedpapers}
+                style={styles.flatlist}
+                showsVerticalScrollIndicator={false}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({item}) => (
+                  <View style={styles.listItem}>
+                    <View style={styles.column}>
+                      <Text style={styles.data_name}>{item.c_title}</Text>
+                    </View>
+
+                    <View style={styles.column}>
+                      <Text style={styles.data_code}>{item.c_code}</Text>
+                    </View>
+
+                    <View style={styles.column}>
+                      {/* <View style={styles.buttonsContainer}>
+                        <TouchableOpacity
+                          style={styles.viewButton}
+                          onPress={() => handleView(item)}>
+                          <Image
+                            source={require('../../assets/view_icon.png')}
+                            style={styles.viewIcon}
+                            resizeMode="contain"
+                          />
+                        </TouchableOpacity>
+                      </View> */}
+                    </View>
+                  </View>
+                )}
+              />
+            </>
+          )}
         </View>
         {/* </ScrollView> */}
       </View>
@@ -133,7 +247,7 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
-    marginTop: 20,
+    marginTop: 40,
   },
   header: {
     flexDirection: 'row',
@@ -192,13 +306,13 @@ const styles = StyleSheet.create({
     height: 40,
     width: 300,
     alignSelf: 'center',
-    borderColor: 'gray',
+    borderColor: 'white',
     borderWidth: 2,
     borderRadius: 13,
     marginTop: 16,
     paddingHorizontal: 8,
-    color: 'black',
-    backgroundColor: '#CDCDCD',
+    color: 'white',
+    backgroundColor: 'black',
   },
   tableheader: {
     flexDirection: 'row',
@@ -207,7 +321,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     borderBottomWidth: 4,
     borderBottomColor: 'white',
-    backgroundColor: 'black'
+    backgroundColor: 'black',
   },
   columnContainer1: {
     flex: 1,
@@ -275,6 +389,32 @@ const styles = StyleSheet.create({
   tickIcon: {
     height: 20,
     width: 20,
+  },
+  buttonsContainer2: {
+    flexDirection: 'row',
+    maxWidth: '100%',
+  },
+  button2: {
+    backgroundColor: 'white',
+    height: 40,
+    width: '50%',
+    // marginRight: 25,
+    borderWidth: 2,
+    borderRadius: 7,
+    alignItems: 'center',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    marginBottom: 15,
+  },
+  activeButton: {
+    backgroundColor: '#58FFAB',
+  },
+  buttonText: {
+    color: 'black',
+    fontSize: 20,
+    fontWeight: 'bold',
+    fontFamily: 'poppins',
+    textAlign: 'center',
   },
 });
 
