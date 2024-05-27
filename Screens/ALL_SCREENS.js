@@ -1,4 +1,4 @@
-APP.js             // Main File with Navigation
+APP.js             // Main File with Navigation / Screen Components
 CONFIG.js          // Configuration File with IP and Ports
 ROLE_SCRENN.js     // Role Screen with 4 Buttons
 
@@ -32,6 +32,7 @@ HOD_SCREEN_07.js   // Assign Course
 HOD_SCREEN_08.js   // Assign Course
 HOD_SCREEN_09.js   // Assign Role
 HOD_SCREEN_10.js   // Manage CLOS Grid
+HOD_SCREEN_11.js   // CLOS Grid (Old) --- {Not in Use}
 
 FCT_LOGIN.js       // Login Screen For FCT
 FCT_SCREEN_01.js   // Faculty Dashboard with Assigned_Courses/Notifications/Status
@@ -39,10 +40,9 @@ FCT_SCREEN_02.js   // Paper Setting Buttons (Junior/Senior)
 FCT_SCREEN_03.js   // Manage CLO (Add/Edit)
 FCT_SCREEN_04.js   // View CLO
 FCT_SCREEN_05.js   // Manage Topics (Add/Edit/Manage Mapping/Search/Edit_Status/Add_SubTopic_Button)
-FCT_SCREEN_06.js   // Manage Sub-Topics (Add/Edit/) -----------------------------------------------
+FCT_SCREEN_06.js   // Manage Sub-Topics (Add/Edit/)
 FCT_SCREEN_07.js   // View Topics -> Covered/Common/Progress
-FCT_SCREEN_08.js   // Manage Sub-Topics (Edit) ----------------------------------------------------
 FCT_SCREEN_09.js   // Paper Settings Header (Add/Edit) --------------------------------------------
-FCT_SCREEN_10.js   // Paper CLO Grid (View) -------------------------------------------------------
+FCT_SCREEN_10.js   // Paper CLO Grid (View)
 FCT_SCREEN_14.js   // Paper Notifications (View)
 FCT_SCREEN_15.js   // Paper Status (View)

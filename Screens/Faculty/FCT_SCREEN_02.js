@@ -119,11 +119,6 @@ const FctScreen02 = ({route}) => {
             <>
               <TouchableOpacity
                 style={styles.button}
-                onPress={() => navigation.navigate('FctScreen09')}>
-                <Text style={styles.buttonText}>MANAGE PAPER</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.button}
                 onPress={() =>
                   navigation.navigate('FctScreen05', {
                     courseId: courseId,
@@ -147,6 +142,24 @@ const FctScreen02 = ({route}) => {
                   })
                 }>
                 <Text style={styles.buttonText}>MANAGE CLOS</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => navigation.navigate('FctScreen09')}>
+                <Text style={styles.buttonText}>MANAGE PAPER</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() =>
+                  navigation.navigate('FctScreen10', {
+                    courseId: courseId,
+                    courseName: courseName,
+                    courseCode: courseCode,
+                    facultyId: facultyId,
+                    facultyRole: facultyRole,
+                  })
+                }>
+                <Text style={styles.buttonText}>GRID VIEW</Text>
               </TouchableOpacity>
             </>
           )}
@@ -203,7 +216,7 @@ const styles = StyleSheet.create({
     // borderColor: 'red',
   },
   nameText: {
-    height: 80,
+    height: 40,
     textAlignVertical: 'center',
     fontSize: 26,
     fontWeight: 'bold',

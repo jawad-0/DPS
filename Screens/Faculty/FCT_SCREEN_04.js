@@ -107,13 +107,13 @@ const FctScreen04 = ({route}) => {
             style={styles.flatlist}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item, index}) => (
-              <TouchableOpacity
-                style={styles.listItem}
-                onPress={() => checkCLO(item)}>
+              <View
+                style={styles.listItem}>
+                {/* onPress={() => checkCLO(item)} */}
                 {/* <Text style={styles.indexText}>CLO {index+1}:</Text> */}
                 <Text style={styles.indexText}>{item.clo_number}:</Text>
                 <Text style={styles.cloText}>{item.clo_text}</Text>
-              </TouchableOpacity>
+              </View>
             )}
           />
         </View>
@@ -216,6 +216,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'black',
     marginLeft: 20,
+    marginTop: 5,
+    marginBottom: 5,
     flexWrap: 'wrap',
   },
   indexText: {

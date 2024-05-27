@@ -17,233 +17,138 @@ import {
 import {ip, port} from '../CONFIG';
 import {useNavigation} from '@react-navigation/native';
 import CheckBox from '@react-native-community/checkbox';
-const FctScreen05 = ({route}) => {
-  const {courseId, courseName, courseCode, facultyId, facultyRole} =
-    route.params;
+const FctScreen06 = ({route}) => {
+  const {
+    topicId,
+    topicName,
+    courseId,
+    courseName,
+    courseCode,
+    facultyId,
+    facultyRole,
+  } = route.params;
   const navigation = useNavigation();
-  const [topicname, setTopicName] = useState('');
+  const [subtopicname, setSubTopicName] = useState('');
   const [CLOS, setCLOS] = useState([]);
   const [topics, setTopics] = useState([]);
+  const [subtopics, setSubTopics] = useState([]);
   const [mode, setMode] = useState('add');
-  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [selectedSubTopic, setSelectedSubTopic] = useState(null);
   const [selectedCLOIds, setSelectedCLOIds] = useState([]);
 
-  //   const toggleCheckBox = clo_id => {
-  //     if (selectedCLOIds && selectedCLOIds.includes(clo_id)) {
-  //       setSelectedCLOIds(selectedCLOIds.filter(id => id !== clo_id));
-  //     } else {
-  //       setSelectedCLOIds([...selectedCLOIds, clo_id]);
-  //     }
-  //   };
-
-  //   const toggleCheckBox = clo_id => {
-  //     setSelectedCLOIds(prevIds => {
-  //       if (prevIds.includes(clo_id)) {
-  //         return prevIds.filter(id => id !== clo_id);
-  //       } else {
-  //         return [...prevIds, clo_id];
-  //       }
-  //     });
-  //   };
-
-  //   const toggleCheckBox = clo_id => {
-  //     if (selectedCLOIds.includes(clo_id)) {
-  //       setSelectedCLOIds(selectedCLOIds.filter(id => id !== clo_id));
-  //     } else {
-  //       setSelectedCLOIds([...selectedCLOIds, clo_id]);
-  //     }
-  //   };
-
-  const toggleCheckBox = clo_id => {
-    if (selectedCLOIds.includes(clo_id)) {
-      setSelectedCLOIds(selectedCLOIds.filter(id => id !== clo_id));
-    } else {
-      setSelectedCLOIds([...selectedCLOIds, clo_id]);
-    }
-  };
-
   useEffect(() => {
-    fetchTopics();
+    fetchSubTopics();
     fetchCLOS();
+    console.log(topicId);
   }, []);
 
   const handleAddOrUpdateCLO = () => {
     if (mode === 'add') {
-      addTopic();
+      addSubTopic();
     } else if (mode === 'edit') {
-      updateTopic();
+      updateSubTopic();
     }
   };
 
   const handleSearch = text => {
-    const apiEndpoint = `http://${ip}:${port}/searchtopic/${courseId}?search=${text}`;
+    const apiEndpoint = `http://${ip}:${port}/searchsubtopic/${topicId}?search=${text}`;
 
     if (text.trim() === '') {
-      fetchTopics();
+      fetchSubTopics();
     } else {
       fetch(apiEndpoint)
         .then(response => response.json())
         .then(data => {
-          setTopics(data);
+          setSubTopics(data);
         })
         .catch(error => {
-          console.error('Error searching topics:', error);
+          console.error('Error searching subtopics:', error);
         });
     }
   };
 
-  const addTopic = () => {
-    console.log(topicname);
+  const addSubTopic = () => {
+    console.log(subtopicname);
     console.log('Selected CLO IDs:', selectedCLOIds);
-    if (topicname.trim() === '') {
+    if (subtopicname.trim() === '') {
       ToastAndroid.show('Error: Please fill all fields.', ToastAndroid.SHORT);
       return;
     }
-    fetch(`http://${ip}:${port}/addtopic`, {
+    fetch(`http://${ip}:${port}/addsubtopic`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        c_id: courseId,
-        t_name: topicname,
-        clo_ids: selectedCLOIds,
+        t_id: topicId,
+        st_name: subtopicname,
       }),
     })
       .then(response => {
         if (response.ok) {
           return response.json();
         } else {
-          throw new Error('Failed to add topic');
+          throw new Error('Failed to add subtopic');
         }
       })
       .then(data => {
-        ToastAndroid.show('Topic Added Successfully!', ToastAndroid.SHORT);
-        setTopicName('');
+        ToastAndroid.show('SubTopic Added Successfully!', ToastAndroid.SHORT);
+        setSubTopicName('');
         Keyboard.dismiss();
-        setSelectedCLOIds([]);
-        fetchTopics(); // Refresh topics list
+        fetchSubTopics();
       })
       .catch(error => {
-        console.error('Error adding topic:', error);
-      });
-  };
-
-  const handleStatus = (t_id, status) => {
-    const apiEndpoint = `http://${ip}:${port}/enabledisabletopic/${t_id}`;
-
-    fetch(apiEndpoint, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        status: status,
-      }),
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to edit topic status');
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log(data);
-        ToastAndroid.show('Topic status updated', ToastAndroid.SHORT);
-        fetchTopics();
-        fetchCLOS();
-      })
-      .catch(error => {
-        console.error(error);
-        ToastAndroid.show('Error: Failed to edit status.', ToastAndroid.SHORT);
+        console.error('Error adding subtopic:', error);
       });
   };
 
   const handleEdit = item => {
+    const subtopic = item;
     setMode('edit');
-    const apiEndpoint = `http://${ip}:${port}/getsingletopic/${item.t_id}`;
-
-    fetch(apiEndpoint)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`Failed to fetch topic details: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        if (data.length > 0) {
-          const topic = data[0];
-          console.log(topic);
-          setTopicName(topic.t_name);
-          let cloIds = topic.clo_ids || [];
-          if (!Array.isArray(cloIds)) {
-            cloIds = cloIds.split(',').map(Number);
-          }
-          console.log('Formatted clo_ids:', cloIds);
-          setSelectedCLOIds(cloIds);
-          setSelectedTopic(topic);
-        } else {
-          console.error('No topic data found');
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching topic details:', error);
-      });
+    setSubTopicName(item.st_name);
+    setSelectedSubTopic(subtopic);
   };
 
-  const updateTopic = () => {
-    if (!selectedTopic) {
+  const updateSubTopic = () => {
+    if (!selectedSubTopic) {
       return;
     }
-    const {t_id} = selectedTopic;
-    const add_clo_ids = selectedCLOIds.filter(
-      id => !selectedTopic.clo_ids.includes(id),
-    );
-    const remove_clo_ids = selectedTopic.clo_ids.filter(
-      id => !selectedCLOIds.includes(id),
-    );
-
-    const apiEndpoint = `http://${ip}:${port}/editTopic`;
-
-    fetch(apiEndpoint, {
+    fetch(`http://${ip}:${port}/editsubtopic`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        t_id,
-        t_name: topicname,
-        add_clo_ids,
-        remove_clo_ids,
+        st_id: selectedSubTopic.st_id,
+        st_name: subtopicname,
       }),
     })
       .then(response => {
         if (response.ok) {
           return response.json();
         } else {
-          throw new Error('Failed to update topic');
+          throw new Error('Failed to update subtopic');
         }
       })
       .then(data => {
-        setTopicName('');
-        setSelectedCLOIds([]);
         setMode('add');
-        setSelectedTopic(null);
-        fetchTopics();
         Keyboard.dismiss();
-        ToastAndroid.show('Topic updated successfully', ToastAndroid.SHORT);
+        setSubTopicName('');
+        setSelectedSubTopic(null);
+        fetchSubTopics(); // Refresh subtopics list
+        ToastAndroid.show('SubTopic Updated Successfully!', ToastAndroid.SHORT);
       })
       .catch(error => {
-        console.error('Error updating topic:', error);
+        console.error('Error updating subtopic:', error);
       });
   };
 
-  const fetchTopics = () => {
-    const apiEndpoint = `http://${ip}:${port}/gettopic/${courseId}`;
+  const fetchSubTopics = () => {
+    const apiEndpoint = `http://${ip}:${port}/getsubtopic/${topicId}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
-        setTopics(data);
+        setSubTopics(data);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
@@ -271,7 +176,7 @@ const FctScreen05 = ({route}) => {
           <TouchableOpacity
             style={styles.backButton}
             onPress={() =>
-              navigation.navigate('FctScreen02', {
+              navigation.navigate('FctScreen05', {
                 courseId: courseId,
                 courseName: courseName,
                 courseCode: courseCode,
@@ -285,7 +190,7 @@ const FctScreen05 = ({route}) => {
               resizeMode="contain"
             />
           </TouchableOpacity>
-          <Text style={styles.headerText}>Manage Topics</Text>
+          <Text style={styles.headerText}>Manage Sub-Topics</Text>
         </View>
         <View>
           <Text style={styles.nameText}>{courseName}</Text>
@@ -294,30 +199,18 @@ const FctScreen05 = ({route}) => {
           </Text>
         </View>
         <View style={styles.form}>
-          <Text style={styles.label}>Topic Name</Text>
+          <Text style={styles.label}>Topic</Text>
+          <Text style={[styles.label, {marginLeft: 40, marginTop: 10}]}>
+            {topicName}
+          </Text>
+          <Text style={[styles.label, {marginTop: 20}]}>Sub-Topic Name</Text>
           <TextInput
             style={styles.input1}
-            value={topicname}
+            value={subtopicname}
             placeholder="Enter Topic Name"
             placeholderTextColor={'gray'}
-            onChangeText={text => setTopicName(text)}
+            onChangeText={text => setSubTopicName(text)}
           />
-          <Text style={styles.label}>CLOS</Text>
-          <View style={styles.CLOScontainer}>
-            {/* {console.log('selectedCLOIds:', selectedCLOIds)} */}
-            {CLOS.map((CLO, index) => (
-              <View key={index} style={styles.checkboxContainer}>
-                <TouchableOpacity onPress={() => console.log(CLO.clo_text)}>
-                  <Text style={styles.clonumbertext}>{CLO.clo_number}</Text>
-                </TouchableOpacity>
-                <CheckBox
-                  disabled={false}
-                  value={selectedCLOIds && selectedCLOIds.includes(CLO.clo_id)}
-                  onValueChange={() => toggleCheckBox(CLO.clo_id)}
-                />
-              </View>
-            ))}
-          </View>
 
           <TouchableOpacity
             style={styles.button}
@@ -329,29 +222,19 @@ const FctScreen05 = ({route}) => {
 
           <TextInput
             style={styles.searchinput}
-            placeholder="Search Topic"
+            placeholder="Search Subtopic"
             placeholderTextColor={'white'}
             onChangeText={text => handleSearch(text)}
           />
 
-          <Text style={styles.infoText}>
-            Click{' '}
-            <Image
-              source={require('../../assets/add_icon.png')}
-              style={styles.infoIcon}
-              resizeMode="contain"
-            />{' '}
-            button to add Sub-Topics
-          </Text>
-
           <FlatList
-            data={topics}
+            data={subtopics}
             showsVerticalScrollIndicator={false}
             style={styles.flatlist}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item, index}) => (
               <View style={styles.listItem}>
-                <Text style={styles.topicText}>{item.t_name}</Text>
+                <Text style={styles.topicText}>{item.st_name}</Text>
                 <View style={styles.column}>
                   <View style={styles.buttonsContainer}>
                     <TouchableOpacity
@@ -360,38 +243,6 @@ const FctScreen05 = ({route}) => {
                       <Image
                         source={require('../../assets/edit_icon.png')}
                         style={styles.editIcon}
-                        resizeMode="contain"
-                      />
-                    </TouchableOpacity>
-                    {item.status === 'disabled' ? (
-                      <TouchableOpacity
-                        style={styles.disableButton}
-                        onPress={() => handleStatus(item.t_id, item.status)}>
-                        <Text style={styles.disablebuttonText}>D</Text>
-                      </TouchableOpacity>
-                    ) : (
-                      <TouchableOpacity
-                        style={styles.enableButton}
-                        onPress={() => handleStatus(item.t_id, item.status)}>
-                        <Text style={styles.enablebuttonText}>E</Text>
-                      </TouchableOpacity>
-                    )}
-                    <TouchableOpacity
-                      style={styles.addButton}
-                      onPress={() =>
-                        navigation.navigate('FctScreen06', {
-                          topicId: item.t_id,
-                          topicName: item.t_name,
-                          courseId: courseId,
-                          courseName: courseName,
-                          courseCode: courseCode,
-                          facultyId: facultyId,
-                          facultyRole: facultyRole,
-                        })
-                      }>
-                      <Image
-                        source={require('../../assets/add_icon.png')}
-                        style={styles.addIcon}
                         resizeMode="contain"
                       />
                     </TouchableOpacity>
@@ -414,7 +265,7 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
-    marginTop: 20,
+    marginTop: 60,
     // alignItems: 'center',
   },
   header: {
@@ -440,7 +291,7 @@ const styles = StyleSheet.create({
   },
   input1: {
     height: 40,
-    width: '90%',
+    width: 360,
     alignSelf: 'center',
     borderColor: 'gray',
     borderWidth: 3,
@@ -545,7 +396,7 @@ const styles = StyleSheet.create({
   },
   flatlist: {
     marginTop: 5,
-    maxHeight: 260,
+    maxHeight: 230,
     // borderWidth: 3,
     // borderColor: 'yellow'
   },
@@ -596,7 +447,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'black',
     marginLeft: 10,
-    width: 282,
+    width: 330,
     fontWeight: 'bold',
     marginTop: 3,
     marginBottom: 3,
@@ -722,4 +573,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FctScreen05;
+export default FctScreen06;

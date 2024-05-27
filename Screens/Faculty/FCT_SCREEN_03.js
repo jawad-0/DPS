@@ -88,9 +88,11 @@ const FctScreen03 = ({route}) => {
         return response.json();
       })
       .then(data => {
-        console.log('CLO posted successfully:', data);
+        console.log('CLO added successfully:', data);
         ToastAndroid.show('Added Successfully !', ToastAndroid.SHORT);
         Keyboard.dismiss();
+        setCLOnumber('');
+        setCLOtext('');
         fetchData();
       })
       .catch(error => {
@@ -241,7 +243,7 @@ const FctScreen03 = ({route}) => {
             style={styles.flatlist}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item, index}) => (
-              <TouchableOpacity style={styles.listItem}>
+              <View style={styles.listItem}>
                 {/* <Text style={styles.indexText}>CLO {index + 1}:</Text> */}
                 <Text style={styles.indexText}>{item.clo_number}:</Text>
                 <Text style={styles.cloText}>{item.clo_text}</Text>
@@ -258,7 +260,7 @@ const FctScreen03 = ({route}) => {
                     </TouchableOpacity>
                   </View>
                 </View>
-              </TouchableOpacity>
+              </View>
             )}
           />
         </View>
@@ -438,12 +440,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 2,
     borderBottomColor: 'green',
-    width: '90%',
+    width: '96%',
     backgroundColor: '#CDCDCD',
     height: 'auto',
     borderRadius: 10,
     marginTop: 4,
-    marginLeft: 2,
+    marginLeft: '2%',
     color: 'white',
     // justifyContent: 'space-between',
     alignItems: 'center',
@@ -452,8 +454,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: 'black',
     marginLeft: 20,
-    width: 250,
-    flexWrap: 'wrap',
+    width: 210,
+    marginTop: 5,
+    marginBottom: 5,
+    // flexWrap: 'wrap',
   },
   indexText: {
     fontSize: 17,
