@@ -176,191 +176,192 @@ const FctScreen09 = () => {
     <ImageBackground
       source={require('../../assets/fct_background.png')}
       style={styles.backgroundImage}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.navigate('DtcScreen01')}>
-            <Image
-              source={require('../../assets/arrow.png')}
-              style={styles.backIcon}
-              resizeMode="contain"
+      <ScrollView contentContainerStyle={{flexGrow: 1}} style={{flex: 1}}>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => navigation.navigate('DtcScreen01')}>
+              <Image
+                source={require('../../assets/arrow.png')}
+                style={styles.backIcon}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+            <Text style={styles.headerText}>Paper Header</Text>
+          </View>
+          {/* <ScrollView> */}
+          <View style={styles.form}>
+            <Text
+              style={{
+                marginLeft: 30,
+                fontWeight: 'bold',
+                fontSize: 25,
+                color: 'white',
+              }}>
+              Cyber Security
+            </Text>
+            <Text
+              style={{
+                marginLeft: 30,
+                fontWeight: 'bold',
+                fontSize: 25,
+                color: 'white',
+              }}>
+              Course Code: <Text style={{color: 'yellow'}}>CS-327</Text>
+            </Text>
+            <Text
+              style={{
+                alignSelf: 'center',
+                marginTop: 30,
+                fontWeight: 'bold',
+                fontSize: 25,
+                color: 'white',
+              }}>
+              Paper Settings
+            </Text>
+            <Text style={styles.label}>Teachers</Text>
+            <Text style={styles.label2}>Dr.Qamar Mehmood, Mr.Shahid</Text>
+
+            <Text style={styles.label}>Course Title: </Text>
+            <Text style={styles.label2}>Cyber Security (CS-327)</Text>
+
+            <Text style={styles.label}>Date of Exam</Text>
+            <TextInput
+              style={styles.input}
+              value={f_name}
+              placeholder="Enter Date of Exam"
+              placeholderTextColor={'gray'}
+              onChangeText={text => setName(text)}
             />
-          </TouchableOpacity>
-          <Text style={styles.headerText}>Paper Header</Text>
-        </View>
-        {/* <ScrollView> */}
-        <View style={styles.form}>
-          <Text
-            style={{
-              marginLeft: 30,
-              fontWeight: 'bold',
-              fontSize: 25,
-              color: 'white',
-            }}>
-            Cyber Security
-          </Text>
-          <Text
-            style={{
-              marginLeft: 30,
-              fontWeight: 'bold',
-              fontSize: 25,
-              color: 'white',
-            }}>
-            Course Code: <Text style={{color: 'yellow'}}>CS-327</Text>
-          </Text>
-          <Text
-            style={{
-              alignSelf: 'center',
-              marginTop: 30,
-              fontWeight: 'bold',
-              fontSize: 25,
-              color: 'white',
-            }}>
-            Paper Settings
-          </Text>
-          <Text style={styles.label}>Teachers</Text>
-          <Text style={styles.label2}>Dr.Qamar Mehmood, Mr.Shahid</Text>
 
-          <Text style={styles.label}>Course Title: </Text>
-          <Text style={styles.label2}>Cyber Security (CS-327)</Text>
+            <Text style={styles.label}>Duration</Text>
+            <TextInput
+              style={styles.input}
+              value={username}
+              placeholder="Enter Duration (numeric)"
+              placeholderTextColor={'gray'}
+              onChangeText={text => setUsername(text)}
+            />
 
-          <Text style={styles.label}>Date of Exam</Text>
-          <TextInput
-            style={styles.input}
-            value={f_name}
-            placeholder="Enter Date of Exam"
-            placeholderTextColor={'gray'}
-            onChangeText={text => setName(text)}
-          />
+            <Text style={styles.label}>Degree</Text>
+            <TextInput
+              style={styles.input}
+              value={username}
+              placeholder="Enter Degree"
+              placeholderTextColor={'gray'}
+              onChangeText={text => setUsername(text)}
+            />
 
-          <Text style={styles.label}>Duration</Text>
-          <TextInput
-            style={styles.input}
-            value={username}
-            placeholder="Enter Duration (numeric)"
-            placeholderTextColor={'gray'}
-            onChangeText={text => setUsername(text)}
-          />
+            <Text style={styles.label}>Total Marks</Text>
+            <TextInput
+              style={styles.input}
+              value={username}
+              placeholder="Enter Total Marks (numeric)"
+              placeholderTextColor={'gray'}
+              onChangeText={text => setUsername(text)}
+            />
 
-          <Text style={styles.label}>Degree</Text>
-          <TextInput
-            style={styles.input}
-            value={username}
-            placeholder="Enter Degree"
-            placeholderTextColor={'gray'}
-            onChangeText={text => setUsername(text)}
-          />
-
-          <Text style={styles.label}>Total Marks</Text>
-          <TextInput
-            style={styles.input}
-            value={username}
-            placeholder="Enter Total Marks (numeric)"
-            placeholderTextColor={'gray'}
-            onChangeText={text => setUsername(text)}
-          />
-
-          <Text style={styles.label}>Session</Text>
-          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.label}>Session</Text>
             <View style={{flexDirection: 'row'}}>
-              <Text style={styles.label2}>Fall</Text>
-              <TouchableOpacity
-                style={{
-                  height: 20,
-                  width: 20,
-                  borderWidth: 3,
-                  borderColor: 'white',
-                  borderRadius: 10,
-                  marginLeft: 10,
-                  backgroundColor: '#58FFAB',
-                }}></TouchableOpacity>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={styles.label2}>Fall</Text>
+                <TouchableOpacity
+                  style={{
+                    height: 20,
+                    width: 20,
+                    borderWidth: 3,
+                    borderColor: 'white',
+                    borderRadius: 10,
+                    marginLeft: 10,
+                    backgroundColor: '#58FFAB',
+                  }}></TouchableOpacity>
+              </View>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={styles.label2}>Spring</Text>
+                <TouchableOpacity
+                  style={{
+                    height: 20,
+                    width: 20,
+                    borderWidth: 3,
+                    borderColor: 'white',
+                    borderRadius: 10,
+                    marginLeft: 10,
+                  }}></TouchableOpacity>
+              </View>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={styles.label2}>Summer</Text>
+                <TouchableOpacity
+                  style={{
+                    height: 20,
+                    width: 20,
+                    borderWidth: 3,
+                    borderColor: 'white',
+                    borderRadius: 10,
+                    marginLeft: 10,
+                  }}></TouchableOpacity>
+              </View>
             </View>
+            <Text style={styles.label}>Term</Text>
             <View style={{flexDirection: 'row'}}>
-              <Text style={styles.label2}>Spring</Text>
-              <TouchableOpacity
-                style={{
-                  height: 20,
-                  width: 20,
-                  borderWidth: 3,
-                  borderColor: 'white',
-                  borderRadius: 10,
-                  marginLeft: 10,
-                }}></TouchableOpacity>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={styles.label2}>Mid</Text>
+                <TouchableOpacity
+                  style={{
+                    height: 20,
+                    width: 20,
+                    borderWidth: 3,
+                    borderColor: 'white',
+                    borderRadius: 10,
+                    marginLeft: 10,
+                    backgroundColor: '#58FFAB',
+                  }}></TouchableOpacity>
+              </View>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={styles.label2}>Final</Text>
+                <TouchableOpacity
+                  style={{
+                    height: 20,
+                    width: 20,
+                    borderWidth: 3,
+                    borderColor: 'white',
+                    borderRadius: 10,
+                    marginLeft: 10,
+                  }}></TouchableOpacity>
+              </View>
             </View>
-            <View style={{flexDirection: 'row'}}>
-              <Text style={styles.label2}>Summer</Text>
-              <TouchableOpacity
-                style={{
-                  height: 20,
-                  width: 20,
-                  borderWidth: 3,
-                  borderColor: 'white',
-                  borderRadius: 10,
-                  marginLeft: 10,
-                }}></TouchableOpacity>
-            </View>
-          </View>
-          <Text style={styles.label}>Term</Text>
-          <View style={{flexDirection: 'row'}}>
-            <View style={{flexDirection: 'row'}}>
-              <Text style={styles.label2}>Mid</Text>
-              <TouchableOpacity
-                style={{
-                  height: 20,
-                  width: 20,
-                  borderWidth: 3,
-                  borderColor: 'white',
-                  borderRadius: 10,
-                  marginLeft: 10,
-                  backgroundColor: '#58FFAB',
-                }}></TouchableOpacity>
-            </View>
-            <View style={{flexDirection: 'row'}}>
-              <Text style={styles.label2}>Final</Text>
-              <TouchableOpacity
-                style={{
-                  height: 20,
-                  width: 20,
-                  borderWidth: 3,
-                  borderColor: 'white',
-                  borderRadius: 10,
-                  marginLeft: 10,
-                }}></TouchableOpacity>
-            </View>
-          </View>
 
-          <TouchableOpacity style={styles.button} onPress={handlePostData}>
-            <Text style={styles.buttonText}>Save</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handlePostData}>
+              <Text style={styles.buttonText}>Save</Text>
+            </TouchableOpacity>
 
-          <TextInput
-            style={styles.searchinput}
-            placeholder="Search"
-            placeholderTextColor={'white'}
-            onChangeText={text => handleSearch(text)}
-          />
+            <TextInput
+              style={styles.searchinput}
+              placeholder="Search"
+              placeholderTextColor={'white'}
+              onChangeText={text => handleSearch(text)}
+            />
 
-          {/* <View style={styles.tableheader}>
+            {/* <View style={styles.tableheader}>
             <Text style={styles.columnHeader}>Name</Text>
             <Text style={styles.columnHeader}>Username</Text>
             <Text style={styles.columnHeader}>Actions</Text>
           </View> */}
 
-          <View style={styles.tableheader}>
-            <View style={styles.columnContainer}>
-              <Text style={styles.columnHeader}>Name</Text>
+            <View style={styles.tableheader}>
+              <View style={styles.columnContainer}>
+                <Text style={styles.columnHeader}>Name</Text>
+              </View>
+              <View style={styles.columnContainer}>
+                <Text style={styles.columnHeader}>Username</Text>
+              </View>
+              <View style={styles.columnContainer}>
+                <Text style={styles.columnHeader}>Actions</Text>
+              </View>
             </View>
-            <View style={styles.columnContainer}>
-              <Text style={styles.columnHeader}>Username</Text>
-            </View>
-            <View style={styles.columnContainer}>
-              <Text style={styles.columnHeader}>Actions</Text>
-            </View>
-          </View>
 
-          {/* Confirmation Modal */}
-          {/* <Modal
+            {/* Confirmation Modal */}
+            {/* <Modal
             visible={showModal}
             animationType="slide"
             transparent={true}
@@ -405,32 +406,32 @@ const FctScreen09 = () => {
             </View>
           </Modal> */}
 
-          <FlatList
-            data={facultyMembers}
-            style={styles.flatlist}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({item}) => (
-              <View style={styles.listItem}>
-                <View style={styles.column}>
-                  <Text style={styles.data_name}>{item.f_name}</Text>
-                </View>
+            <FlatList
+              data={facultyMembers}
+              style={styles.flatlist}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({item}) => (
+                <View style={styles.listItem}>
+                  <View style={styles.column}>
+                    <Text style={styles.data_name}>{item.f_name}</Text>
+                  </View>
 
-                <View style={styles.column}>
-                  <Text style={styles.data_username}>{item.username}</Text>
-                </View>
+                  <View style={styles.column}>
+                    <Text style={styles.data_username}>{item.username}</Text>
+                  </View>
 
-                <View style={styles.column}>
-                  <View style={styles.buttonsContainer}>
-                    <TouchableOpacity
-                      style={styles.editButton}
-                      onPress={() => handleEdit(item)}>
-                      <Image
-                        source={require('../../assets/edit_icon.png')}
-                        style={styles.editIcon}
-                        resizeMode="contain"
-                      />
-                    </TouchableOpacity>
-                    {/* <TouchableOpacity
+                  <View style={styles.column}>
+                    <View style={styles.buttonsContainer}>
+                      <TouchableOpacity
+                        style={styles.editButton}
+                        onPress={() => handleEdit(item)}>
+                        <Image
+                          source={require('../../assets/edit_icon.png')}
+                          style={styles.editIcon}
+                          resizeMode="contain"
+                        />
+                      </TouchableOpacity>
+                      {/* <TouchableOpacity
                       style={styles.deleteButton}
                       onPress={() => handleDelete(item.f_id, item.f_name)}>
                       <Image
@@ -439,27 +440,28 @@ const FctScreen09 = () => {
                         resizeMode="contain"
                       />
                     </TouchableOpacity> */}
-                    {item.status === 'disabled' ? (
-                      <TouchableOpacity
-                        style={styles.disableButton}
-                        onPress={() => handleStatus(item.f_id, item.status)}>
-                        <Text style={styles.disablebuttonText}>D</Text>
-                      </TouchableOpacity>
-                    ) : (
-                      <TouchableOpacity
-                        style={styles.enableButton}
-                        onPress={() => handleStatus(item.f_id, item.status)}>
-                        <Text style={styles.enablebuttonText}>E</Text>
-                      </TouchableOpacity>
-                    )}
+                      {item.status === 'disabled' ? (
+                        <TouchableOpacity
+                          style={styles.disableButton}
+                          onPress={() => handleStatus(item.f_id, item.status)}>
+                          <Text style={styles.disablebuttonText}>D</Text>
+                        </TouchableOpacity>
+                      ) : (
+                        <TouchableOpacity
+                          style={styles.enableButton}
+                          onPress={() => handleStatus(item.f_id, item.status)}>
+                          <Text style={styles.enablebuttonText}>E</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
                   </View>
                 </View>
-              </View>
-            )}
-          />
+              )}
+            />
+          </View>
+          {/* </ScrollView> */}
         </View>
-        {/* </ScrollView> */}
-      </View>
+      </ScrollView>
     </ImageBackground>
   );
 };

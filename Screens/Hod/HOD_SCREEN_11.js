@@ -3,7 +3,6 @@ import {
   View,
   Text,
   Image,
-  FlatList,
   Keyboard,
   TextInput,
   StyleSheet,
@@ -11,93 +10,79 @@ import {
   ImageBackground,
   TouchableOpacity,
 } from 'react-native';
-import {ip, course_port, port, gridview_port, assigned_port} from '../CONFIG';
+import {ip, port} from '../CONFIG';
 import {useNavigation} from '@react-navigation/native';
-import {SelectList} from 'react-native-dropdown-select-list';
 
 const HodScreen11 = () => {
   const navigation = useNavigation();
-  const [selectedTeacher, setSelectedTeacher] = useState(null);
-  const [assignedTo, setAssignedTo] = useState([]);
-  const [courses, setCourses] = useState([]);
-  const [CLOS, setCLOS] = useState([]);
-  const [gridViewHeaders, setGridViewHeaders] = useState([]);
-  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [easy, setEasy] = useState('');
+  const [medium, setMedium] = useState('');
+  const [hard, setHard] = useState('');
+  const [isChanged, setIsChanged] = useState(false);
 
   useEffect(() => {
-    fetchData();
-    fetchGridViewHeaders();
+    fetchDifficulty();
   }, []);
 
-  const handleSave = () => {
-    console.log('Save Button Clicked');
-  };
-
-  const fetchData = () => {
-    const apiEndpoint = `http://${ip}:${course_port}/getCourse`;
+  const fetchDifficulty = () => {
+    const apiEndpoint = `http://${ip}:${port}/getdifficulty`;
     Keyboard.dismiss();
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
-        const transformedData = data.map(course => ({
-          key: course.c_id.toString(),
-          value: course.c_title,
-        }));
-        setCourses(transformedData);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-      });
-  };
-
-  const fetchGridViewHeaders = () => {
-    const apiEndpoint = `http://${ip}:${gridview_port}/getGridViewHeaders`;
-    Keyboard.dismiss();
-    fetch(apiEndpoint)
-      .then(response => response.json())
-      .then(data => {
-        setGridViewHeaders(data);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-      });
-  };
-
-  const fetchData2 = key => {
-    const apiEndpoint = `http://${ip}:${port}/getCLO/${key}`;
-    fetch(apiEndpoint)
-      .then(response => response.json())
-      .then(data => {
-        const transformedData = data.map(clo => ({
-          key: clo.clo_id.toString(),
-          value: clo.clo_name,
-        }));
-        setCLOS(transformedData);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-      });
-  };
-
-  const fetchAssignedTo = key => {
-    const apiEndpoint = `http://${ip}:${assigned_port}/getAssignedTo/${key}`;
-    fetch(apiEndpoint)
-      .then(response => response.json())
-      .then(data => {
-        // const assignedData = data[0];
-        // console.log('Teacher Name:', assignedData.TeacherName);
-        // const ids = data.map(item => item.ac_id);
-        // console.log('All assigned course IDs:', ids);
-        // setName(assignedData.CourseTitle);
-        setAssignedTo(data);
-        const seniorTeacher = data.find(item => item.role === 'senior');
-        if (seniorTeacher) {
-          setSelectedTeacher(seniorTeacher.f_name);
+        console.log('Data fetched successfully:', data);
+        if (Array.isArray(data) && data.length >= 3) {
+          setEasy(data[0].number.toString());
+          setMedium(data[1].number.toString());
+          setHard(data[2].number.toString());
+        } else {
+          console.error('Unexpected data format:', data);
         }
       })
       .catch(error => {
-        // console.error('Error fetching data:', error);
+        console.error('Error fetching data:', error);
       });
+  };
+
+  const updateDifficulty = () => {
+    if (easy.trim() === '' || medium.trim() === '' || hard.trim() === '') {
+      ToastAndroid.show('Error: Please fill all fields.', ToastAndroid.SHORT);
+      return;
+    }
+    const isInteger = value => Number.isInteger(Number(value));
+    // Method 2 -- const isInteger = value => /^\d+$/.test(value);
+    if (!isInteger(easy) || !isInteger(medium) || !isInteger(hard)) {
+      ToastAndroid.show('All fields must be integers.', ToastAndroid.SHORT);
+      return;
+    }
+    const apiEndpoint = `http://${ip}:${port}/savedifficulty`;
+    fetch(apiEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        easy: easy,
+        medium: medium,
+        hard: hard,
+      }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Data posted successfully:', data);
+        ToastAndroid.show('Updated Successfully !', ToastAndroid.SHORT);
+        Keyboard.dismiss();
+        fetchDifficulty();
+        setIsChanged(false); // Reset change flag after successful update
+      })
+      .catch(error => {
+        console.error('Error updating data:', error);
+      });
+  };
+
+  const handleInputChange = (setter, value) => {
+    setter(value);
+    setIsChanged(true);
   };
 
   return (
@@ -115,137 +100,45 @@ const HodScreen11 = () => {
               resizeMode="contain"
             />
           </TouchableOpacity>
-          <Text style={styles.headerText}>Grid View</Text>
+          <Text style={styles.headerText}>Manage Difficulty</Text>
         </View>
-        {/* <ScrollView> */}
         <View style={styles.form}>
-          <Text style={styles.label}>Course</Text>
-          <View style={styles.pickerContainer}>
-            <SelectList
-              setSelected={key => {
-                fetchData2(key);
-                setSelectedCourse(key);
-              }}
-              data={courses}
-              save="c_title"
-              placeholder="Select Course"
-              searchPlaceholder="Search Course"
-              boxStyles={{backgroundColor: 'gray'}}
-              inputStyles={{color: 'white'}}
-              dropdownStyles={{backgroundColor: 'black', borderColor: 'white'}}
-              dropdownTextStyles={{color: 'white'}}
+          <Text style={styles.label}>EASY</Text>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.label2}>Number of Easy Questions</Text>
+            <TextInput
+              style={styles.input}
+              value={easy}
+              placeholderTextColor={'gray'}
+              onChangeText={value => handleInputChange(setEasy, value)}
             />
           </View>
-          {selectedCourse && (
-            <View style={styles.pickerContainer}>
-              <SelectList
-                data={CLOS}
-                save="clo_name"
-                placeholder="Select CLO"
-                searchPlaceholder="Search CLO"
-                boxStyles={{backgroundColor: 'gray'}}
-                inputStyles={{color: 'white'}}
-                dropdownStyles={{
-                  backgroundColor: 'black',
-                  borderColor: 'white',
-                }}
-                dropdownTextStyles={{color: 'white'}}
-              />
-            </View>
-          )}
-          <View style={styles.bar1}>
-            <Text style={styles.bar1Text}>Assessments</Text>
+          <Text style={styles.label}>MEDIUM</Text>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.label2}>Number of Medium Questions</Text>
+            <TextInput
+              style={styles.input}
+              value={medium}
+              placeholderTextColor={'gray'}
+              onChangeText={value => handleInputChange(setMedium, value)}
+            />
           </View>
-          <View style={styles.bar2}>
-            {gridViewHeaders.map((item, index) => (
-              <Text key={index} style={styles.bar2Text}>
-                {item.name}
-              </Text>
-            ))}
-            {/* <Text style={styles.bar2Text}>Assignment</Text>
-            <Text style={styles.bar2Text}>Quiz</Text>
-            <Text style={styles.bar2Text}>Mid Term</Text>
-            <Text style={styles.bar2Text}>Final Term</Text> */}
+          <Text style={styles.label}>HARD</Text>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.label2}>Number of Hard Questions</Text>
+            <TextInput
+              style={styles.input}
+              value={hard}
+              placeholderTextColor={'gray'}
+              onChangeText={value => handleInputChange(setHard, value)}
+            />
           </View>
-          <View style={styles.bar3}>
-            {gridViewHeaders.map((item, index) => (
-              <Text key={index} style={styles.bar3Text}>
-                {item.weightage} %
-              </Text>
-            ))}
-          </View>
-          <View
-            style={{
-              borderBottomColor: 'white',
-              borderBottomWidth: 2,
-              width: '90%',
-              marginTop: 10,
-              alignSelf: 'center',
-            }}></View>
-
-          <FlatList
-            data={CLOS}
-            style={styles.flatlist}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({item, index}) => (
-              <View style={styles.listItem}>
-                <View>
-                  <Text style={styles.indexText}>{item.clo_number}:</Text>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                  }}>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="- -"
-                    keyboardType="numeric"
-                    placeholderTextColor={'gray'}
-                    onChangeText={text => setWeightage1(text)}
-                  />
-                  <Text style={styles.percent}> %</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="- -"
-                    keyboardType="numeric"
-                    placeholderTextColor={'gray'}
-                    onChangeText={text => setWeightage2(text)}
-                  />
-                  <Text style={styles.percent}> %</Text>
-
-                  <TextInput
-                    style={styles.input}
-                    placeholder="- -"
-                    keyboardType="numeric"
-                    placeholderTextColor={'gray'}
-                    onChangeText={text => setWeightage3(text)}
-                  />
-                  <Text style={styles.percent}> %</Text>
-
-                  <TextInput
-                    style={styles.input}
-                    placeholder="- -"
-                    keyboardType="numeric"
-                    placeholderTextColor={'gray'}
-                    onChangeText={text => setWeightage4(text)}
-                  />
-                  <Text style={styles.percent}> %</Text>
-                </View>
-              </View>
-            )}
-          />
-
-          {/* <Text style={styles.name}>SENIOR TEACHER</Text> */}
-
-          {/* <View style={styles.savebuttonContainer}>
-            <TouchableOpacity
-              style={styles.saveButton}
-              onPress={() => handleSave()}>
-              <Text style={styles.saveText}>Save Changes</Text>
+          {isChanged && (
+            <TouchableOpacity style={styles.button} onPress={updateDifficulty}>
+              <Text style={styles.buttonText}>Save</Text>
             </TouchableOpacity>
-          </View> */}
+          )}
         </View>
-        {/* </ScrollView> */}
       </View>
     </ImageBackground>
   );
@@ -254,18 +147,25 @@ const HodScreen11 = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    // backgroundColor: 'blue',
     borderWidth: 2,
     borderColor: 'black',
+    // justifyContent: 'center',
+    // backgroundColor: 'white',
   },
   form: {
-    marginTop: 20,
-    // borderWidth: 2,
-    // borderColor: 'yellow',
+    flex: 1,
+    marginTop: 50,
+    // backgroundColor: 'black',
   },
   header: {
     flexDirection: 'row',
+    // borderWidth: 2,
+    // borderColor: 'red',
+    // alignItems: 'center',
   },
   headerText: {
+    // backgroundColor: '#00E9CC',
     height: 70,
     width: 320,
     textAlignVertical: 'center',
@@ -274,129 +174,57 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: 'white',
+    // borderWidth: 2,
+    // borderColor: 'red'
+    // borderBottomLeftRadius: 40,
+    // borderBottomRightRadius: 40,
   },
   label: {
-    marginTop: 20,
-    marginLeft: 20,
+    fontSize: 25,
     marginBottom: 10,
-    fontSize: 25,
-    // textAlign: 'center',
-    color: 'white',
-    fontWeight: 'bold',
-    // textDecorationLine: 'underline',
-  },
-  percent: {
-    color: 'black',
-    alignSelf: 'center',
-    fontWeight: 'bold',
-  },
-  name: {
-    marginTop: 50,
-    fontSize: 25,
-    textAlign: 'center',
-    fontWeight: 'bold',
+    marginLeft: 10,
     color: 'white',
   },
-  data_name: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: 'black',
+  label2: {
+    fontSize: 20,
+    marginBottom: 8,
+    marginTop: 5,
     marginLeft: 20,
-    // textAlign: 'center',
-    // borderWidth: 2,
-    // borderColor: 'black',
-    width: 280,
+    color: 'white',
+    width: 290,
   },
   input: {
     height: 40,
-    width: 40,
-    // alignSelf: 'center',
-    borderColor: 'black',
+    width: '15%',
+    // marginLeft: '10%',
+    borderColor: 'cyan',
     borderWidth: 2,
-    borderRadius: 5,
-    marginLeft: 30,
-    paddingHorizontal: 8,
-    color: 'black',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 5,
-  },
-  searchinput: {
-    height: 40,
-    width: 300,
-    alignSelf: 'center',
-    borderColor: 'white',
-    borderWidth: 1,
-    borderRadius: 13,
-    marginTop: 16,
-    paddingHorizontal: 8,
-    color: 'white',
-    backgroundColor: 'black',
-  },
-  tableheader: {
-    flexDirection: 'row',
-    height: 40,
-    borderRadius: 40,
-    marginTop: 30,
-    borderBottomWidth: 4,
-    borderBottomColor: 'white',
-    backgroundColor: 'black',
-  },
-  columnHeader: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-  },
-  //   listItem: {
-  //     flexDirection: 'row',
-  //     borderBottomWidth: 2,
-  //     borderBottomColor: 'black',
-  //     width: '90%',
-  //     height: 55,
-  //     marginLeft: '5%',
-  //     borderRadius: 15,
-  //     marginTop: 1,
-  //     color: 'black',
-  //     justifyContent: 'space-between',
-  //     alignItems: 'center',
-  //     backgroundColor: '#CDCDCD',
-  //   },
-  listItem: {
-    flexDirection: 'column',
-    borderBottomWidth: 2,
-    borderBottomColor: '#58FFAB',
-    backgroundColor: '#CDCDCD',
-    height: 'auto',
-    width: '90%',
-    marginLeft: '5%',
-    marginTop: 3,
     borderRadius: 10,
-    // marginTop: 2,
-    color: 'white',
-    // justifyContent: 'center',
-    // alignItems: 'center',
-  },
-  cloText: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    marginBottom: 16,
     color: 'black',
-    marginLeft: 20,
-    flexWrap: 'wrap',
-  },
-  indexText: {
-    fontSize: 15,
-    color: 'blue',
-    marginLeft: 10,
+    fontSize: 17,
+    textAlign: 'center',
     fontWeight: 'bold',
-    marginBottom: 5,
+    backgroundColor: '#CDCDCD',
   },
-  column: {
-    flex: 1,
+  button: {
+    backgroundColor: '#00DDDD',
+    padding: 10,
+    height: 45,
+    width: 80,
+    marginTop: 30,
+    borderRadius: 10,
+    alignItems: 'center',
+    alignSelf: 'center',
+    justifyContent: 'center',
   },
-  flatlist: {
-    marginTop: 5,
-    maxHeight: 455,
+  buttonText: {
+    color: 'black',
+    fontSize: 20,
+    height: 45,
+    fontWeight: 'bold',
+    textAlignVertical: 'center',
+    textAlign: 'center',
   },
   backgroundImage: {
     flex: 1,
@@ -410,124 +238,6 @@ const styles = StyleSheet.create({
   backIcon: {
     height: 20,
     width: 20,
-  },
-  radiobuttonContainer: {
-    flexDirection: 'row',
-    maxWidth: 80,
-    justifyContent: 'center',
-    marginLeft: 100,
-  },
-  savebuttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginRight: 10,
-    marginTop: 50,
-  },
-  deleteButton: {
-    padding: 2,
-    height: 25,
-    width: 25,
-    borderRadius: 13,
-  },
-  deleteIcon: {
-    height: 22,
-    width: 22,
-  },
-  saveButton: {
-    borderRadius: 13,
-    backgroundColor: '#00DDDD',
-    justifyContent: 'center',
-    height: 50,
-    width: 200,
-  },
-  saveText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'black',
-    textAlign: 'center',
-  },
-  picker: {
-    height: 55,
-  },
-  pickerItem: {
-    backgroundColor: '#CDCDCD',
-  },
-  pickerContainer: {
-    borderWidth: 2,
-    // borderColor: 'white',
-    backgroundColor: 'black',
-    borderRadius: 10,
-    justifyContent: 'center',
-    marginLeft: 20,
-    marginRight: 20,
-  },
-  radioContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 13,
-    width: 20,
-    height: 20,
-  },
-  radioButton: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'black',
-  },
-  bar1: {
-    backgroundColor: 'yellow',
-    color: 'black',
-    height: 40,
-    width: '90%',
-    marginTop: 10,
-    marginLeft: '5%',
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  bar1Text: {
-    color: 'black',
-    fontWeight: 'bold',
-  },
-  bar2: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    color: 'black',
-    height: 40,
-    width: '90%',
-    marginTop: 5,
-    marginLeft: '5%',
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  bar2Text: {
-    flex: 1,
-    // borderWidth: 1,
-    // borderColor: 'black',
-    color: 'black',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  bar3: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    color: 'black',
-    height: 40,
-    width: '90%',
-    marginTop: 5,
-    marginLeft: '5%',
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  bar3Text: {
-    flex: 1,
-    color: 'black',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    // borderWidth: 1
   },
 });
 

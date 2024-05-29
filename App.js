@@ -35,6 +35,8 @@ import HodScreen08 from './Screens/Hod/HOD_SCREEN_08';
 import HodScreen09 from './Screens/Hod/HOD_SCREEN_09';
 import HodScreen10 from './Screens/Hod/HOD_SCREEN_10';
 import HodScreen11 from './Screens/Hod/HOD_SCREEN_11';
+import HodScreen12 from './Screens/Hod/HOD_SCREEN_12';
+import HodScreen13 from './Screens/Hod/HOD_SCREEN_13';
 
 import FctLogin from './Screens/Faculty/FCT_LOGIN';
 import FctScreen01 from './Screens/Faculty/FCT_SCREEN_01';
@@ -175,6 +177,16 @@ export default function App() {
         <Stack1.Screen
           name="HodScreen11"
           component={HodScreen11}
+          options={{headerShown: false}}
+        />
+        <Stack1.Screen
+          name="HodScreen12"
+          component={HodScreen12}
+          options={{headerShown: false}}
+        />
+        <Stack1.Screen
+          name="HodScreen13"
+          component={HodScreen13}
           options={{headerShown: false}}
         />
 

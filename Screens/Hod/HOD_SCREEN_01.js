@@ -67,6 +67,16 @@ const HodScreen01 = () => {
             onPress={() => navigation.navigate('HodScreen10')}>
             <Text style={styles.buttonText}>Manage{'\n'}CLOS Grid</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate('HodScreen11')}>
+            <Text style={styles.buttonText}>Manage{'\n'}Difficulty</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate('HodScreen12')}>
+            <Text style={styles.buttonText}>Manage{'\n'}Session</Text>
+          </TouchableOpacity>
         </ScrollView>
       </View>
     </ImageBackground>
