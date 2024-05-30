@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
-  Modal,
   Image,
   Alert,
   Button,
@@ -15,139 +14,89 @@ import {
   ImageBackground,
   TouchableOpacity,
 } from 'react-native';
-import {ip, faculty_port} from '../CONFIG';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {SelectList} from 'react-native-dropdown-select-list';
+import {ip, port} from '../CONFIG';
+import {useNavigation} from '@react-navigation/native';
 
-const FctScreen09 = () => {
+const FctScreen09 = ({route}) => {
+  const {courseId, courseName, courseCode, facultyId, facultyRole} =
+    route.params;
   const navigation = useNavigation();
-  const [f_name, setName] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState(null);
-  const [nameToDelete, setNametodelete] = useState(null);
-  const [facultyMembers, setFacultyMembers] = useState([]);
+  const [degree, setDegree] = useState('');
+  const [exam_date, setExamDate] = useState('');
+  const [duration, setDuration] = useState('');
+  const [term, setTerm] = useState('');
+  const [papers, setPapers] = useState([]);
+  const [mode, setMode] = useState('add');
 
   useEffect(() => {
-    fetchData();
+    fetchPaper();
   }, []);
 
-  //   useFocusEffect(() => {
-  //     fetchData();
-  //   });
+  const handlePressMid = () => {
+    setTerm('Mid');
+    console.log('Mid');
+  };
 
-  const handleSearch = text => {
-    const apiEndpoint = `http://${ip}:${faculty_port}/searchfaculty?search=${text}`;
+  const handlePressFinal = () => {
+    setTerm('Final');
+    console.log('Final');
+  };
 
-    if (text.trim() === '') {
-      fetchData();
-    } else {
-      fetch(apiEndpoint)
-        .then(response => response.json())
-        .then(data => {
-          setFacultyMembers(data);
-        })
-        .catch(error => {
-          console.error('Error searching data:', error);
-        });
+  const handleAddOrUpdateCLO = () => {
+    if (mode === 'add') {
+      savePaper();
+    } else if (mode === 'edit') {
+      editSession(s_id);
     }
   };
 
+  const handleClear = () => {
+    setMode('add');
+    setDegree('');
+    setExamDate('');
+    setDuration('');
+    setTerm('');
+    Keyboard.dismiss();
+  };
+
   const handleEdit = item => {
-    navigation.navigate('DtcScreen03', {
-      itemId: item.f_id,
-      itemName: item.f_name,
-      itemUsername: item.username,
-      itemPassword: item.password,
-    });
+    setMode('edit');
+    setDegree(item.degree);
+    setExamDate(item.exam_date);
+    setDuration(item.duration.toString());
+    setTerm(item.term);
   };
 
-  //   const handleDelete = (f_id, f_name) => {
-  //     console.log(`Delete ${f_id}`);
-  //     setItemToDelete(f_id);
-  //     setNametodelete(f_name);
-  //     setShowModal(true);
-  //   };
-
-  //   const confirmDelete = itemToDelete => {
-  //     const apiEndpoint = `http://${ip}:${faculty_port}/deleteFaculty/${itemToDelete}`;
-  //     if (itemToDelete) {
-  //       fetch(apiEndpoint, {
-  //         method: 'DELETE',
-  //       })
-  //         .then(response => {
-  //           if (response.ok) {
-  //             console.log('Item deleted successfully');
-  //             fetchData();
-  //           } else {
-  //             console.error('Failed to delete item');
-  //           }
-  //         })
-  //         .catch(error => {
-  //           console.error('Error deleting item:', error);
-  //         });
-  //     }
-  //     setShowModal(false);
-  //   };
-
-  const handleStatus = (f_id, status) => {
-    const apiEndpoint = `http://${ip}:${faculty_port}/enabledisablefaculty/${f_id}`;
-    console.log(status);
-    fetch(apiEndpoint, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        status: status,
-      }),
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to edit faculty status');
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Faculty status updated successfully:', data);
-        ToastAndroid.show('Faculty status updated', ToastAndroid.SHORT);
-        fetchData();
-      })
-      .catch(error => {
-        console.error('Error editing faculty status:', error);
-        ToastAndroid.show('Error: Failed to edit status.', ToastAndroid.SHORT);
-      });
-  };
-
-  const fetchData = () => {
-    const apiEndpoint = `http://${ip}:${faculty_port}/getfaculty`;
-    // Keyboard.dismiss();
+  const fetchPaper = () => {
+    const apiEndpoint = `http://${ip}:${port}/getPapers/${courseId}`;
+    Keyboard.dismiss();
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
         // console.log('Data fetched successfully:', data);
-        setFacultyMembers(data);
-        setName('');
-        setUsername('');
-        setPassword('');
+        setPapers(data);
+        setDegree('');
+        setExamDate('');
+        setDuration('');
       })
       .catch(error => {
         console.error('Error fetching data:', error);
       });
   };
 
-  const handlePostData = () => {
+  const savePaper = () => {
+    setMode('add');
     if (
-      f_name.trim() === '' ||
-      username.trim() === '' ||
-      password.trim() === ''
+      degree.trim() === '' ||
+      exam_date.trim() === '' ||
+      duration.trim() === '' ||
+      term.trim() === ''
     ) {
-      // Alert.alert('Error', 'Please fill in the field');
       ToastAndroid.show('Error: Please fill all fields.', ToastAndroid.SHORT);
       return;
     }
-    const apiEndpoint = `http://${ip}:${faculty_port}/addfaculty`;
+
+    const apiEndpoint = `http://${ip}:${port}/savePaper`;
 
     fetch(apiEndpoint, {
       method: 'POST',
@@ -155,20 +104,31 @@ const FctScreen09 = () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        f_name: f_name,
-        username: username,
-        password: password,
+        degree: degree,
+        exam_date: exam_date,
+        duration: duration,
+        term: term,
+        c_id: courseId,
       }),
     })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Data posted successfully:', data);
-        ToastAndroid.show('Added Successfully !', ToastAndroid.SHORT);
-        Keyboard.dismiss();
-        fetchData();
+      .then(response =>
+        response.json().then(data => ({status: response.status, body: data})),
+      )
+      .then(({status, body}) => {
+        if (status === 200) {
+          console.log('Data posted successfully:', body);
+          ToastAndroid.show('Added Successfully!', ToastAndroid.SHORT);
+          Keyboard.dismiss();
+          fetchPaper();
+          handleClear();
+        } else {
+          // console.error('Error from server:', body);
+          ToastAndroid.show(`${body.error}`, ToastAndroid.LONG);
+        }
       })
       .catch(error => {
-        console.error('Error posting data:', error);
+        // console.error('Error posting data:', error);
+        ToastAndroid.show('Failed to add paper.', ToastAndroid.LONG);
       });
   };
 
@@ -176,292 +136,180 @@ const FctScreen09 = () => {
     <ImageBackground
       source={require('../../assets/fct_background.png')}
       style={styles.backgroundImage}>
-      <ScrollView contentContainerStyle={{flexGrow: 1}} style={{flex: 1}}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => navigation.navigate('DtcScreen01')}>
-              <Image
-                source={require('../../assets/arrow.png')}
-                style={styles.backIcon}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-            <Text style={styles.headerText}>Paper Header</Text>
-          </View>
-          {/* <ScrollView> */}
-          <View style={styles.form}>
-            <Text
-              style={{
-                marginLeft: 30,
-                fontWeight: 'bold',
-                fontSize: 25,
-                color: 'white',
-              }}>
-              Cyber Security
-            </Text>
-            <Text
-              style={{
-                marginLeft: 30,
-                fontWeight: 'bold',
-                fontSize: 25,
-                color: 'white',
-              }}>
-              Course Code: <Text style={{color: 'yellow'}}>CS-327</Text>
-            </Text>
-            <Text
-              style={{
-                alignSelf: 'center',
-                marginTop: 30,
-                fontWeight: 'bold',
-                fontSize: 25,
-                color: 'white',
-              }}>
-              Paper Settings
-            </Text>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() =>
+              navigation.navigate('FctScreen02', {
+                courseId: courseId,
+                courseName: courseName,
+                courseCode: courseCode,
+                facultyId: facultyId,
+                facultyRole: facultyRole,
+              })
+            }>
+            <Image
+              source={require('../../assets/arrow.png')}
+              style={styles.backIcon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+          <Text style={styles.headerText}>Paper Header</Text>
+        </View>
+        {/* <ScrollView> */}
+        <View style={styles.form}>
+          <Text
+            style={{
+              marginLeft: 30,
+              fontWeight: 'bold',
+              fontSize: 25,
+              color: 'white',
+            }}>
+            {courseName}
+          </Text>
+          <Text
+            style={{
+              marginLeft: 30,
+              fontWeight: 'bold',
+              fontSize: 25,
+              color: 'white',
+            }}>
+            Course Code: <Text style={{color: 'yellow'}}>{courseCode}</Text>
+          </Text>
+          <Text
+            style={{
+              alignSelf: 'center',
+              marginTop: 30,
+              fontWeight: 'bold',
+              fontSize: 25,
+              color: 'white',
+            }}>
+            Paper Settings
+          </Text>
+
+          <View style={{marginTop: 15}}>
             <Text style={styles.label}>Teachers</Text>
             <Text style={styles.label2}>Dr.Qamar Mehmood, Mr.Shahid</Text>
 
             <Text style={styles.label}>Course Title: </Text>
-            <Text style={styles.label2}>Cyber Security (CS-327)</Text>
+            <Text style={styles.label2}>
+              {courseName} ({courseCode})
+            </Text>
+          </View>
 
-            <Text style={styles.label}>Date of Exam</Text>
-            <TextInput
-              style={styles.input}
-              value={f_name}
-              placeholder="Enter Date of Exam"
-              placeholderTextColor={'gray'}
-              onChangeText={text => setName(text)}
-            />
+          <Text style={styles.label}>Degree</Text>
+          <TextInput
+            style={styles.input}
+            value={degree}
+            placeholder="Enter Degree"
+            placeholderTextColor={'gray'}
+            onChangeText={text => setDegree(text)}
+          />
 
-            <Text style={styles.label}>Duration</Text>
-            <TextInput
-              style={styles.input}
-              value={username}
-              placeholder="Enter Duration (numeric)"
-              placeholderTextColor={'gray'}
-              onChangeText={text => setUsername(text)}
-            />
+          <Text style={styles.label}>Date of Exam</Text>
+          <TextInput
+            style={styles.input}
+            value={exam_date}
+            placeholder="YYYY-MM-DD"
+            placeholderTextColor={'gray'}
+            onChangeText={text => setExamDate(text)}
+          />
 
-            <Text style={styles.label}>Degree</Text>
-            <TextInput
-              style={styles.input}
-              value={username}
-              placeholder="Enter Degree"
-              placeholderTextColor={'gray'}
-              onChangeText={text => setUsername(text)}
-            />
+          <Text style={styles.label}>Duration</Text>
+          <TextInput
+            style={styles.input}
+            value={duration}
+            placeholder="Enter Duration (numeric)"
+            placeholderTextColor={'gray'}
+            keyboardType="numeric"
+            onChangeText={text => setDuration(text)}
+          />
 
-            <Text style={styles.label}>Total Marks</Text>
-            <TextInput
-              style={styles.input}
-              value={username}
-              placeholder="Enter Total Marks (numeric)"
-              placeholderTextColor={'gray'}
-              onChangeText={text => setUsername(text)}
-            />
-
-            <Text style={styles.label}>Session</Text>
+          <Text style={styles.label}>Term</Text>
+          <View style={{flexDirection: 'row', marginTop: 15, marginLeft: 40}}>
             <View style={{flexDirection: 'row'}}>
-              <View style={{flexDirection: 'row'}}>
-                <Text style={styles.label2}>Fall</Text>
-                <TouchableOpacity
-                  style={{
-                    height: 20,
-                    width: 20,
-                    borderWidth: 3,
-                    borderColor: 'white',
-                    borderRadius: 10,
-                    marginLeft: 10,
-                    backgroundColor: '#58FFAB',
-                  }}></TouchableOpacity>
-              </View>
-              <View style={{flexDirection: 'row'}}>
-                <Text style={styles.label2}>Spring</Text>
-                <TouchableOpacity
-                  style={{
-                    height: 20,
-                    width: 20,
-                    borderWidth: 3,
-                    borderColor: 'white',
-                    borderRadius: 10,
-                    marginLeft: 10,
-                  }}></TouchableOpacity>
-              </View>
-              <View style={{flexDirection: 'row'}}>
-                <Text style={styles.label2}>Summer</Text>
-                <TouchableOpacity
-                  style={{
-                    height: 20,
-                    width: 20,
-                    borderWidth: 3,
-                    borderColor: 'white',
-                    borderRadius: 10,
-                    marginLeft: 10,
-                  }}></TouchableOpacity>
-              </View>
+              <Text style={styles.label2}>Mid</Text>
+              <TouchableOpacity
+                style={[
+                  styles.circle,
+                  {
+                    backgroundColor: term === 'Mid' ? '#58FFAB' : 'transparent',
+                  },
+                ]}
+                onPress={handlePressMid}
+              />
             </View>
-            <Text style={styles.label}>Term</Text>
             <View style={{flexDirection: 'row'}}>
-              <View style={{flexDirection: 'row'}}>
-                <Text style={styles.label2}>Mid</Text>
-                <TouchableOpacity
-                  style={{
-                    height: 20,
-                    width: 20,
-                    borderWidth: 3,
-                    borderColor: 'white',
-                    borderRadius: 10,
-                    marginLeft: 10,
-                    backgroundColor: '#58FFAB',
-                  }}></TouchableOpacity>
-              </View>
-              <View style={{flexDirection: 'row'}}>
-                <Text style={styles.label2}>Final</Text>
-                <TouchableOpacity
-                  style={{
-                    height: 20,
-                    width: 20,
-                    borderWidth: 3,
-                    borderColor: 'white',
-                    borderRadius: 10,
-                    marginLeft: 10,
-                  }}></TouchableOpacity>
-              </View>
+              <Text style={styles.label2}>Final</Text>
+              <TouchableOpacity
+                style={[
+                  styles.circle,
+                  {
+                    backgroundColor:
+                      term === 'Final' ? '#58FFAB' : 'transparent',
+                  },
+                ]}
+                onPress={handlePressFinal}
+              />
             </View>
+          </View>
 
-            <TouchableOpacity style={styles.button} onPress={handlePostData}>
-              <Text style={styles.buttonText}>Save</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'flex-end',
+              marginRight: '2%',
+            }}>
+            {mode === 'edit' && (
+              <TouchableOpacity
+                style={styles.clearbutton}
+                onPress={handleClear}>
+                <Text style={styles.clearText}>Clear</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleAddOrUpdateCLO}>
+              <Text style={styles.buttonText}>
+                {mode === 'add' ? 'Save' : 'Update'}
+              </Text>
             </TouchableOpacity>
+          </View>
 
-            <TextInput
-              style={styles.searchinput}
-              placeholder="Search"
-              placeholderTextColor={'white'}
-              onChangeText={text => handleSearch(text)}
-            />
-
-            {/* <View style={styles.tableheader}>
-            <Text style={styles.columnHeader}>Name</Text>
-            <Text style={styles.columnHeader}>Username</Text>
-            <Text style={styles.columnHeader}>Actions</Text>
-          </View> */}
-
-            <View style={styles.tableheader}>
-              <View style={styles.columnContainer}>
-                <Text style={styles.columnHeader}>Name</Text>
-              </View>
-              <View style={styles.columnContainer}>
-                <Text style={styles.columnHeader}>Username</Text>
-              </View>
-              <View style={styles.columnContainer}>
-                <Text style={styles.columnHeader}>Actions</Text>
-              </View>
-            </View>
-
-            {/* Confirmation Modal */}
-            {/* <Modal
-            visible={showModal}
-            animationType="slide"
-            transparent={true}
-            onRequestClose={() => setShowModal(false)}>
-            <View
-              style={{
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <View
-                style={{
-                  backgroundColor: 'white',
-                  padding: 20,
-                  borderRadius: 10,
-                  elevation: 10,
-                  width: '90%',
-                }}>
-                <Text style={{color: 'black'}}>
-                  Are you sure you, you want to delete record of
-                  <Text style={{color: 'red', fontWeight: 'bold'}}>
-                    {' '}
-                    "{nameToDelete}"
-                  </Text>
-                  ?
-                </Text>
-                <View style={styles.modalbuttonscontainer}>
-                  <TouchableOpacity
-                    style={styles.modalcancelbutton}
-                    onPress={() => setShowModal(false)}>
-                    <Text style={styles.editbuttonText}>No</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.modaldeletebutton}
-                    onPress={() => {
-                      confirmDelete(itemToDelete);
-                    }}>
-                    <Text style={styles.editbuttonText}>Yes</Text>
-                  </TouchableOpacity>
+          <FlatList
+            data={papers}
+            style={styles.flatlist}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({item, index}) => (
+              <View style={styles.listItem}>
+                <View style={styles.column}>
+                  <Text style={styles.text}>{item.session}</Text>
                 </View>
-              </View>
-            </View>
-          </Modal> */}
-
-            <FlatList
-              data={facultyMembers}
-              style={styles.flatlist}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({item}) => (
-                <View style={styles.listItem}>
-                  <View style={styles.column}>
-                    <Text style={styles.data_name}>{item.f_name}</Text>
-                  </View>
-
-                  <View style={styles.column}>
-                    <Text style={styles.data_username}>{item.username}</Text>
-                  </View>
-
-                  <View style={styles.column}>
-                    <View style={styles.buttonsContainer}>
-                      <TouchableOpacity
-                        style={styles.editButton}
-                        onPress={() => handleEdit(item)}>
-                        <Image
-                          source={require('../../assets/edit_icon.png')}
-                          style={styles.editIcon}
-                          resizeMode="contain"
-                        />
-                      </TouchableOpacity>
-                      {/* <TouchableOpacity
-                      style={styles.deleteButton}
-                      onPress={() => handleDelete(item.f_id, item.f_name)}>
+                <View style={styles.column}>
+                  <Text style={styles.text}>{item.year}</Text>
+                </View>
+                <View style={styles.column}>
+                  <Text style={styles.text}>{item.term}</Text>
+                </View>
+                <View style={{flex: 0.7}}>
+                  <View style={styles.buttonsContainer}>
+                    <TouchableOpacity
+                      style={styles.editButton}
+                      onPress={() => handleEdit(item)}>
                       <Image
-                        source={require('../../assets/delete_icon.png')}
-                        style={styles.deleteIcon}
+                        source={require('../../assets/edit_icon.png')}
+                        style={styles.editIcon}
                         resizeMode="contain"
                       />
-                    </TouchableOpacity> */}
-                      {item.status === 'disabled' ? (
-                        <TouchableOpacity
-                          style={styles.disableButton}
-                          onPress={() => handleStatus(item.f_id, item.status)}>
-                          <Text style={styles.disablebuttonText}>D</Text>
-                        </TouchableOpacity>
-                      ) : (
-                        <TouchableOpacity
-                          style={styles.enableButton}
-                          onPress={() => handleStatus(item.f_id, item.status)}>
-                          <Text style={styles.enablebuttonText}>E</Text>
-                        </TouchableOpacity>
-                      )}
-                    </View>
+                    </TouchableOpacity>
                   </View>
                 </View>
-              )}
-            />
-          </View>
-          {/* </ScrollView> */}
+              </View>
+            )}
+          />
         </View>
-      </ScrollView>
+      </View>
     </ImageBackground>
   );
 };
@@ -486,6 +334,12 @@ const styles = StyleSheet.create({
     // borderColor: 'red',
     // alignItems: 'center',
   },
+  text: {
+    color: 'black',
+    fontWeight: 'bold',
+    fontSize: 18,
+    textAlign: 'center',
+  },
   headerText: {
     // backgroundColor: '#00E9CC',
     height: 70,
@@ -500,6 +354,14 @@ const styles = StyleSheet.create({
     // borderColor: 'red'
     // borderBottomLeftRadius: 40,
     // borderBottomRightRadius: 40,
+  },
+  circle: {
+    height: 20,
+    width: 20,
+    borderWidth: 3,
+    borderColor: 'white',
+    borderRadius: 10,
+    marginLeft: 10,
   },
   label: {
     fontSize: 20,
@@ -542,7 +404,7 @@ const styles = StyleSheet.create({
     marginBottom: 7,
     paddingHorizontal: 8,
     color: 'black',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
   },
   searchinput: {
     height: 40,
@@ -583,12 +445,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   button: {
-    backgroundColor: '#FFEA00',
+    backgroundColor: '#58FFAB',
     padding: 10,
-    height: 50,
-    width: 150,
-    marginTop: 100,
-    borderRadius: 20,
+    height: 40,
+    width: 100,
+    marginTop: 20,
+    borderRadius: 15,
     alignItems: 'center',
     alignSelf: 'center',
     justifyContent: 'center',
@@ -596,6 +458,27 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'black',
     fontSize: 20,
+    height: 40,
+    textAlignVertical: 'center',
+    fontWeight: 'bold',
+  },
+  clearbutton: {
+    backgroundColor: 'red',
+    marginRight: 5,
+    padding: 10,
+    height: 40,
+    width: 100,
+    marginTop: 20,
+    borderRadius: 15,
+    alignItems: 'center',
+    alignSelf: 'center',
+    justifyContent: 'center',
+  },
+  clearText: {
+    color: 'white',
+    fontSize: 20,
+    height: 40,
+    textAlignVertical: 'center',
     fontWeight: 'bold',
   },
   deletebuttonText: {
@@ -626,18 +509,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 2,
     borderBottomColor: 'black',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
     height: 45,
+    width: '96%',
+    marginLeft: '2%',
     borderRadius: 15,
     color: 'white',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   column: {
     flex: 1,
   },
   flatlist: {
-    marginTop: 5,
+    marginTop: 20,
   },
   backgroundImage: {
     flex: 1,

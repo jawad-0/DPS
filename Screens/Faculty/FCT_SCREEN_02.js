@@ -86,11 +86,13 @@ const FctScreen02 = ({route}) => {
         <View style={styles.buttonscontainer}>
           <TouchableOpacity
             style={styles.button}
+            activeOpacity={0.8}
             onPress={() => console.log('Paper Settings')}>
             <Text style={styles.buttonText}>PAPER SETTINGS</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
+            activeOpacity={0.8}
             onPress={() =>
               navigation.navigate('FctScreen07', {
                 courseId: courseId,
@@ -104,6 +106,7 @@ const FctScreen02 = ({route}) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
+            activeOpacity={0.8}
             onPress={() =>
               navigation.navigate('FctScreen04', {
                 courseId: courseId,
@@ -119,6 +122,7 @@ const FctScreen02 = ({route}) => {
             <>
               <TouchableOpacity
                 style={styles.button}
+                activeOpacity={0.8}
                 onPress={() =>
                   navigation.navigate('FctScreen05', {
                     courseId: courseId,
@@ -132,6 +136,7 @@ const FctScreen02 = ({route}) => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.button}
+                activeOpacity={0.8}
                 onPress={() =>
                   navigation.navigate('FctScreen03', {
                     courseId: courseId,
@@ -145,11 +150,21 @@ const FctScreen02 = ({route}) => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.button}
-                onPress={() => navigation.navigate('FctScreen09')}>
+                activeOpacity={0.8}
+                onPress={() =>
+                  navigation.navigate('FctScreen09', {
+                    courseId: courseId,
+                    courseName: courseName,
+                    courseCode: courseCode,
+                    facultyId: facultyId,
+                    facultyRole: facultyRole,
+                  })
+                }>
                 <Text style={styles.buttonText}>MANAGE PAPER</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.button}
+                activeOpacity={0.8}
                 onPress={() =>
                   navigation.navigate('FctScreen10', {
                     courseId: courseId,
@@ -273,7 +288,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 8,
     color: 'black',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
   },
   searchinput: {
     height: 40,

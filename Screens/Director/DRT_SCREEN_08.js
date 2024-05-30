@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 8,
     color: 'black',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
   },
   headerText: {
     height: 70,
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 2,
     borderBottomColor: '#58FFAB',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
     height: 40,
     width: '96%',
     marginLeft: '2%',

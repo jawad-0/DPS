@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginTop: 50,
     color: 'black',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
     textAlignVertical: 'top',
     padding: 10,
   },
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     // fontFamily: 'FuzzyBubbles-Regular',
   },
   button: {
-    backgroundColor: '#D2B4DE',
+    backgroundColor: '#E6E6FA',
     padding: 10,
     height: 105,
     width: 185,

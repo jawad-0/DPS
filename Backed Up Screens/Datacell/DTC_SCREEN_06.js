@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
     color: 'black',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
   },
   column: {
     flex: 1,
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   printButton: {
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
     borderRadius: 10,
     width: 80,
     marginLeft: 60,

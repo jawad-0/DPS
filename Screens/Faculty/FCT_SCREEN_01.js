@@ -80,6 +80,7 @@ const FctScreen01 = ({route}) => {
         <View style={styles.buttonsContainer}>
           <TouchableOpacity
             style={styles.mailButton}
+            activeOpacity={0.8}
             onPress={() =>
               navigation.navigate('FctScreen14', {facultyId: facultyId})
             }>
@@ -91,6 +92,7 @@ const FctScreen01 = ({route}) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.statusButton}
+            activeOpacity={0.8}
             onPress={() =>
               navigation.navigate('FctScreen15', {facultyId: facultyId})
             }>
@@ -112,7 +114,9 @@ const FctScreen01 = ({route}) => {
             showsVerticalScrollIndicator={false}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item}) => (
-              <TouchableOpacity onPress={() => handlePress(item)}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => handlePress(item)}>
                 <View style={styles.listItem}>
                   <View style={styles.column}>
                     <Text style={styles.data_title}>{item.c_title}</Text>
@@ -202,7 +206,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 8,
     color: 'black',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
   },
   searchinput: {
     height: 40,

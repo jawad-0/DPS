@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 8,
     color: 'black',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
   },
   input2: {
     height: 100,
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 8,
     color: 'black',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
   },
   headerText: {
     height: 70,
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
     // borderTopWidth: 2,
     // borderTopColor: 'black',
     width: '98%',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
     height: 'auto',
     borderRadius: 5,
     marginTop: 4,

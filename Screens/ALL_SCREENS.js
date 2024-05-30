@@ -22,7 +22,7 @@ DRT_SCREEN_07.js   // Additional Questions -------------------------------------
 DRT_SCREEN_08.js   // View Course Topics ----------------------------------------------------------
 
 HOD_LOGIN.js       // Login Screen For HOD
-HOD_SCREEN_01.js   // HOD Dashboard with 5 Main Buttons
+HOD_SCREEN_01.js   // HOD Dashboard with 7 Main Buttons
 HOD_SCREEN_02.js   // Faculty Detail (Names/Search/View_Button)
 HOD_SCREEN_03.js   // Course Detail (Names/Search/View_Button)
 HOD_SCREEN_04.js   // View Faculty (Assigned_Courses/Delete/Add_Button)

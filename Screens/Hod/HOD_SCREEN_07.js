@@ -19,7 +19,7 @@ import {ip, faculty_port, course_port, assigned_port} from '../CONFIG';
 // import SplashScreen from 'react-native-splash-screen';
 
 const HodScreen07 = ({route}) => {
-  const {facultyId,facultyName} = route.params;
+  const {facultyId, facultyName} = route.params;
   const navigation = useNavigation();
   const [selectedValue, setSelectedValue] = useState('- - - - - - - -');
   const [facultyMembers, setFacultyMembers] = useState([]);
@@ -32,7 +32,7 @@ const HodScreen07 = ({route}) => {
     fetchCourse(facultyId);
     setSelectedValue(facultyName);
     fetchAssignedCourses(facultyId);
-}, []);
+  }, []);
 
   const handleAssign = item => {
     console.log(`Assigning Course ${item.c_id} | Faculty ${f_id}`);
@@ -104,7 +104,12 @@ const HodScreen07 = ({route}) => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => console.log('Button pressed')}>
+            onPress={() =>
+              navigation.navigate('HodScreen04', {
+                facultyId: facultyId,
+                facultyName: facultyName,
+              })
+            }>
             <Image
               source={require('../../assets/arrow.png')}
               style={styles.backIcon}
@@ -266,7 +271,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 8,
     color: 'black',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
   },
   label: {
     height: 40,

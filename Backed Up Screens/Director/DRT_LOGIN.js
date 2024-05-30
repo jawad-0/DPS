@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     // fontFamily: 'FuzzyBubbles-Regular',
   },
   button: {
-    backgroundColor: '#D2B4DE',
+    backgroundColor: '#E6E6FA',
     padding: 10,
     height: 50,
     width: 130,

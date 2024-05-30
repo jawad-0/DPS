@@ -360,13 +360,13 @@ const styles = StyleSheet.create({
   //     color: 'black',
   //     justifyContent: 'space-between',
   //     alignItems: 'center',
-  //     backgroundColor: '#CDCDCD',
+  //     backgroundColor: '#E6E6FA',
   //   },
   listItem: {
     flexDirection: 'column',
     borderBottomWidth: 2,
     borderBottomColor: '#58FFAB',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
     height: 'auto',
     width: '90%',
     marginLeft: '5%',
@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
     height: 55,
   },
   pickerItem: {
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
   },
   pickerContainer: {
     borderWidth: 2,

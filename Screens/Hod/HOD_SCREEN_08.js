@@ -144,7 +144,7 @@ const HodScreen08 = () => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => console.log('Button pressed')}>
+            onPress={() => navigation.navigate('HodScreen01')}>
             <Image
               source={require('../../assets/arrow.png')}
               style={styles.backIcon}
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 8,
     color: 'black',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
   },
   label: {
     height: 40,
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 2,
     borderBottomColor: 'black',
-    backgroundColor: 'lightgray',
+    backgroundColor: '#E6E6FA',
     height: 45,
     width: '96%',
     marginLeft: '2%',

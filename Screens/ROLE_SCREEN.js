@@ -14,10 +14,14 @@ import {useNavigation} from '@react-navigation/native';
 
 const RoleScreen = () => {
   const navigation = useNavigation();
+  const [pressedButton, setPressedButton] = useState(null);
 
-  const handleLogout = () => {
-    ToastAndroid.show('Logged Out!', ToastAndroid.SHORT);
-    navigation.navigate('DtcLogin');
+  const handlePressIn = button => {
+    setPressedButton(button);
+  };
+
+  const handlePressOut = () => {
+    setPressedButton(null);
   };
 
   return (
@@ -30,24 +34,72 @@ const RoleScreen = () => {
         </View>
         <View style={styles.buttonscontainer}>
           <TouchableOpacity
-            style={styles.button}
+            style={[
+              styles.button,
+              pressedButton === 'button1' && styles.buttonPressed,
+            ]}
+            onPressIn={() => handlePressIn('button1')}
+            onPressOut={handlePressOut}
+            activeOpacity={0.8}
             onPress={() => navigation.navigate('DrtLogin')}>
-            <Text style={styles.buttonText}>Director</Text>
+            <Text
+              style={[
+                styles.buttonText,
+                pressedButton === 'button1' && styles.buttonPressedText,
+              ]}>
+              Director
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.button}
+            style={[
+              styles.button,
+              pressedButton === 'button2' && styles.buttonPressed,
+            ]}
+            onPressIn={() => handlePressIn('button2')}
+            onPressOut={handlePressOut}
+            activeOpacity={0.8}
             onPress={() => navigation.navigate('HodLogin')}>
-            <Text style={styles.buttonText}>HOD</Text>
+            <Text
+              style={[
+                styles.buttonText,
+                pressedButton === 'button2' && styles.buttonPressedText,
+              ]}>
+              HOD
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.button}
+            style={[
+              styles.button,
+              pressedButton === 'button3' && styles.buttonPressed,
+            ]}
+            onPressIn={() => handlePressIn('button3')}
+            onPressOut={handlePressOut}
+            activeOpacity={0.8}
             onPress={() => navigation.navigate('FctLogin')}>
-            <Text style={styles.buttonText}>Faculty</Text>
+            <Text
+              style={[
+                styles.buttonText,
+                pressedButton === 'button3' && styles.buttonPressedText,
+              ]}>
+              Faculty
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.button}
+            style={[
+              styles.button,
+              pressedButton === 'button4' && styles.buttonPressed,
+            ]}
+            onPressIn={() => handlePressIn('button4')}
+            onPressOut={handlePressOut}
+            activeOpacity={0.8}
             onPress={() => navigation.navigate('DtcLogin')}>
-            <Text style={styles.buttonText}>Datacell</Text>
+            <Text
+              style={[
+                styles.buttonText,
+                pressedButton === 'button4' && styles.buttonPressedText,
+              ]}>
+              Datacell
+            </Text>
           </TouchableOpacity>
         </View>
         <View style={styles.footer}>
@@ -113,12 +165,16 @@ const styles = StyleSheet.create({
     padding: 10,
     height: 75,
     width: 185,
-    borderWidth: 2,
+    borderWidth: 4,
     borderRadius: 20,
+    borderColor: 'gray',
     alignItems: 'center',
     alignSelf: 'center',
     justifyContent: 'center',
     marginBottom: 25,
+  },
+  buttonPressed: {
+    backgroundColor: 'gray',
   },
   buttonText: {
     color: 'black',
@@ -126,6 +182,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: 'poppins',
     textAlign: 'center',
+  },
+  buttonPressedText: {
+    color: 'white',
   },
   buttonscontainer: {
     marginTop: 60,

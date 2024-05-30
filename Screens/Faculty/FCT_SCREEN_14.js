@@ -36,7 +36,7 @@ const FctScreen14 = ({route}) => {
 
   return (
     <ImageBackground
-      source={require('../../assets/dtc_background.png')}
+      source={require('../../assets/fct_background.png')}
       style={styles.backgroundImage}>
       <View style={styles.container}>
         <View style={styles.header}>
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     marginLeft: '1%',
     color: 'black',
     backgroundColor: 'white',
-    // backgroundColor: '#CDCDCD',
+    // backgroundColor: '#E6E6FA',
     // justifyContent: 'space-between',
     // alignItems: 'center',
   },

@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 8,
     color: 'black',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
   },
   searchinput: {
     height: 40,
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 2,
     borderBottomColor: 'black',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
     height: 45,
     borderRadius: 15,
     color: 'white',

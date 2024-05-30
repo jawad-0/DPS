@@ -351,7 +351,7 @@ const FctScreen07 = ({route}) => {
                 pressedButton === 'button1' && styles.activeButton,
               ]}
               onPress={() => handleButtonPress('button1')}
-              activeOpacity={0.7}>
+              activeOpacity={0.8}>
               <Text style={styles.buttonText}>Covered</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -360,7 +360,7 @@ const FctScreen07 = ({route}) => {
                 pressedButton === 'button2' && styles.activeButton,
               ]}
               onPress={() => handleButtonPress('button2')}
-              activeOpacity={0.7}>
+              activeOpacity={0.8}>
               <Text style={styles.buttonText}>Common</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -369,7 +369,7 @@ const FctScreen07 = ({route}) => {
                 pressedButton === 'button3' && styles.activeButton,
               ]}
               onPress={() => handleButtonPress('button3')}
-              activeOpacity={0.7}>
+              activeOpacity={0.8}>
               <Text style={styles.buttonText}>Progress</Text>
             </TouchableOpacity>
           </View>
@@ -597,7 +597,8 @@ const FctScreen07 = ({route}) => {
                     save="f_name"
                     maxHeight={90}
                     placeholder="Select Teacher"
-                    searchPlaceholder="Search"
+                    search={false}
+                    // searchPlaceholder="Search"
                     boxStyles={styles.boxStyles}
                     inputStyles={styles.inputStyles}
                     dropdownStyles={{
@@ -695,7 +696,7 @@ const styles = StyleSheet.create({
   item: {
     width: 100,
     height: 30,
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
     borderRadius: 10,
     marginLeft: 2,
     marginTop: 20,
@@ -730,7 +731,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 8,
     color: 'black',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
   },
   headerText: {
     height: 70,
@@ -779,7 +780,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 2,
     borderBottomColor: '#58FFAB',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
     height: 'auto',
     width: '96%',
     marginLeft: '2%',
@@ -793,7 +794,7 @@ const styles = StyleSheet.create({
     // flexDirection: 'row',
     borderBottomWidth: 2,
     borderBottomColor: '#58FFAB',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
     height: 'auto',
     width: '96%',
     marginLeft: '2%',
@@ -807,7 +808,7 @@ const styles = StyleSheet.create({
     // flexDirection: 'row',
     borderBottomWidth: 2,
     borderBottomColor: '#58FFAB',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
     height: 'auto',
     width: '96%',
     marginLeft: '2%',
@@ -821,7 +822,7 @@ const styles = StyleSheet.create({
     // flexDirection: 'row',
     borderBottomWidth: 2,
     borderBottomColor: '#58FFAB',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
     height: 'auto',
     width: '96%',
     marginLeft: '2%',
@@ -835,7 +836,7 @@ const styles = StyleSheet.create({
     // flexDirection: 'row',
     borderBottomWidth: 2,
     borderBottomColor: '#58FFAB',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
     height: 'auto',
     width: '96%',
     marginLeft: '2%',
@@ -967,21 +968,21 @@ const styles = StyleSheet.create({
     // backgroundColor: 'blue',
   },
   pickerContainer: {
-    borderWidth: 2,
+    // borderWidth: 2,
     // borderColor: 'white',
-    backgroundColor: 'black',
-    width: '45%',
+    // backgroundColor: 'black',
+    width: '35%',
     justifyContent: 'center',
-    marginLeft: '50%',
+    marginLeft: '60%',
     // marginRight: 20,
   },
   boxStyles: {
     height: 'auto',
     justifyContent: 'center',
-    backgroundColor: 'gray',
+    backgroundColor: '#E6E6FA',
   },
   inputStyles: {
-    color: 'white',
+    color: 'black',
     fontSize: 14,
   },
   tickButton: {

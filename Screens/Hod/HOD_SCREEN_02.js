@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingHorizontal: 8,
     color: 'black',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
   },
   tableheader: {
     flexDirection: 'row',
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     color: 'black',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#CDCDCD',
+    backgroundColor: '#E6E6FA',
   },
   column: {
     flex: 1,

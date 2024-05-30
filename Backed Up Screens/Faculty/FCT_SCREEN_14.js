@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     marginLeft: '1%',
     color: 'black',
     backgroundColor: 'white',
-    // backgroundColor: '#CDCDCD',
+    // backgroundColor: '#E6E6FA',
     // justifyContent: 'space-between',
     // alignItems: 'center',
   },
