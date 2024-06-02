@@ -87,7 +87,15 @@ const FctScreen02 = ({route}) => {
           <TouchableOpacity
             style={styles.button}
             activeOpacity={0.8}
-            onPress={() => console.log('Paper Settings')}>
+            onPress={() =>
+              navigation.navigate('FctScreen08', {
+                courseId: courseId,
+                courseName: courseName,
+                courseCode: courseCode,
+                facultyId: facultyId,
+                facultyRole: facultyRole,
+              })
+            }>
             <Text style={styles.buttonText}>PAPER SETTINGS</Text>
           </TouchableOpacity>
           <TouchableOpacity

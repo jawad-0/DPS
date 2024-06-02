@@ -224,9 +224,7 @@ const FctScreen03 = ({route}) => {
               <TouchableOpacity
                 style={styles.clearbutton}
                 onPress={handleClear}>
-                <Text style={styles.clearText}>
-                  CLEAR
-                </Text>
+                <Text style={styles.clearText}>CLEAR</Text>
               </TouchableOpacity>
             )}
             <TouchableOpacity
@@ -245,7 +243,18 @@ const FctScreen03 = ({route}) => {
             renderItem={({item, index}) => (
               <View style={styles.listItem}>
                 {/* <Text style={styles.indexText}>CLO {index + 1}:</Text> */}
-                <Text style={styles.indexText}>{item.clo_number}:</Text>
+                <View style={{flexDirection: 'column'}}>
+                  <Text style={styles.indexText}>{item.clo_number}:</Text>
+                  {item.status === 'pending' && (
+                    <Text style={styles.pendingText}>{item.status}</Text>
+                  )}
+                  {item.status === 'approved' && (
+                    <Text style={styles.approvedText}>{item.status}</Text>
+                  )}
+                  {item.status === 'disapproved' && (
+                    <Text style={styles.disapprovedText}>{item.status}</Text>
+                  )}
+                </View>
                 <Text style={styles.cloText}>{item.clo_text}</Text>
                 <View style={styles.column}>
                   <View style={styles.buttonsContainer}>
@@ -452,19 +461,42 @@ const styles = StyleSheet.create({
   },
   cloText: {
     fontSize: 20,
+    fontWeight: 'bold',
     color: 'black',
     marginLeft: 20,
     width: 210,
     marginTop: 5,
     marginBottom: 5,
+    padding: 5,
     // flexWrap: 'wrap',
   },
   indexText: {
     fontSize: 17,
-    color: 'blue',
+    color: 'black',
     marginLeft: 15,
     fontWeight: 'bold',
     width: 65,
+  },
+  approvedText: {
+    fontSize: 13,
+    color: 'green',
+    marginLeft: 15,
+    fontWeight: 'bold',
+    width: 80,
+  },
+  disapprovedText: {
+    fontSize: 13,
+    color: 'red',
+    marginLeft: 15,
+    fontWeight: 'bold',
+    width: 80,
+  },
+  pendingText: {
+    fontSize: 13,
+    color: 'blue',
+    marginLeft: 15,
+    fontWeight: 'bold',
+    width: 80,
   },
   buttonsContainer: {
     flexDirection: 'row',

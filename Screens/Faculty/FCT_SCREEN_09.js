@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
+  Modal,
   Image,
   Alert,
   Button,
@@ -21,10 +22,13 @@ const FctScreen09 = ({route}) => {
   const {courseId, courseName, courseCode, facultyId, facultyRole} =
     route.params;
   const navigation = useNavigation();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
   const [degree, setDegree] = useState('');
   const [exam_date, setExamDate] = useState('');
   const [duration, setDuration] = useState('');
   const [term, setTerm] = useState('');
+  const [paperID, setPaperID] = useState('');
   const [papers, setPapers] = useState([]);
   const [mode, setMode] = useState('add');
 
@@ -42,11 +46,11 @@ const FctScreen09 = ({route}) => {
     console.log('Final');
   };
 
-  const handleAddOrUpdateCLO = () => {
+  const handleAddOrUpdateCLO = item => {
     if (mode === 'add') {
       savePaper();
     } else if (mode === 'edit') {
-      editSession(s_id);
+      updatePaper(paperID);
     }
   };
 
@@ -59,8 +63,19 @@ const FctScreen09 = ({route}) => {
     Keyboard.dismiss();
   };
 
+  const handleItemPress = item => {
+    setSelectedItem(item);
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setSelectedItem(null);
+  };
+
   const handleEdit = item => {
     setMode('edit');
+    setPaperID(item.p_id);
     setDegree(item.degree);
     setExamDate(item.exam_date);
     setDuration(item.duration.toString());
@@ -129,6 +144,51 @@ const FctScreen09 = ({route}) => {
       .catch(error => {
         // console.error('Error posting data:', error);
         ToastAndroid.show('Failed to add paper.', ToastAndroid.LONG);
+      });
+  };
+
+  const updatePaper = paperID => {
+    setMode('edit');
+    if (
+      degree.trim() === '' ||
+      exam_date.trim() === '' ||
+      duration.trim() === ''
+    ) {
+      ToastAndroid.show('Error: Please fill all fields.', ToastAndroid.SHORT);
+      return;
+    }
+
+    const apiEndpoint = `http://${ip}:${port}/editPaper/${paperID}`;
+
+    fetch(apiEndpoint, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        degree: degree,
+        exam_date: exam_date,
+        duration: duration,
+      }),
+    })
+      .then(response =>
+        response.json().then(data => ({status: response.status, body: data})),
+      )
+      .then(({status, body}) => {
+        if (status === 200) {
+          console.log('Data posted successfully:', body);
+          ToastAndroid.show('Updated Successfully!', ToastAndroid.SHORT);
+          Keyboard.dismiss();
+          fetchPaper();
+          handleClear();
+        } else {
+          // console.error('Error from server:', body);
+          ToastAndroid.show(`${body.error}`, ToastAndroid.LONG);
+        }
+      })
+      .catch(error => {
+        // console.error('Error posting data:', error);
+        ToastAndroid.show('Failed to update paper.', ToastAndroid.LONG);
       });
   };
 
@@ -282,7 +342,10 @@ const FctScreen09 = ({route}) => {
             style={styles.flatlist}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item, index}) => (
-              <View style={styles.listItem}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={styles.listItem}
+                onPress={() => handleItemPress(item)}>
                 <View style={styles.column}>
                   <Text style={styles.text}>{item.session}</Text>
                 </View>
@@ -305,9 +368,36 @@ const FctScreen09 = ({route}) => {
                     </TouchableOpacity>
                   </View>
                 </View>
-              </View>
+              </TouchableOpacity>
             )}
           />
+
+          {selectedItem && (
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={modalVisible}
+              onRequestClose={handleCloseModal}>
+              <View style={styles.modalContainer}>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalText}>
+                    Session: {selectedItem.session}
+                  </Text>
+                  <Text style={styles.modalText}>
+                    Year: {selectedItem.year}
+                  </Text>
+                  <Text style={styles.modalText}>
+                    Term: {selectedItem.term}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={handleCloseModal}>
+                    <Text style={styles.closeButtonText}>Close</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
+          )}
         </View>
       </View>
     </ImageBackground>
@@ -620,6 +710,38 @@ const styles = StyleSheet.create({
   backIcon: {
     height: 20,
     width: 20,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: 250,
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 10,
+    color: 'black'
+  },
+  closeButton: {
+    marginTop: 20,
+    height: 30,
+    width: 70,
+    backgroundColor: 'red',
+    borderRadius: 10,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    height: 30,
+    textAlign: 'center',
+    textAlignVertical: 'center',
   },
 });
 
