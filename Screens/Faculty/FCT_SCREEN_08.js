@@ -24,34 +24,46 @@ import {SelectList} from 'react-native-dropdown-select-list';
 
 const FctScreen08 = ({route}) => {
   const navigation = useNavigation();
-  const {courseId, courseName, courseCode, facultyId, facultyRole} =
-    route.params;
+  const {
+    courseId,
+    courseName,
+    courseCode,
+    facultyId,
+    facultyName,
+    facultyRole,
+  } = route.params;
   const [modalVisible, setModalVisible] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState(null);
-  const [selectedDifficulty, setSelectedDifficulty] = useState('easy');
-  const [paperheaderfaculty, setPaperHeaderFaculty] = useState('');
-  //   const [courseId, setCourseId] = useState('');
-  const [coursetitle, setCourseTitle] = useState('');
-  const [coursecode, setCourseCode] = useState('');
-  const [duration, setDuration] = useState('');
-  const [degree, setDegree] = useState('');
-  const [tmarks, setTmarks] = useState('');
-  const [term, setTerm] = useState('');
-  const [year, setYear] = useState('');
-  const [examdate, setExamDate] = useState('');
-  const [semester, setSemester] = useState('');
-  const [status, setStatus] = useState('');
+  const [paperheader, setPaperHeader] = useState([]);
+  const [paperheaderfaculty, setPaperHeaderFaculty] = useState([]);
   const [questions, setQuestion] = useState('');
   const [papers, setPapers] = useState('');
+  const [questiontext, setQuestionText] = useState('');
+  const [difficulty, setDifficulty] = useState('');
+  const [marks, setMarks] = useState('');
+  const [paperId, setPaperID] = useState('');
+  const [mode, setMode] = useState('add');
 
   useEffect(() => {
-    // console.log(paperId);
-    // fetchData();
-    // fetchPaperHeader();
-    // fetchfacultyData();
     fetchPaper();
   }, []);
+
+  const handleAddOrUpdateQuestion = () => {
+    if (mode === 'add') {
+      addQuestion();
+    } else if (mode === 'edit') {
+      updateQuestion(questionID);
+    }
+  };
+
+  const handleClear = () => {
+    setQuestionText('');
+    setDifficulty('');
+    setMarks('');
+    Keyboard.dismiss();
+  };
+
+  const difficultyOptions = ['Easy', 'Medium', 'Hard'];
 
   const fetchData = paperID => {
     const apiEndpoint = `http://${ip}:${port}/getQuestion/${paperID}`;
@@ -70,7 +82,7 @@ const FctScreen08 = ({route}) => {
     const apiEndpoint = `http://${ip}:${port}/getPapers/${courseId}`;
     Keyboard.dismiss();
     setLoading(true);
-    setModalVisible(true);
+    // setModalVisible(true);
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
@@ -85,7 +97,7 @@ const FctScreen08 = ({route}) => {
   };
 
   const handleButtonClick = paperID => () => {
-    console.log(paperID);
+    setPaperID(paperID);
     fetchData(paperID);
     fetchPaperHeader(paperID);
     fetchfacultyData(courseId);
@@ -110,17 +122,7 @@ const FctScreen08 = ({route}) => {
       .then(response => response.json())
       .then(data => {
         // console.log('Data fetched successfully:', data);
-        // setCourseId(data[0].c_id);
-        setCourseCode(data[0].c_code);
-        setCourseTitle(data[0].c_title);
-        setDuration(data[0].duration);
-        setDegree(data[0].degree);
-        setTmarks(data[0].t_marks);
-        setTerm(data[0].term);
-        setYear(data[0].year);
-        setExamDate(data[0].exam_date);
-        setSemester(data[0].semester);
-        setStatus(data[0].status);
+        setPaperHeader(data[0]);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
@@ -137,6 +139,56 @@ const FctScreen08 = ({route}) => {
       })
       .catch(error => {
         console.error('Error fetching data:', error);
+      });
+  };
+
+  const addQuestion = () => {
+    setMode('add');
+    if (
+      questiontext.trim() === '' ||
+      difficulty.trim() === '' ||
+      marks.trim() === ''
+    ) {
+      ToastAndroid.show('Error: Please fill all fields.', ToastAndroid.SHORT);
+      return;
+    }
+
+    const apiEndpoint = `http://${ip}:${port}/addQuestion`;
+
+    fetch(apiEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        q_text: questiontext,
+        q_marks: marks,
+        q_difficulty: difficulty,
+        f_name: facultyName,
+        t_id: 1,
+        p_id: paperId,
+        f_id: facultyId,
+      }),
+    })
+      .then(response =>
+        response.json().then(data => ({status: response.status, body: data})),
+      )
+      .then(({status, body}) => {
+        if (status === 200) {
+          console.log('Data posted successfully:', body);
+          ToastAndroid.show('Added Successfully!', ToastAndroid.SHORT);
+          Keyboard.dismiss();
+          fetchPaper();
+          fetchData(paperId);
+          handleClear();
+        } else {
+          // console.error('Error from server:', body);
+          ToastAndroid.show(`${body.error}`, ToastAndroid.LONG);
+        }
+      })
+      .catch(error => {
+        // console.error('Error posting data:', error);
+        ToastAndroid.show('Failed to add paper.', ToastAndroid.LONG);
       });
   };
 
@@ -161,20 +213,21 @@ const FctScreen08 = ({route}) => {
                   <TouchableOpacity
                     key={index}
                     style={styles.modalbutton}
+                    activeOpacity={0.8}
                     onPress={handleButtonClick(paper.p_id)}>
                     <Text style={styles.modalText}>{paper.term} Term</Text>
                   </TouchableOpacity>
                 ))}
                 {!hasMidTerm && (
                   <TouchableOpacity
-                    style={styles.modalbutton}
+                    style={styles.emptymodalbutton}
                     activeOpacity={0.8}>
                     <Text style={styles.modalText}>No Mid Term</Text>
                   </TouchableOpacity>
                 )}
                 {!hasFinalTerm && (
                   <TouchableOpacity
-                    style={styles.modalbutton}
+                    style={styles.emptymodalbutton}
                     activeOpacity={0.8}>
                     <Text style={styles.modalText}>No Final Term</Text>
                   </TouchableOpacity>
@@ -185,6 +238,23 @@ const FctScreen08 = ({route}) => {
         </Modal>
 
         <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() =>
+              navigation.navigate('FctScreen02', {
+                courseId: courseId,
+                courseName: courseName,
+                courseCode: courseCode,
+                facultyId: facultyId,
+                facultyRole: facultyRole,
+              })
+            }>
+            <Image
+              source={require('../../assets/arrow.png')}
+              style={styles.backIcon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
           <Text style={styles.headerText}>Paper Setting</Text>
         </View>
 
@@ -206,7 +276,8 @@ const FctScreen08 = ({route}) => {
               </Text>
               <Text style={styles.uniInfoText}>Rawalpindi Pakistan</Text>
               <Text style={styles.uniInfoText}>
-                {semester} {year} : {term} Term Examination
+                {paperheader.session} {paperheader.year} : {paperheader.term}{' '}
+                Term Examination
               </Text>
             </View>
             <View style={styles.uniInfoEnd}>
@@ -225,22 +296,19 @@ const FctScreen08 = ({route}) => {
               <Text style={{textDecorationLine: 'underline'}}>
                 Course Title
               </Text>{' '}
-              : {coursetitle}
+              : {paperheader.c_title}
             </Text>
             <Text style={styles.courseInfoText}>
               <Text style={{textDecorationLine: 'underline'}}>
                 Date Of Exam
               </Text>{' '}
-              : {examdate}{' '}
+              : {paperheader.exam_date}{' '}
               <Text style={{textDecorationLine: 'underline'}}>Duration</Text> :{' '}
-              {duration}{' '}
+              {paperheader.duration}{' '}
               <Text style={{textDecorationLine: 'underline'}}>Code</Text> :{' '}
-              {coursecode}{' '}
+              {paperheader.c_code}{' '}
               <Text style={{textDecorationLine: 'underline'}}>Degree</Text> :{' '}
-              {degree}{' '}
-              <Text style={{textDecorationLine: 'underline'}}>Marks</Text> :{' '}
-              {tmarks}
-              {'\n'}
+              {paperheader.degree} {'\n'}
               <Text style={{textDecorationLine: 'underline'}}>
                 Teachers
               </Text> :{' '}
@@ -265,54 +333,74 @@ const FctScreen08 = ({route}) => {
               style={styles.input}
               placeholder="Enter Question"
               placeholderTextColor={'gray'}
-              onChangeText={text => setName(text)}
+              onChangeText={text => setQuestionText(text)}
             />
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                height: 41,
-                marginTop: 5,
-              }}>
-              <Text style={styles.Text}>Difficulty</Text>
-              <Picker
-                style={styles.picker}
-                selectedValue={selectedDifficulty}
-                onValueChange={itemValue => setSelectedDifficulty(itemValue)}>
-                <Picker.Item label="Easy" value="easy" />
-                <Picker.Item label="Medium" value="medium" />
-                <Picker.Item label="Hard" value="hard" />
-              </Picker>
-              <Text style={styles.selectedDifficulty}>
-                {selectedDifficulty}
-              </Text>
-
-              <Text style={styles.Text}>Topic</Text>
-              <TextInput
-                style={styles.marksInput}
-                placeholderTextColor={'gray'}
-                onChangeText={text => setName(text)}
+            <View style={styles.row1}>
+              <Text style={[styles.Text, {marginRight: 10}]}>Difficulty</Text>
+              <SelectDropdown
+                data={difficultyOptions}
+                onSelect={(selectedItem, index) => {
+                  setDifficulty(selectedItem);
+                  console.log(selectedItem, index);
+                }}
+                defaultButtonText="Select"
+                buttonTextAfterSelection={(selectedItem, index) => {
+                  return selectedItem;
+                }}
+                rowTextForSelection={(item, index) => {
+                  return item;
+                }}
+                buttonStyle={styles.dropdownButtonStyle}
+                buttonTextStyle={styles.dropdownButtonTextStyle}
+                dropdownStyle={styles.dropdownMenuStyle}
+                rowStyle={styles.dropdownRowStyle}
+                rowTextStyle={styles.dropdownRowTextStyle}
+                renderDropdownIcon={() => (
+                  <View style={styles.dropdownIcon}>
+                    <Image
+                      source={require('../../assets/arrow3.png')}
+                      style={styles.dropdownIconStyle}
+                    />
+                  </View>
+                )}
               />
-              <Text style={styles.Text}>Marks: </Text>
+              <Text style={[styles.Text, {marginRight: 10, marginLeft: 10}]}>
+                Topic
+              </Text>
               <TextInput
                 style={styles.marksInput}
-                keyboardType="numeric"
                 placeholderTextColor={'gray'}
                 onChangeText={text => setName(text)}
               />
             </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'flex-end',
-                marginTop: 5,
-              }}>
-              <TouchableOpacity style={styles.imageButton}>
-                <Text style={styles.imageText}>IMAGE</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.addButton}>
-                <Text style={styles.addText}>ADD</Text>
-              </TouchableOpacity>
+            <View style={styles.row2}>
+              <View style={{flex: 2, flexDirection: 'row'}}>
+                <Text style={[styles.Text, {marginRight: 10, marginLeft: 8}]}>
+                  Marks
+                </Text>
+                <TextInput
+                  style={styles.marksInput}
+                  keyboardType="numeric"
+                  placeholderTextColor={'gray'}
+                  onChangeText={text => setMarks(text)}
+                />
+              </View>
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: 'row',
+                  justifyContent: 'flex-end',
+                  marginTop: 5,
+                }}>
+                <TouchableOpacity style={styles.imageButton}>
+                  <Text style={styles.imageText}>IMAGE</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.addButton}
+                  onPress={handleAddOrUpdateQuestion}>
+                  <Text style={styles.addText}>ADD</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         )}
@@ -378,7 +466,7 @@ const styles = StyleSheet.create({
     marginTop: '70%',
     backgroundColor: 'black',
     borderRadius: 20,
-    borderColor: 'yellow',
+    borderColor: 'white',
     borderWidth: 2,
     padding: 10,
     alignItems: 'center',
@@ -435,19 +523,18 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     borderWidth: 1,
     borderRadius: 13,
-    marginBottom: 16,
+    marginBottom: 10,
     paddingHorizontal: 8,
     color: 'black',
     backgroundColor: '#E6E6FA',
   },
   marksInput: {
     height: 41,
-    width: '15%',
+    width: '27%',
     alignSelf: 'center',
     borderColor: 'gray',
     borderWidth: 1,
     borderRadius: 13,
-    marginBottom: 16,
     paddingHorizontal: 8,
     color: 'black',
     backgroundColor: '#E6E6FA',
@@ -529,7 +616,7 @@ const styles = StyleSheet.create({
     color: 'cyan',
   },
   paperInfo: {
-    marginTop: 10,
+    marginTop: 3,
     marginLeft: 5,
     borderRadius: 10,
     width: '96%',
@@ -541,7 +628,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     height: 70,
-    width: '100%',
+    width: 310,
     textAlignVertical: 'center',
     justifyContent: 'center',
     fontSize: 26,
@@ -550,7 +637,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: 'white',
     // borderWidth: 2,
-    // borderColor: 'black',
+    // borderColor: 'white',
   },
   welcomeText: {
     height: 70,
@@ -569,7 +656,21 @@ const styles = StyleSheet.create({
     width: 180,
     borderWidth: 2,
     borderRadius: 15,
-    borderColor: 'blue',
+    borderColor: 'white',
+    alignItems: 'center',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+    marginTop: 20,
+  },
+  emptymodalbutton: {
+    backgroundColor: '#FAA0A0',
+    padding: 10,
+    height: 60,
+    width: 180,
+    borderWidth: 2,
+    borderRadius: 15,
+    borderColor: 'white',
     alignItems: 'center',
     alignSelf: 'center',
     justifyContent: 'center',
@@ -624,17 +725,12 @@ const styles = StyleSheet.create({
   },
   backButton: {
     justifyContent: 'center',
-    borderRadius: 5,
-    height: 30,
-    width: 25,
-    alignSelf: 'center',
-    // borderWidth: 2,
-    // borderColor: 'white',
+    borderRadius: 13,
+    marginLeft: 20,
   },
   backIcon: {
-    height: 30,
-    width: 30,
-    alignSelf: 'center',
+    height: 20,
+    width: 20,
   },
   commentButton: {
     justifyContent: 'center',
@@ -720,6 +816,7 @@ const styles = StyleSheet.create({
   imageButton: {
     backgroundColor: 'blue',
     borderWidth: 2,
+    height: 35,
     borderColor: 'white',
     padding: 5,
     borderRadius: 10,
@@ -732,6 +829,7 @@ const styles = StyleSheet.create({
   addButton: {
     backgroundColor: 'green',
     borderWidth: 2,
+    height: 35,
     borderColor: 'white',
     padding: 5,
     borderRadius: 10,
@@ -743,9 +841,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   Text: {
-    fontSize: 15,
+    fontSize: 20,
+    height: 40,
     color: 'white',
     fontWeight: 'bold',
+    // borderWidth: 1,
+    // borderColor: 'yellow',
+    textAlignVertical: 'center',
   },
   picker: {
     width: 80,
@@ -754,6 +856,49 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 10,
     borderColor: 'red',
+  },
+  dropdownButtonStyle: {
+    width: '27%',
+    height: 40,
+    backgroundColor: '#E6E6FA',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#444',
+  },
+  dropdownButtonTextStyle: {
+    textAlign: 'center',
+  },
+  dropdownMenuStyle: {
+    backgroundColor: '#EFEFEF',
+  },
+  dropdownRowStyle: {
+    backgroundColor: '#FFF',
+    borderBottomColor: '#C5C5C5',
+  },
+  dropdownRowTextStyle: {
+    textAlign: 'center',
+  },
+  dropdownIconStyle: {
+    width: 15,
+    height: 15,
+  },
+  dropdownIcon: {
+    alignSelf: 'center',
+  },
+  row1: {
+    flexDirection: 'row',
+    // borderWidth: 1,
+    // borderColor: 'green',
+    justifyContent: 'center',
+    height: 41,
+  },
+  row2: {
+    flexDirection: 'row',
+    height: 41,
+    justifyContent: 'center',
+    marginTop: 5,
   },
 });
 

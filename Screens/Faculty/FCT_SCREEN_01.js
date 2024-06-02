@@ -36,6 +36,7 @@ const FctScreen01 = ({route}) => {
       courseName: item.c_title,
       courseCode: item.c_code,
       facultyId: item.f_id,
+      facultyName: name,
       facultyRole: item.role,
     });
     // console.log('Item:', item);

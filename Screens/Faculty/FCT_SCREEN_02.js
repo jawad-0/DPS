@@ -16,8 +16,14 @@ import {ip, assigned_port} from '../CONFIG';
 import {useNavigation} from '@react-navigation/native';
 
 const FctScreen02 = ({route}) => {
-  const {courseId, courseName, courseCode, facultyId, facultyRole} =
-    route.params;
+  const {
+    courseId,
+    courseName,
+    courseCode,
+    facultyId,
+    facultyName,
+    facultyRole,
+  } = route.params;
   const navigation = useNavigation();
   const [name, setName] = useState('');
   const [assignedCourses, setAssignedCourses] = useState([]);
@@ -82,112 +88,119 @@ const FctScreen02 = ({route}) => {
             Course Code: <Text style={{color: 'yellow'}}>{courseCode}</Text>
           </Text>
         </View>
-        {/* <ScrollView> */}
-        <View style={styles.buttonscontainer}>
-          <TouchableOpacity
-            style={styles.button}
-            activeOpacity={0.8}
-            onPress={() =>
-              navigation.navigate('FctScreen08', {
-                courseId: courseId,
-                courseName: courseName,
-                courseCode: courseCode,
-                facultyId: facultyId,
-                facultyRole: facultyRole,
-              })
-            }>
-            <Text style={styles.buttonText}>PAPER SETTINGS</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            activeOpacity={0.8}
-            onPress={() =>
-              navigation.navigate('FctScreen07', {
-                courseId: courseId,
-                courseName: courseName,
-                courseCode: courseCode,
-                facultyId: facultyId,
-                facultyRole: facultyRole,
-              })
-            }>
-            <Text style={styles.buttonText}>VIEW TOPICS</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            activeOpacity={0.8}
-            onPress={() =>
-              navigation.navigate('FctScreen04', {
-                courseId: courseId,
-                courseName: courseName,
-                courseCode: courseCode,
-                facultyId: facultyId,
-                facultyRole: facultyRole,
-              })
-            }>
-            <Text style={styles.buttonText}>VIEW CLOS</Text>
-          </TouchableOpacity>
-          {facultyRole === 'senior' && (
-            <>
-              <TouchableOpacity
-                style={styles.button}
-                activeOpacity={0.8}
-                onPress={() =>
-                  navigation.navigate('FctScreen05', {
-                    courseId: courseId,
-                    courseName: courseName,
-                    courseCode: courseCode,
-                    facultyId: facultyId,
-                    facultyRole: facultyRole,
-                  })
-                }>
-                <Text style={styles.buttonText}>MANAGE TOPICS</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.button}
-                activeOpacity={0.8}
-                onPress={() =>
-                  navigation.navigate('FctScreen03', {
-                    courseId: courseId,
-                    courseName: courseName,
-                    courseCode: courseCode,
-                    facultyId: facultyId,
-                    facultyRole: facultyRole,
-                  })
-                }>
-                <Text style={styles.buttonText}>MANAGE CLOS</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.button}
-                activeOpacity={0.8}
-                onPress={() =>
-                  navigation.navigate('FctScreen09', {
-                    courseId: courseId,
-                    courseName: courseName,
-                    courseCode: courseCode,
-                    facultyId: facultyId,
-                    facultyRole: facultyRole,
-                  })
-                }>
-                <Text style={styles.buttonText}>MANAGE PAPER</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.button}
-                activeOpacity={0.8}
-                onPress={() =>
-                  navigation.navigate('FctScreen10', {
-                    courseId: courseId,
-                    courseName: courseName,
-                    courseCode: courseCode,
-                    facultyId: facultyId,
-                    facultyRole: facultyRole,
-                  })
-                }>
-                <Text style={styles.buttonText}>GRID VIEW</Text>
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
-        {/* <View style={styles.form}>
+        <ScrollView>
+          <View style={styles.buttonscontainer}>
+            <TouchableOpacity
+              style={styles.button}
+              activeOpacity={0.8}
+              onPress={() =>
+                navigation.navigate('FctScreen08', {
+                  courseId: courseId,
+                  courseName: courseName,
+                  courseCode: courseCode,
+                  facultyId: facultyId,
+                  facultyName: facultyName,
+                  facultyRole: facultyRole,
+                })
+              }>
+              <Text style={styles.buttonText}>PAPER SETTINGS</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button}
+              activeOpacity={0.8}
+              onPress={() =>
+                navigation.navigate('FctScreen07', {
+                  courseId: courseId,
+                  courseName: courseName,
+                  courseCode: courseCode,
+                  facultyId: facultyId,
+                  facultyRole: facultyRole,
+                })
+              }>
+              <Text style={styles.buttonText}>VIEW TOPICS</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button}
+              activeOpacity={0.8}
+              onPress={() =>
+                navigation.navigate('FctScreen04', {
+                  courseId: courseId,
+                  courseName: courseName,
+                  courseCode: courseCode,
+                  facultyId: facultyId,
+                  facultyRole: facultyRole,
+                })
+              }>
+              <Text style={styles.buttonText}>VIEW CLOS</Text>
+            </TouchableOpacity>
+            {facultyRole === 'senior' && (
+              <>
+                <TouchableOpacity
+                  style={styles.button}
+                  activeOpacity={0.8}
+                  onPress={() => console.log('Yes')}>
+                  <Text style={styles.buttonText}>MANAGE PAPER</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.button}
+                  activeOpacity={0.8}
+                  onPress={() =>
+                    navigation.navigate('FctScreen05', {
+                      courseId: courseId,
+                      courseName: courseName,
+                      courseCode: courseCode,
+                      facultyId: facultyId,
+                      facultyRole: facultyRole,
+                    })
+                  }>
+                  <Text style={styles.buttonText}>MANAGE TOPICS</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.button}
+                  activeOpacity={0.8}
+                  onPress={() =>
+                    navigation.navigate('FctScreen03', {
+                      courseId: courseId,
+                      courseName: courseName,
+                      courseCode: courseCode,
+                      facultyId: facultyId,
+                      facultyRole: facultyRole,
+                    })
+                  }>
+                  <Text style={styles.buttonText}>MANAGE CLOS</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.button}
+                  activeOpacity={0.8}
+                  onPress={() =>
+                    navigation.navigate('FctScreen09', {
+                      courseId: courseId,
+                      courseName: courseName,
+                      courseCode: courseCode,
+                      facultyId: facultyId,
+                      facultyRole: facultyRole,
+                    })
+                  }>
+                  <Text style={styles.buttonText}>MANAGE HEADER</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.button}
+                  activeOpacity={0.8}
+                  onPress={() =>
+                    navigation.navigate('FctScreen10', {
+                      courseId: courseId,
+                      courseName: courseName,
+                      courseCode: courseCode,
+                      facultyId: facultyId,
+                      facultyRole: facultyRole,
+                    })
+                  }>
+                  <Text style={styles.buttonText}>GRID VIEW</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+          {/* <View style={styles.form}>
           <FlatList
             data={assignedCourses}
             style={styles.flatlist}
@@ -204,7 +217,7 @@ const FctScreen02 = ({route}) => {
             )}
           />
         </View> */}
-        {/* </ScrollView> */}
+        </ScrollView>
       </View>
     </ImageBackground>
   );
