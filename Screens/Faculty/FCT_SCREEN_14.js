@@ -68,11 +68,11 @@ const FctScreen14 = ({route}) => {
                   </View>
                   {!item.q_id ? (
                     <Text style={styles.data_feedback}>
-                      {item.feedback_details}
+                      {item.fb_text}
                     </Text>
                   ) : (
                     <Text style={styles.data_feedback}>
-                      Q-No#{item.q_id}: {item.feedback_details}
+                      Q-No# {item.q_id}: {item.fb_text}
                     </Text>
                   )}
                 </View>
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     color: 'green',
     marginLeft: 10,
     // textAlign: 'center',
-    width: 240,
+    width: '94%',
     // borderWidth: 1,
     // borderColor: 'black',
   },
@@ -147,6 +147,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: 'black',
     height: 80,
+    height: 'auto',
+    padding: 5,
     borderRadius: 10,
     width: '98%',
     marginLeft: '1%',

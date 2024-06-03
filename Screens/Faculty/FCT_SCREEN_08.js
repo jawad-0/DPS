@@ -16,6 +16,8 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import SelectDropdown from 'react-native-select-dropdown';
+import * as ImagePicker from 'react-native-image-picker';
+import {launchImageLibrary} from 'react-native-image-picker';
 import {Picker} from '@react-native-picker/picker';
 import {RadioButton} from 'react-native-paper';
 import {ip, port} from '../CONFIG';
@@ -43,9 +45,11 @@ const FctScreen08 = ({route}) => {
   const [marks, setMarks] = useState('');
   const [paperId, setPaperID] = useState('');
   const [mode, setMode] = useState('add');
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     fetchPaper();
+    console.log(`${facultyName} -> Creating Questions`);
   }, []);
 
   const handleAddOrUpdateQuestion = () => {
@@ -54,6 +58,29 @@ const FctScreen08 = ({route}) => {
     } else if (mode === 'edit') {
       updateQuestion(questionID);
     }
+  };
+
+  const chooseImage = () => {
+    Keyboard.dismiss();
+    const options = {
+      title: 'Select Image',
+      storageOptions: {
+        skipBackup: true,
+        path: 'images',
+      },
+    };
+
+    ImagePicker.launchImageLibrary(options, response => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        const selectedUri = response.assets[0].uri;
+        setSelectedImage(selectedUri);
+        console.log(selectedUri);
+      }
+    });
   };
 
   const handleClear = () => {
@@ -70,7 +97,7 @@ const FctScreen08 = ({route}) => {
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
-        console.log('Data fetched successfully:', data);
+        // console.log('Data fetched successfully:', data);
         setQuestion(data);
       })
       .catch(error => {
@@ -155,20 +182,32 @@ const FctScreen08 = ({route}) => {
 
     const apiEndpoint = `http://${ip}:${port}/addQuestion`;
 
+    const formData = new FormData();
+    formData.append('q_text', questiontext);
+    formData.append('q_marks', marks);
+    formData.append('q_difficulty', difficulty);
+    formData.append('f_name', facultyName);
+    formData.append('t_id', 1);
+    formData.append('p_id', paperId);
+    formData.append('f_id', facultyId);
+
+    if (selectedImage) {
+      const filename = selectedImage.split('/').pop();
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : `image`;
+      formData.append('q_image', {
+        uri: selectedImage,
+        name: filename,
+        type: type,
+      });
+    }
+
     fetch(apiEndpoint, {
       method: 'POST',
+      body: formData,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'multipart/form-data',
       },
-      body: JSON.stringify({
-        q_text: questiontext,
-        q_marks: marks,
-        q_difficulty: difficulty,
-        f_name: facultyName,
-        t_id: 1,
-        p_id: paperId,
-        f_id: facultyId,
-      }),
     })
       .then(response =>
         response.json().then(data => ({status: response.status, body: data})),
@@ -177,20 +216,67 @@ const FctScreen08 = ({route}) => {
         if (status === 200) {
           console.log('Data posted successfully:', body);
           ToastAndroid.show('Added Successfully!', ToastAndroid.SHORT);
-          Keyboard.dismiss();
           fetchPaper();
           fetchData(paperId);
           handleClear();
         } else {
-          // console.error('Error from server:', body);
           ToastAndroid.show(`${body.error}`, ToastAndroid.LONG);
         }
       })
       .catch(error => {
-        // console.error('Error posting data:', error);
         ToastAndroid.show('Failed to add paper.', ToastAndroid.LONG);
       });
   };
+
+  //   const addQuestion = () => {
+  //     setMode('add');
+  //     if (
+  //       questiontext.trim() === '' ||
+  //       difficulty.trim() === '' ||
+  //       marks.trim() === ''
+  //     ) {
+  //       ToastAndroid.show('Error: Please fill all fields.', ToastAndroid.SHORT);
+  //       return;
+  //     }
+
+  //     const apiEndpoint = `http://${ip}:${port}/addQuestion`;
+
+  //     fetch(apiEndpoint, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         q_text: questiontext,
+  //         q_marks: marks,
+  //         q_difficulty: difficulty,
+  //         f_name: facultyName,
+  //         t_id: 1,
+  //         p_id: paperId,
+  //         f_id: facultyId,
+  //       }),
+  //     })
+  //       .then(response =>
+  //         response.json().then(data => ({status: response.status, body: data})),
+  //       )
+  //       .then(({status, body}) => {
+  //         if (status === 200) {
+  //           console.log('Data posted successfully:', body);
+  //           ToastAndroid.show('Added Successfully!', ToastAndroid.SHORT);
+  //           Keyboard.dismiss();
+  //           fetchPaper();
+  //           fetchData(paperId);
+  //           handleClear();
+  //         } else {
+  //           // console.error('Error from server:', body);
+  //           ToastAndroid.show(`${body.error}`, ToastAndroid.LONG);
+  //         }
+  //       })
+  //       .catch(error => {
+  //         // console.error('Error posting data:', error);
+  //         ToastAndroid.show('Failed to add paper.', ToastAndroid.LONG);
+  //       });
+  //   };
 
   return (
     <ImageBackground
@@ -331,6 +417,7 @@ const FctScreen08 = ({route}) => {
             <Text style={styles.Text}>Question :</Text>
             <TextInput
               style={styles.input}
+              value={questiontext}
               placeholder="Enter Question"
               placeholderTextColor={'gray'}
               onChangeText={text => setQuestionText(text)}
@@ -368,18 +455,19 @@ const FctScreen08 = ({route}) => {
                 Topic
               </Text>
               <TextInput
-                style={styles.marksInput}
+                style={styles.topicsInput}
                 placeholderTextColor={'gray'}
                 onChangeText={text => setName(text)}
               />
             </View>
             <View style={styles.row2}>
               <View style={{flex: 2, flexDirection: 'row'}}>
-                <Text style={[styles.Text, {marginRight: 10, marginLeft: 8}]}>
+                <Text style={[styles.Text, {marginRight: 10, marginLeft: 16}]}>
                   Marks
                 </Text>
                 <TextInput
                   style={styles.marksInput}
+                  value={marks}
                   keyboardType="numeric"
                   placeholderTextColor={'gray'}
                   onChangeText={text => setMarks(text)}
@@ -392,11 +480,15 @@ const FctScreen08 = ({route}) => {
                   justifyContent: 'flex-end',
                   marginTop: 5,
                 }}>
-                <TouchableOpacity style={styles.imageButton}>
+                <TouchableOpacity
+                  style={styles.imageButton}
+                  activeOpacity={0.8}
+                  onPress={chooseImage}>
                   <Text style={styles.imageText}>IMAGE</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.addButton}
+                  activeOpacity={0.8}
                   onPress={handleAddOrUpdateQuestion}>
                   <Text style={styles.addText}>ADD</Text>
                 </TouchableOpacity>
@@ -419,6 +511,14 @@ const FctScreen08 = ({route}) => {
                       Question # {index + 1} :
                     </Text>
                     <Text style={styles.data_text}>{item.q_text}</Text>
+                    {item.imageData && (
+                      <Image
+                        source={{
+                          uri: `data:image/jpeg;base64,${item.imageData}`,
+                        }}
+                        style={styles.image}
+                      />
+                    )}
                     <Text style={styles.data_difficulty}>
                       [ {item.q_difficulty}, Marks: {item.q_marks} ]
                     </Text>
@@ -498,6 +598,7 @@ const styles = StyleSheet.create({
   },
   data_text: {
     color: 'black',
+    fontWeight: 'bold',
   },
   data_difficulty: {
     color: 'black',
@@ -528,13 +629,25 @@ const styles = StyleSheet.create({
     color: 'black',
     backgroundColor: '#E6E6FA',
   },
+  topicsInput: {
+    height: 41,
+    width: '27%',
+    alignSelf: 'center',
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    color: 'black',
+    backgroundColor: '#E6E6FA',
+  },
   marksInput: {
     height: 41,
     width: '27%',
     alignSelf: 'center',
     borderColor: 'gray',
     borderWidth: 1,
-    borderRadius: 13,
+    borderRadius: 10,
+    marginLeft: 20,
     paddingHorizontal: 8,
     color: 'black',
     backgroundColor: '#E6E6FA',
@@ -833,7 +946,8 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     padding: 5,
     borderRadius: 10,
-    marginLeft: '1%',
+    marginLeft: '5%',
+    marginRight: '8%',
   },
   addText: {
     fontSize: 15,
@@ -841,7 +955,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   Text: {
-    fontSize: 20,
+    fontSize: 17,
     height: 40,
     color: 'white',
     fontWeight: 'bold',
@@ -899,6 +1013,16 @@ const styles = StyleSheet.create({
     height: 41,
     justifyContent: 'center',
     marginTop: 5,
+  },
+  image: {
+    width: 250,
+    height: 150,
+    marginTop: 20,
+    marginBottom: 20,
+    // borderWidth: 1,
+    // alignSelf: 'center',
+    // borderColor: 'black',
+    resizeMode: 'contain',
   },
 });
 

@@ -29,7 +29,7 @@ const FctScreen02 = ({route}) => {
   const [assignedCourses, setAssignedCourses] = useState([]);
 
   useEffect(() => {
-    console.log(facultyRole);
+    console.log(`${facultyName} -> ${facultyRole}`);
   }, []);
 
   const handlePress = item => {
