@@ -88,7 +88,7 @@ const FctScreen02 = ({route}) => {
             Course Code: <Text style={{color: 'yellow'}}>{courseCode}</Text>
           </Text>
         </View>
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.buttonscontainer}>
             <TouchableOpacity
               style={styles.button}

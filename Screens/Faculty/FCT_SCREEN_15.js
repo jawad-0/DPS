@@ -206,12 +206,14 @@ const styles = StyleSheet.create({
   },
   tableheader: {
     flexDirection: 'row',
-    height: 40,
+    height: 45,
     borderRadius: 40,
     marginTop: 20,
     borderBottomWidth: 4,
     borderBottomColor: 'white',
     backgroundColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   columnContainer: {
     flex: 1,

@@ -10,7 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {ip, paper_port} from '../CONFIG';
+import {ip, port} from '../CONFIG';
 // import SplashScreen from 'react-native-splash-screen';
 
 const DrtScreen04 = ({route}) => {
@@ -22,16 +22,14 @@ const DrtScreen04 = ({route}) => {
   const [coursecode, setCourseCode] = useState('');
   const [duration, setDuration] = useState('');
   const [degree, setDegree] = useState('');
-  const [tmarks, setTmarks] = useState('');
   const [term, setTerm] = useState('');
   const [year, setYear] = useState('');
   const [examdate, setExamDate] = useState('');
-  const [semester, setSemester] = useState('');
+  const [session, setSession] = useState('');
   const [status, setStatus] = useState('');
 
   useEffect(() => {
     fetchData();
-    fetchfacultyData();
   }, []);
 
   const handleComment = () => {
@@ -54,7 +52,7 @@ const DrtScreen04 = ({route}) => {
   };
 
   const fetchData = () => {
-    const apiEndpoint = `http://${ip}:${paper_port}/getpaperheader/${paperId}`;
+    const apiEndpoint = `http://${ip}:${port}/getpaperheader/${paperId}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
@@ -64,24 +62,24 @@ const DrtScreen04 = ({route}) => {
         setCourseTitle(data[0].c_title);
         setDuration(data[0].duration);
         setDegree(data[0].degree);
-        setTmarks(data[0].t_marks);
         setTerm(data[0].term);
         setYear(data[0].year);
         setExamDate(data[0].exam_date);
-        setSemester(data[0].semester);
+        setSession(data[0].session);
         setStatus(data[0].status);
+        fetchfacultyData(data[0].c_id);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
       });
   };
 
-  const fetchfacultyData = () => {
-    const apiEndpoint = `http://${ip}:${paper_port}/getpaperheaderfaculty/${courseId}`;
+  const fetchfacultyData = c_id => {
+    const apiEndpoint = `http://${ip}:${port}/getpaperheaderfaculty/${c_id}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
-        // console.log('Data fetched successfully:', data);
+        console.log('Data fetched successfully:', data);
         setPaperHeaderFaculty(data);
       })
       .catch(error => {
@@ -164,16 +162,13 @@ const DrtScreen04 = ({route}) => {
             Degree: <Text style={styles.data}>{degree}</Text>
           </Text>
           <Text style={styles.label}>
-            Session: <Text style={styles.data}>{semester}</Text>
+            Session: <Text style={styles.data}>{session}</Text>
           </Text>
           <Text style={styles.label}>
             Term: <Text style={styles.data}>{term}</Text>
           </Text>
           <Text style={styles.label}>
             Year: <Text style={styles.data}>{year}</Text>
-          </Text>
-          <Text style={styles.label}>
-            Total Marks: <Text style={styles.data}>{tmarks}</Text>
           </Text>
         </View>
         <View>

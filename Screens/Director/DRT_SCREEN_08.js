@@ -17,7 +17,7 @@ import {ip, clo_port} from '../CONFIG';
 import {useNavigation} from '@react-navigation/native';
 
 const DrtScreen08 = ({route}) => {
-  const {courseId,coursecode,coursetitle} = route.params;
+  const {paperId, courseId, coursecode, coursetitle} = route.params;
   const navigation = useNavigation();
   const [name, setName] = useState('');
   const [topics, setTopics] = useState([]);
@@ -77,12 +77,8 @@ const DrtScreen08 = ({route}) => {
           <TouchableOpacity
             style={styles.backButton}
             onPress={() =>
-              navigation.navigate('FctScreen02', {
-                courseId: courseId,
-                courseName: courseName,
-                courseCode: courseCode,
-                facultyId: facultyId,
-                facultyRole: facultyRole,
+              navigation.navigate('DrtScreen06', {
+                paperId,
               })
             }>
             <Image
@@ -104,6 +100,7 @@ const DrtScreen08 = ({route}) => {
           <FlatList
             data={topics}
             style={styles.flatlist}
+            showsVerticalScrollIndicator={false}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item, index}) => (
               <View style={styles.listItem}>
@@ -130,7 +127,6 @@ const styles = StyleSheet.create({
     // alignItems: 'center',
     // backgroundColor: 'white',
     borderRadius: 10,
-    maxHeight: 500,
   },
   header: {
     flexDirection: 'row',
@@ -197,7 +193,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: '#58FFAB',
     backgroundColor: '#E6E6FA',
-    height: 40,
+    height: 'auto',
     width: '96%',
     marginLeft: '2%',
     marginTop: 3,
@@ -211,6 +207,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'black',
     marginLeft: 15,
+    marginTop: 5,
+    marginBottom: 5,
     width: 320,
     flexWrap: 'wrap',
   },
@@ -263,6 +261,7 @@ const styles = StyleSheet.create({
   },
   flatlist: {
     marginTop: 5,
+    maxHeight: 560,
   },
   backgroundImage: {
     flex: 1,

@@ -28,19 +28,17 @@ const DrtScreen06 = ({route}) => {
   const [coursecode, setCourseCode] = useState('');
   const [duration, setDuration] = useState('');
   const [degree, setDegree] = useState('');
-  const [tmarks, setTmarks] = useState('');
   const [term, setTerm] = useState('');
   const [year, setYear] = useState('');
   const [examdate, setExamDate] = useState('');
-  const [semester, setSemester] = useState('');
+  const [session, setSession] = useState('');
   const [status, setStatus] = useState('');
   const [questions, setQuestion] = useState('');
 
   useEffect(() => {
     // console.log(paperId);
-    fetchData();
+    fetchQuestions();
     fetchPaperHeader();
-    fetchfacultyData();
   }, []);
 
   const handleView = () => {
@@ -76,7 +74,7 @@ const DrtScreen06 = ({route}) => {
     }));
   };
 
-  const fetchData = () => {
+  const fetchQuestions = () => {
     const apiEndpoint = `http://${ip}:${question_port}/getQuestion/${paperId}`;
     fetch(apiEndpoint)
       .then(response => response.json())
@@ -100,20 +98,20 @@ const DrtScreen06 = ({route}) => {
         setCourseTitle(data[0].c_title);
         setDuration(data[0].duration);
         setDegree(data[0].degree);
-        setTmarks(data[0].t_marks);
         setTerm(data[0].term);
         setYear(data[0].year);
         setExamDate(data[0].exam_date);
-        setSemester(data[0].semester);
+        setSession(data[0].session);
         setStatus(data[0].status);
+        fetchFacultyData(data[0].c_id);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
       });
   };
 
-  const fetchfacultyData = () => {
-    const apiEndpoint = `http://${ip}:${paper_port}/getpaperheaderfaculty/${courseId}`;
+  const fetchFacultyData = c_id => {
+    const apiEndpoint = `http://${ip}:${paper_port}/getpaperheaderfaculty/${c_id}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
@@ -151,7 +149,7 @@ const DrtScreen06 = ({route}) => {
             </Text>
             <Text style={styles.uniInfoText}>Rawalpindi Pakistan</Text>
             <Text style={styles.uniInfoText}>
-              {semester} {year} : {term} Term Examination
+              {session} {year} : {term} Term Examination
             </Text>
           </View>
           <View style={styles.uniInfoEnd}>
@@ -176,10 +174,7 @@ const DrtScreen06 = ({route}) => {
             <Text style={{textDecorationLine: 'underline'}}>Code</Text> :{' '}
             {coursecode}{' '}
             <Text style={{textDecorationLine: 'underline'}}>Degree</Text> :{' '}
-            {degree}{' '}
-            <Text style={{textDecorationLine: 'underline'}}>Marks</Text> :{' '}
-            {tmarks}
-            {'\n'}
+            {degree} {'\n'}
             <Text style={{textDecorationLine: 'underline'}}>
               Teachers
             </Text> :{' '}
@@ -267,7 +262,14 @@ const DrtScreen06 = ({route}) => {
         <View style={styles.buttonscontainer2}>
           <TouchableOpacity
             style={styles.topicButton}
-            onPress={() => navigation.navigate('DrtScreen08', {courseId,coursecode,coursetitle})}>
+            onPress={() =>
+              navigation.navigate('DrtScreen08', {
+                paperId,
+                courseId,
+                coursecode,
+                coursetitle,
+              })
+            }>
             <Text style={styles.viewText}>View Topics</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.approveButton} onPress={handleView}>

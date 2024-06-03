@@ -13,6 +13,7 @@ import {
   ImageBackground,
   TouchableOpacity,
   Platform,
+  BackHandler,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import SelectDropdown from 'react-native-select-dropdown';
@@ -38,7 +39,8 @@ const FctScreen08 = ({route}) => {
   const [loading, setLoading] = useState(true);
   const [paperheader, setPaperHeader] = useState([]);
   const [paperheaderfaculty, setPaperHeaderFaculty] = useState([]);
-  const [questions, setQuestion] = useState('');
+  const [questions, setQuestion] = useState([]);
+  const [topics, setTopics] = useState([]);
   const [papers, setPapers] = useState('');
   const [questiontext, setQuestionText] = useState('');
   const [difficulty, setDifficulty] = useState('');
@@ -46,11 +48,26 @@ const FctScreen08 = ({route}) => {
   const [paperId, setPaperID] = useState('');
   const [mode, setMode] = useState('add');
   const [selectedImage, setSelectedImage] = useState(null);
+  const [topicId, setSelectedTopic] = useState(null);
 
   useEffect(() => {
     fetchPaper();
     console.log(`${facultyName} -> Creating Questions`);
+    // const backHandler = BackHandler.addEventListener(
+    //   'hardwareBackPress',
+    //   handleBackButtonPress,
+    // );
+    // return () => backHandler.remove();
   }, []);
+
+  //  const handleBackButtonPress = () => {
+  //    if (modalVisible) {
+  //      setModalVisible(false);
+  //      navigation.navigate('FctScreen02'); // Replace 'YourScreenName' with the screen you want to navigate to
+  //      return true; // Prevent default behavior (closing the app)
+  //    }
+  //    return false; // Allow default behavior if modal is not visible
+  //  };
 
   const handleAddOrUpdateQuestion = () => {
     if (mode === 'add') {
@@ -85,20 +102,35 @@ const FctScreen08 = ({route}) => {
 
   const handleClear = () => {
     setQuestionText('');
-    setDifficulty('');
+    setSelectedImage(null);
+    setDifficulty(null);
+    setSelectedTopic(null);
     setMarks('');
     Keyboard.dismiss();
   };
 
   const difficultyOptions = ['Easy', 'Medium', 'Hard'];
 
-  const fetchData = paperID => {
+  const fetchQuestions = paperID => {
     const apiEndpoint = `http://${ip}:${port}/getQuestion/${paperID}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
         // console.log('Data fetched successfully:', data);
         setQuestion(data);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  };
+
+  const fetchTopics = () => {
+    const apiEndpoint = `http://${ip}:${port}/gettopic/${courseId}`;
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        // console.log('Data fetched successfully:', data);
+        setTopics(data);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
@@ -125,8 +157,9 @@ const FctScreen08 = ({route}) => {
 
   const handleButtonClick = paperID => () => {
     setPaperID(paperID);
-    fetchData(paperID);
+    fetchQuestions(paperID);
     fetchPaperHeader(paperID);
+    fetchTopics(courseId);
     fetchfacultyData(courseId);
     setModalVisible(false);
   };
@@ -173,8 +206,9 @@ const FctScreen08 = ({route}) => {
     setMode('add');
     if (
       questiontext.trim() === '' ||
-      difficulty.trim() === '' ||
-      marks.trim() === ''
+      marks.trim() === '' ||
+      !difficulty ||
+      !topicId
     ) {
       ToastAndroid.show('Error: Please fill all fields.', ToastAndroid.SHORT);
       return;
@@ -187,7 +221,7 @@ const FctScreen08 = ({route}) => {
     formData.append('q_marks', marks);
     formData.append('q_difficulty', difficulty);
     formData.append('f_name', facultyName);
-    formData.append('t_id', 1);
+    formData.append('t_id', topicId);
     formData.append('p_id', paperId);
     formData.append('f_id', facultyId);
 
@@ -217,7 +251,7 @@ const FctScreen08 = ({route}) => {
           console.log('Data posted successfully:', body);
           ToastAndroid.show('Added Successfully!', ToastAndroid.SHORT);
           fetchPaper();
-          fetchData(paperId);
+          fetchQuestions(paperId);
           handleClear();
         } else {
           ToastAndroid.show(`${body.error}`, ToastAndroid.LONG);
@@ -265,7 +299,7 @@ const FctScreen08 = ({route}) => {
   //           ToastAndroid.show('Added Successfully!', ToastAndroid.SHORT);
   //           Keyboard.dismiss();
   //           fetchPaper();
-  //           fetchData(paperId);
+  //           fetchQuestions(paperId);
   //           handleClear();
   //         } else {
   //           // console.error('Error from server:', body);
@@ -280,7 +314,7 @@ const FctScreen08 = ({route}) => {
 
   return (
     <ImageBackground
-      source={require('../../assets/dtc_background.png')}
+      source={require('../../assets/fct_background.png')}
       style={styles.backgroundImage}>
       <View style={styles.container}>
         <Modal
@@ -289,6 +323,13 @@ const FctScreen08 = ({route}) => {
           visible={modalVisible}
           onRequestClose={() => {
             setModalVisible(!modalVisible);
+            navigation.navigate('FctScreen02', {
+              courseId: courseId,
+              courseName: courseName,
+              courseCode: courseCode,
+              facultyId: facultyId,
+              facultyRole: facultyRole,
+            });
           }}>
           <View style={styles.modalView}>
             {loading ? (
@@ -344,124 +385,120 @@ const FctScreen08 = ({route}) => {
           <Text style={styles.headerText}>Paper Setting</Text>
         </View>
 
-        {!modalVisible && (
-          <View style={{flexDirection: 'row'}}>
-            <View style={styles.uniInfoStart}>
-              <Image
-                source={require('../../assets/barani.png')}
-                style={styles.baraniIcon}
-                resizeMode="contain"
-              />
+        <View style={{backgroundColor: 'black'}}>
+          {!modalVisible && (
+            <View style={{flexDirection: 'row'}}>
+              <View style={styles.uniInfoStart}>
+                <Image
+                  source={require('../../assets/barani.png')}
+                  style={styles.baraniIcon}
+                  resizeMode="contain"
+                />
+              </View>
+              <View style={styles.uniInfo}>
+                <Text style={styles.uniInfoText}>
+                  Barani Institute of Information Technology
+                </Text>
+                <Text style={styles.uniInfoText}>
+                  PMAS Arid Agriculture University,
+                </Text>
+                <Text style={styles.uniInfoText}>Rawalpindi Pakistan</Text>
+                <Text style={styles.uniInfoText}>
+                  {paperheader.session} {paperheader.year} : {paperheader.term}{' '}
+                  Term Examination
+                </Text>
+              </View>
+              <View style={styles.uniInfoEnd}>
+                <Image
+                  source={require('../../assets/barani.png')}
+                  style={styles.baraniIcon}
+                  resizeMode="contain"
+                />
+              </View>
             </View>
-            <View style={styles.uniInfo}>
-              <Text style={styles.uniInfoText}>
-                Barani Institute of Information Technology
-              </Text>
-              <Text style={styles.uniInfoText}>
-                PMAS Arid Agriculture University,
-              </Text>
-              <Text style={styles.uniInfoText}>Rawalpindi Pakistan</Text>
-              <Text style={styles.uniInfoText}>
-                {paperheader.session} {paperheader.year} : {paperheader.term}{' '}
-                Term Examination
-              </Text>
-            </View>
-            <View style={styles.uniInfoEnd}>
-              <Image
-                source={require('../../assets/barani.png')}
-                style={styles.baraniIcon}
-                resizeMode="contain"
-              />
-            </View>
-          </View>
-        )}
+          )}
 
-        {!modalVisible && (
-          <View style={styles.courseInfo}>
-            <Text style={styles.courseInfoText}>
-              <Text style={{textDecorationLine: 'underline'}}>
-                Course Title
-              </Text>{' '}
-              : {paperheader.c_title}
-            </Text>
-            <Text style={styles.courseInfoText}>
-              <Text style={{textDecorationLine: 'underline'}}>
-                Date Of Exam
-              </Text>{' '}
-              : {paperheader.exam_date}{' '}
-              <Text style={{textDecorationLine: 'underline'}}>Duration</Text> :{' '}
-              {paperheader.duration}{' '}
-              <Text style={{textDecorationLine: 'underline'}}>Code</Text> :{' '}
-              {paperheader.c_code}{' '}
-              <Text style={{textDecorationLine: 'underline'}}>Degree</Text> :{' '}
-              {paperheader.degree} {'\n'}
-              <Text style={{textDecorationLine: 'underline'}}>
-                Teachers
-              </Text> :{' '}
-              {paperheaderfaculty.length > 0
-                ? paperheaderfaculty.map(faculty => faculty.f_name).join(', ')
-                : ''}
-            </Text>
-          </View>
-        )}
-
-        {!modalVisible && (
-          <View
-            style={{
-              backgroundColor: 'black',
-              width: '96%',
-              height: 210,
-              marginLeft: '2%',
-              marginTop: 3,
-            }}>
-            <Text style={styles.Text}>Question :</Text>
-            <TextInput
-              style={styles.input}
-              value={questiontext}
-              placeholder="Enter Question"
-              placeholderTextColor={'gray'}
-              onChangeText={text => setQuestionText(text)}
-            />
-            <View style={styles.row1}>
-              <Text style={[styles.Text, {marginRight: 10}]}>Difficulty</Text>
-              <SelectDropdown
-                data={difficultyOptions}
-                onSelect={(selectedItem, index) => {
-                  setDifficulty(selectedItem);
-                  console.log(selectedItem, index);
-                }}
-                defaultButtonText="Select"
-                buttonTextAfterSelection={(selectedItem, index) => {
-                  return selectedItem;
-                }}
-                rowTextForSelection={(item, index) => {
-                  return item;
-                }}
-                buttonStyle={styles.dropdownButtonStyle}
-                buttonTextStyle={styles.dropdownButtonTextStyle}
-                dropdownStyle={styles.dropdownMenuStyle}
-                rowStyle={styles.dropdownRowStyle}
-                rowTextStyle={styles.dropdownRowTextStyle}
-                renderDropdownIcon={() => (
-                  <View style={styles.dropdownIcon}>
-                    <Image
-                      source={require('../../assets/arrow3.png')}
-                      style={styles.dropdownIconStyle}
-                    />
-                  </View>
-                )}
-              />
-              <Text style={[styles.Text, {marginRight: 10, marginLeft: 10}]}>
-                Topic
+          {!modalVisible && (
+            <View style={styles.courseInfo}>
+              <Text style={styles.courseInfoText}>
+                <Text style={{textDecorationLine: 'underline'}}>
+                  Course Title
+                </Text>{' '}
+                : {paperheader.c_title}
               </Text>
+              <Text style={styles.courseInfoText}>
+                <Text style={{textDecorationLine: 'underline'}}>
+                  Date Of Exam
+                </Text>{' '}
+                : {paperheader.exam_date}{' '}
+                <Text style={{textDecorationLine: 'underline'}}>Duration</Text>{' '}
+                : {paperheader.duration}{' '}
+                <Text style={{textDecorationLine: 'underline'}}>Code</Text> :{' '}
+                {paperheader.c_code}{' '}
+                <Text style={{textDecorationLine: 'underline'}}>Degree</Text> :{' '}
+                {paperheader.degree} {'\n'}
+                <Text style={{textDecorationLine: 'underline'}}>
+                  Teachers
+                </Text>{' '}
+                :{' '}
+                {paperheaderfaculty.length > 0
+                  ? paperheaderfaculty.map(faculty => faculty.f_name).join(', ')
+                  : ''}
+              </Text>
+            </View>
+          )}
+
+          {!modalVisible && (
+            <View
+              style={{
+                backgroundColor: 'black',
+                width: '96%',
+                height: 200,
+                marginLeft: '2%',
+                borderBottomLeftRadius: 15,
+                borderBottomRightRadius: 15,
+                borderRightWidth: 2,
+                borderRightColor: 'white',
+                borderLeftWidth: 2,
+                borderLeftColor: 'white',
+              }}>
+              <Text style={styles.questionText}>Question</Text>
               <TextInput
-                style={styles.topicsInput}
+                style={styles.input}
+                value={questiontext}
+                placeholder="Enter Question"
                 placeholderTextColor={'gray'}
-                onChangeText={text => setName(text)}
+                onChangeText={text => setQuestionText(text)}
               />
-            </View>
-            <View style={styles.row2}>
-              <View style={{flex: 2, flexDirection: 'row'}}>
+              <View style={styles.row1}>
+                <Text style={[styles.Text, {marginRight: 10}]}>Difficulty</Text>
+                <SelectDropdown
+                  data={difficultyOptions}
+                  onSelect={(selectedItem, index) => {
+                    setDifficulty(selectedItem);
+                    console.log(selectedItem, index);
+                  }}
+                  defaultButtonText="Select"
+                  buttonTextAfterSelection={(selectedItem, index) => {
+                    return selectedItem;
+                  }}
+                  rowTextForSelection={(item, index) => {
+                    return item;
+                  }}
+                  buttonStyle={styles.dropdownButtonStyle}
+                  buttonTextStyle={styles.dropdownButtonTextStyle}
+                  dropdownStyle={styles.dropdownMenuStyle}
+                  rowStyle={styles.dropdownRowStyle}
+                  rowTextStyle={styles.dropdownRowTextStyle}
+                  renderDropdownIcon={() => (
+                    <View style={styles.dropdownIcon}>
+                      <Image
+                        source={require('../../assets/arrow3.png')}
+                        style={styles.dropdownIconStyle}
+                      />
+                    </View>
+                  )}
+                />
                 <Text style={[styles.Text, {marginRight: 10, marginLeft: 16}]}>
                   Marks
                 </Text>
@@ -473,66 +510,104 @@ const FctScreen08 = ({route}) => {
                   onChangeText={text => setMarks(text)}
                 />
               </View>
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: 'row',
-                  justifyContent: 'flex-end',
-                  marginTop: 5,
-                }}>
-                <TouchableOpacity
-                  style={styles.imageButton}
-                  activeOpacity={0.8}
-                  onPress={chooseImage}>
-                  <Text style={styles.imageText}>IMAGE</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.addButton}
-                  activeOpacity={0.8}
-                  onPress={handleAddOrUpdateQuestion}>
-                  <Text style={styles.addText}>ADD</Text>
-                </TouchableOpacity>
+              <View style={styles.row2}>
+                <View style={{flex: 3, flexDirection: 'row'}}>
+                  <Text
+                    style={[styles.Text, {marginRight: 10, marginLeft: 25}]}>
+                    Topic
+                  </Text>
+                  <SelectDropdown
+                    data={topics}
+                    onSelect={(selectedItem, index) => {
+                      console.log(selectedItem.t_id, index);
+                      setSelectedTopic(selectedItem.t_id);
+                    }}
+                    buttonTextAfterSelection={(selectedItem, index) => {
+                      return selectedItem.t_name; // Display selected topic name
+                    }}
+                    rowTextForSelection={(item, index) => {
+                      return item.t_name; // Display topic names in dropdown
+                    }}
+                    defaultButtonText="Select"
+                    buttonStyle={styles.dropdownButtonStyle2}
+                    buttonTextStyle={styles.dropdownButtonTextStyle2}
+                    dropdownStyle={styles.dropdownMenuStyle2}
+                    rowStyle={styles.dropdownRowStyle2}
+                    rowTextStyle={styles.dropdownRowTextStyle2}
+                    renderDropdownIcon={() => (
+                      <View style={styles.dropdownIcon2}>
+                        <Image
+                          source={require('../../assets/arrow3.png')}
+                          style={styles.dropdownIconStyle2}
+                        />
+                      </View>
+                    )}
+                  />
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: 'row',
+                    justifyContent: 'flex-end',
+                    alignItems: 'center',
+                  }}>
+                  <Text style={[styles.Text, {marginRight: 10}]}>Image</Text>
+                  <TouchableOpacity
+                    style={styles.imageButton}
+                    activeOpacity={0.8}
+                    onPress={chooseImage}>
+                    <Image
+                      source={require('../../assets/gallery.png')}
+                      style={styles.galleryIcon}
+                      resizeMode="contain"
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.addButton}
+                    activeOpacity={0.8}
+                    onPress={handleAddOrUpdateQuestion}>
+                    <Text style={styles.addText}>ADD</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
-          </View>
-        )}
+          )}
 
-        {!modalVisible && (
-          <View style={styles.paperInfo}>
-            <FlatList
-              data={questions}
-              style={styles.flatlist}
-              showsVerticalScrollIndicator={false}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({item, index}) => (
-                <View style={styles.listItem}>
-                  <View style={styles.column}>
-                    <Text style={styles.data_text}>
-                      Question # {index + 1} :
-                    </Text>
-                    <Text style={styles.data_text}>{item.q_text}</Text>
-                    {item.imageData && (
-                      <Image
-                        source={{
-                          uri: `data:image/jpeg;base64,${item.imageData}`,
-                        }}
-                        style={styles.image}
-                      />
-                    )}
-                    <Text style={styles.data_difficulty}>
-                      [ {item.q_difficulty}, Marks: {item.q_marks} ]
-                    </Text>
-                    <Text style={styles.data_difficulty}>
-                      [ {item.f_name} ]
-                    </Text>
+          {!modalVisible && (
+            <View style={styles.paperInfo}>
+              <FlatList
+                data={questions}
+                style={styles.flatlist}
+                showsVerticalScrollIndicator={false}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({item, index}) => (
+                  <View style={styles.listItem}>
+                    <View style={styles.column}>
+                      <Text style={styles.data_text}>
+                        Question # {index + 1} :
+                      </Text>
+                      <Text style={styles.data_text}>{item.q_text}</Text>
+                      {item.imageData && (
+                        <Image
+                          source={{
+                            uri: `data:image/jpeg;base64,${item.imageData}`,
+                          }}
+                          style={styles.image}
+                        />
+                      )}
+                      <Text style={styles.data_difficulty}>
+                        [ {item.q_difficulty}, Marks: {item.q_marks} ]
+                      </Text>
+                      <Text style={styles.data_difficulty}>
+                        [ {item.f_name} ]
+                      </Text>
+                    </View>
                   </View>
-                </View>
-              )}
-            />
-          </View>
-        )}
-
-        {/* {!modalVisible && (
+                )}
+              />
+            </View>
+          )}
+          {/* {!modalVisible && (
           <View style={styles.buttonscontainer2}>
             <TouchableOpacity
               style={styles.topicButton}
@@ -550,6 +625,7 @@ const FctScreen08 = ({route}) => {
             </TouchableOpacity>
           </View>
         )} */}
+        </View>
       </View>
     </ImageBackground>
   );
@@ -560,24 +636,27 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 2,
     borderColor: 'black',
+    // backgroundColor: 'black',
   },
   modalView: {
     margin: 20,
     marginTop: '70%',
-    backgroundColor: 'black',
+    backgroundColor: '#E6E6FA',
     borderRadius: 20,
-    borderColor: 'white',
-    borderWidth: 2,
+    width: '60%',
     padding: 10,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    alignSelf: 'center',
+    // borderColor: 'white',
+    // borderWidth: 2,
+    // shadowColor: '#000',
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 2,
+    // },
+    // shadowOpacity: 0.25,
+    // shadowRadius: 4,
+    // elevation: 5,
   },
   modalText: {
     color: 'black',
@@ -594,7 +673,7 @@ const styles = StyleSheet.create({
   },
   flatlist: {
     // marginTop: 5,
-    maxHeight: 360,
+    maxHeight: 385,
   },
   data_text: {
     color: 'black',
@@ -641,14 +720,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#E6E6FA',
   },
   marksInput: {
-    height: 41,
-    width: '27%',
+    height: 30,
+    width: '15%',
     alignSelf: 'center',
+    textAlign: 'center',
+    fontWeight: 'bold',
     borderColor: 'gray',
     borderWidth: 1,
     borderRadius: 10,
     marginLeft: 20,
+    paddingVertical: 0,
     paddingHorizontal: 8,
+    lineHeight: 20,
     color: 'black',
     backgroundColor: '#E6E6FA',
   },
@@ -657,7 +740,7 @@ const styles = StyleSheet.create({
   },
   uniInfoStart: {
     marginLeft: '2%',
-    marginTop: 10,
+    // marginTop: 10,
     width: '13%',
     justifyContent: 'center',
     backgroundColor: 'white',
@@ -670,7 +753,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'black',
   },
   uniInfo: {
-    marginTop: 10,
+    // marginTop: 10,
     width: '70%',
     backgroundColor: 'white',
     // borderRadius: 10,
@@ -682,7 +765,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'black',
   },
   uniInfoEnd: {
-    marginTop: 10,
+    // marginTop: 10,
     marginLeft: -0.4,
     width: '13%',
     justifyContent: 'center',
@@ -763,13 +846,13 @@ const styles = StyleSheet.create({
     // fontFamily: 'FuzzyBubbles-Regular',
   },
   modalbutton: {
-    backgroundColor: '#E6E6FA',
+    backgroundColor: '#58FFAB',
     padding: 10,
     height: 60,
     width: 180,
     borderWidth: 2,
     borderRadius: 15,
-    borderColor: 'white',
+    borderColor: 'black',
     alignItems: 'center',
     alignSelf: 'center',
     justifyContent: 'center',
@@ -844,6 +927,11 @@ const styles = StyleSheet.create({
   backIcon: {
     height: 20,
     width: 20,
+  },
+  galleryIcon: {
+    height: 30,
+    width: 30,
+    borderRadius: 10,
   },
   commentButton: {
     justifyContent: 'center',
@@ -927,41 +1015,55 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   imageButton: {
-    backgroundColor: 'blue',
-    borderWidth: 2,
-    height: 35,
+    backgroundColor: 'white',
+    height: 30,
     borderColor: 'white',
-    padding: 5,
     borderRadius: 10,
+    justifyContent: 'center',
+    width: 30,
   },
   imageText: {
     fontSize: 15,
     color: 'white',
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   addButton: {
-    backgroundColor: 'green',
-    borderWidth: 2,
-    height: 35,
+    backgroundColor: '#58FFAB',
+    borderWidth: 1,
+    height: 30,
     borderColor: 'white',
-    padding: 5,
     borderRadius: 10,
-    marginLeft: '5%',
-    marginRight: '8%',
+    justifyContent: 'center',
+    width: '50%',
+    marginLeft: '30%',
+    marginRight: '10%',
   },
   addText: {
     fontSize: 15,
+    color: 'black',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  questionText: {
+    fontSize: 17,
+    height: 30,
     color: 'white',
     fontWeight: 'bold',
+    marginLeft: 10,
+    // borderWidth: 1,
+    // borderColor: 'yellow',
+    textAlignVertical: 'center',
   },
   Text: {
     fontSize: 17,
-    height: 40,
+    height: 30,
     color: 'white',
     fontWeight: 'bold',
     // borderWidth: 1,
     // borderColor: 'yellow',
     textAlignVertical: 'center',
+    alignSelf: 'center',
   },
   picker: {
     width: 80,
@@ -971,12 +1073,14 @@ const styles = StyleSheet.create({
     borderWidth: 10,
     borderColor: 'red',
   },
+  // -------- Dropdown 1 Styles
   dropdownButtonStyle: {
     width: '27%',
-    height: 40,
+    height: 30,
     backgroundColor: '#E6E6FA',
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'center',
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#444',
@@ -986,6 +1090,7 @@ const styles = StyleSheet.create({
   },
   dropdownMenuStyle: {
     backgroundColor: '#EFEFEF',
+    borderRadius: 15,
   },
   dropdownRowStyle: {
     backgroundColor: '#FFF',
@@ -1001,18 +1106,55 @@ const styles = StyleSheet.create({
   dropdownIcon: {
     alignSelf: 'center',
   },
+  // -------- Dropdown 2 Styles
+  dropdownButtonStyle2: {
+    width: '36%',
+    height: 30,
+    backgroundColor: '#E6E6FA',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#444',
+  },
+  dropdownButtonTextStyle2: {
+    textAlign: 'center',
+  },
+  dropdownMenuStyle2: {
+    backgroundColor: '#E6E6FA',
+    width: 300,
+    borderRadius: 15,
+  },
+  dropdownRowStyle2: {
+    backgroundColor: '#FFF',
+    borderBottomColor: '#C5C5C5',
+    borderRadius: 15,
+  },
+  dropdownRowTextStyle2: {
+    textAlign: 'center',
+  },
+  dropdownIconStyle2: {
+    width: 15,
+    height: 15,
+  },
+  dropdownIcon2: {
+    alignSelf: 'center',
+  },
   row1: {
     flexDirection: 'row',
     // borderWidth: 1,
     // borderColor: 'green',
     justifyContent: 'center',
-    height: 41,
+    height: 40,
   },
   row2: {
     flexDirection: 'row',
-    height: 41,
+    height: 40,
     justifyContent: 'center',
     marginTop: 5,
+    // borderWidth: 2,
+    // borderColor: 'yellow',
   },
   image: {
     width: 250,
