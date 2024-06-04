@@ -111,7 +111,7 @@ const FctScreen09 = ({route}) => {
       return;
     }
 
-    const apiEndpoint = `http://${ip}:${port}/savePaper`;
+    const apiEndpoint = `http://${ip}:${port}/addPaper`;
 
     fetch(apiEndpoint, {
       method: 'POST',

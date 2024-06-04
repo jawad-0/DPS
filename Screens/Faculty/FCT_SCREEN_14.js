@@ -15,10 +15,16 @@ const FctScreen14 = ({route}) => {
   const navigation = useNavigation();
   const {facultyId} = route.params;
   const [feedback, setFeedback] = useState([]);
+  const [pressedButton, setPressedButton] = useState('button1');
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleButtonPress = button => {
+    fetchData();
+    setPressedButton(button);
+  };
 
   const fetchData = () => {
     const apiEndpoint = `http://${ip}:${feedback_port}/getFeedback/${facultyId}`;
@@ -55,30 +61,80 @@ const FctScreen14 = ({route}) => {
         </View>
         {/* <ScrollView> */}
         <View style={styles.form}>
-          <FlatList
-            data={feedback}
-            style={styles.flatlist}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({item}) => (
-              <View style={styles.listItem}>
-                <View style={styles.column}>
-                  <View style={styles.dataContainer}>
-                    <Text style={styles.data_code}>{item.c_code}</Text>
-                    <Text style={styles.data_title}>{item.c_title}</Text>
-                  </View>
-                  {!item.q_id ? (
-                    <Text style={styles.data_feedback}>
-                      {item.fb_text}
-                    </Text>
-                  ) : (
-                    <Text style={styles.data_feedback}>
-                      Q-No# {item.q_id}: {item.fb_text}
-                    </Text>
-                  )}
-                </View>
-              </View>
-            )}
-          />
+          <View style={styles.buttonsContainer}>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                pressedButton === 'button1' && styles.activeButton,
+              ]}
+              onPress={() => handleButtonPress('button1')}
+              activeOpacity={0.8}>
+              <Text style={styles.buttonText}>On Question</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                pressedButton === 'button2' && styles.activeButton,
+              ]}
+              onPress={() => handleButtonPress('button2')}
+              activeOpacity={0.8}>
+              <Text style={styles.buttonText}>On Header</Text>
+            </TouchableOpacity>
+          </View>
+          {pressedButton === 'button1' && (
+            <>
+              <FlatList
+                data={feedback}
+                style={styles.flatlist}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({item}) =>
+                  item.q_id ? (
+                    <View style={styles.listItem}>
+                      <View style={styles.column}>
+                        <View style={styles.dataContainer}>
+                          <Text style={styles.data_code}>{item.c_code}</Text>
+                          <Text style={styles.data_title}>{item.c_title}</Text>
+                        </View>
+                        {!item.q_id ? (
+                          <Text style={styles.data_feedback}>
+                            {item.fb_text}
+                          </Text>
+                        ) : (
+                          <Text style={styles.data_feedback}>
+                            Q-No# {item.q_id}: {item.fb_text}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                  ) : null
+                }
+              />
+            </>
+          )}
+          {pressedButton === 'button2' && (
+            <>
+              <FlatList
+                data={feedback}
+                style={styles.flatlist}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({item}) =>
+                  !item.q_id ? (
+                    <View style={styles.listItem}>
+                      <View style={styles.column}>
+                        <View style={styles.dataContainer}>
+                          <Text style={styles.data_code}>{item.c_code}</Text>
+                          <Text style={styles.data_title}>{item.c_title}</Text>
+                        </View>
+                        <Text style={styles.data_feedback}>
+                          Q-No# {item.q_id}: {item.fb_text}
+                        </Text>
+                      </View>
+                    </View>
+                  ) : null
+                }
+              />
+            </>
+          )}
         </View>
         {/* </ScrollView> */}
       </View>
@@ -176,6 +232,37 @@ const styles = StyleSheet.create({
   backIcon: {
     height: 20,
     width: 20,
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    maxWidth: '100%',
+    // marginLeft: 10,
+    // marginTop: 30,
+    // borderWidth: 2,
+    // borderColor: 'yellow',
+    // justifyContent: 'flex-end',
+  },
+  button: {
+    backgroundColor: 'white',
+    height: 40,
+    width: '50%',
+    // marginRight: 25,
+    borderWidth: 2,
+    borderRadius: 7,
+    alignItems: 'center',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    marginBottom: 15,
+  },
+  buttonText: {
+    color: 'black',
+    fontSize: 20,
+    fontWeight: 'bold',
+    fontFamily: 'poppins',
+    textAlign: 'center',
+  },
+  activeButton: {
+    backgroundColor: '#58FFAB',
   },
 });
 

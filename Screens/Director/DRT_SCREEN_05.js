@@ -32,7 +32,7 @@ const DrtScreen05 = ({route}) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        feedback: comments,
+        fb_text: comments,
         p_id: paperId,
         c_id: courseId,
         q_id: questionId,

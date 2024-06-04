@@ -138,8 +138,23 @@ const FctScreen02 = ({route}) => {
                 <TouchableOpacity
                   style={styles.button}
                   activeOpacity={0.8}
-                  onPress={() => console.log('Yes')}>
-                  <Text style={styles.buttonText}>MANAGE PAPER</Text>
+                  onPress={() =>
+                    navigation.navigate('FctScreen11', {
+                      courseId: courseId,
+                      courseName: courseName,
+                      courseCode: courseCode,
+                      facultyId: facultyId,
+                      facultyName: facultyName,
+                      facultyRole: facultyRole,
+                    })
+                  }>
+                  <View style={styles.buttonContent}>
+                    <Image
+                      source={require('../../assets/setting.png')}
+                      style={styles.buttonImage}
+                    />
+                    <Text style={styles.buttonText}>MANAGE PAPER</Text>
+                  </View>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.button}
@@ -153,7 +168,13 @@ const FctScreen02 = ({route}) => {
                       facultyRole: facultyRole,
                     })
                   }>
-                  <Text style={styles.buttonText}>MANAGE TOPICS</Text>
+                  <View style={styles.buttonContent}>
+                    <Image
+                      source={require('../../assets/setting.png')}
+                      style={styles.buttonImage}
+                    />
+                    <Text style={styles.buttonText}>MANAGE TOPICS</Text>
+                  </View>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.button}
@@ -167,7 +188,13 @@ const FctScreen02 = ({route}) => {
                       facultyRole: facultyRole,
                     })
                   }>
-                  <Text style={styles.buttonText}>MANAGE CLOS</Text>
+                  <View style={styles.buttonContent}>
+                    <Image
+                      source={require('../../assets/setting.png')}
+                      style={styles.buttonImage}
+                    />
+                    <Text style={styles.buttonText}>MANAGE CLOS</Text>
+                  </View>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.button}
@@ -181,7 +208,13 @@ const FctScreen02 = ({route}) => {
                       facultyRole: facultyRole,
                     })
                   }>
-                  <Text style={styles.buttonText}>MANAGE HEADER</Text>
+                  <View style={styles.buttonContent}>
+                    <Image
+                      source={require('../../assets/setting.png')}
+                      style={styles.buttonImage}
+                    />
+                    <Text style={styles.buttonText}>MANAGE HEADER</Text>
+                  </View>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.button}
@@ -360,6 +393,15 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     marginBottom: 15,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  buttonImage: {
+    width: 25,
+    height: 25,
+    marginRight: 5,
   },
   buttonText: {
     color: 'black',

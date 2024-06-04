@@ -47,5 +47,6 @@ FCT_SCREEN_07.js   // View Topics -> Covered/Common/Progress
 FCT_SCREEN_08.js   // Paper Settings (Paper Creation) ----------------------------------------------
 FCT_SCREEN_09.js   // Manage Paper Settings Header (Add/Edit)
 FCT_SCREEN_10.js   // Paper CLO Grid (View)
+FCT_SCREEN_11.js   // Manage Paper Selection
 FCT_SCREEN_14.js   // Paper Notifications (View)
 FCT_SCREEN_15.js   // Paper Status (View)

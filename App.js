@@ -49,6 +49,7 @@ import FctScreen07 from './Screens/Faculty/FCT_SCREEN_07';
 import FctScreen08 from './Screens/Faculty/FCT_SCREEN_08';
 import FctScreen09 from './Screens/Faculty/FCT_SCREEN_09';
 import FctScreen10 from './Screens/Faculty/FCT_SCREEN_10';
+import FctScreen11 from './Screens/Faculty/FCT_SCREEN_11';
 import FctScreen14 from './Screens/Faculty/FCT_SCREEN_14';
 import FctScreen15 from './Screens/Faculty/FCT_SCREEN_15';
 
@@ -246,6 +247,11 @@ export default function App() {
         <Stack1.Screen
           name="FctScreen10"
           component={FctScreen10}
+          options={{headerShown: false}}
+        />
+        <Stack1.Screen
+          name="FctScreen11"
+          component={FctScreen11}
           options={{headerShown: false}}
         />
         <Stack1.Screen

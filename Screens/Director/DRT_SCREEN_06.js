@@ -7,13 +7,13 @@ import {
   ToastAndroid,
   TextInput,
   FlatList,
+  Keyboard,
   ImageBackground,
   TouchableOpacity,
-  Platform,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {RadioButton} from 'react-native-paper';
-import {ip, paper_port, question_port} from '../CONFIG';
+import {ip, port} from '../CONFIG';
 // import SplashScreen from 'react-native-splash-screen';
 
 const DrtScreen06 = ({route}) => {
@@ -41,8 +41,15 @@ const DrtScreen06 = ({route}) => {
     fetchPaperHeader();
   }, []);
 
-  const handleView = () => {
-    console.log('View Button Clicked!');
+  const handleApprove = () => {
+    const hasRejectedQuestions = Object.values(rejectOptions).some(
+      value => value === true,
+    );
+
+    if (hasRejectedQuestions) {
+      handleComment();
+    }
+    handleAcceptReject();
   };
 
   const handleOptionSelect = (q_id, option) => {
@@ -74,8 +81,82 @@ const DrtScreen06 = ({route}) => {
     }));
   };
 
+  const handleAcceptReject = () => {
+    const apiEndpoint = `http://${ip}:${port}/editquestionstatus2`;
+    const acceptedQIds = Object.keys(acceptOptions).filter(
+      key => acceptOptions[key],
+    );
+    const rejectedQIds = Object.keys(rejectOptions).filter(
+      key => rejectOptions[key],
+    );
+    const data = {
+      acceptedQIds,
+      rejectedQIds,
+    };
+    fetch(apiEndpoint, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+      .then(response =>
+        response
+          .json()
+          .then(data => ({status: response.status, body: data}))
+          .catch(err => {
+            console.error('Error parsing JSON:', err);
+            throw new Error('Error parsing JSON');
+          }),
+      )
+      .then(({status, body}) => {
+        if (status === 200) {
+          console.log('Data posted successfully:', body);
+          ToastAndroid.show('Status updated successfully!', ToastAndroid.SHORT);
+        } else {
+          console.error('API returned an error:', body);
+          ToastAndroid.show(`${body.error}`, ToastAndroid.LONG);
+        }
+      });
+    //   .catch(error => {
+    //     console.error('Error during API call:', error);
+    //     ToastAndroid.show('Failed to update status.', ToastAndroid.LONG);
+    //   });
+  };
+
+  const handleComment = () => {
+    const apiEndpoint = `http://${ip}:${port}/addfeedback`;
+    for (const [q_id, fb_text] of Object.entries(commentInputs)) {
+      fetch(apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fb_text,
+          p_id: paperId,
+          c_id: courseId,
+          q_id,
+        }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Data posted successfully:', data);
+          ToastAndroid.show('Added Successfully!', ToastAndroid.SHORT);
+          setCommentInputs(prevInputs => ({
+            ...prevInputs,
+            [q_id]: '',
+          }));
+        })
+        .catch(error => {
+          console.error('Error posting data:', error);
+        });
+    }
+    Keyboard.dismiss();
+  };
+
   const fetchQuestions = () => {
-    const apiEndpoint = `http://${ip}:${question_port}/getQuestion/${paperId}`;
+    const apiEndpoint = `http://${ip}:${port}/getuploadedQuestion/${paperId}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
@@ -88,7 +169,7 @@ const DrtScreen06 = ({route}) => {
   };
 
   const fetchPaperHeader = () => {
-    const apiEndpoint = `http://${ip}:${paper_port}/getpaperheader/${paperId}`;
+    const apiEndpoint = `http://${ip}:${port}/getpaperheader/${paperId}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
@@ -111,7 +192,7 @@ const DrtScreen06 = ({route}) => {
   };
 
   const fetchFacultyData = c_id => {
-    const apiEndpoint = `http://${ip}:${paper_port}/getpaperheaderfaculty/${c_id}`;
+    const apiEndpoint = `http://${ip}:${port}/getpaperheaderfaculty/${c_id}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
@@ -195,6 +276,14 @@ const DrtScreen06 = ({route}) => {
                 <View style={styles.column}>
                   <Text style={styles.data_text}>Question # {index + 1} :</Text>
                   <Text style={styles.data_text}>{item.q_text}</Text>
+                  {item.imageData && (
+                    <Image
+                      source={{
+                        uri: `data:image/jpeg;base64,${item.imageData}`,
+                      }}
+                      style={styles.image}
+                    />
+                  )}
                   <Text style={styles.data_difficulty}>
                     [ {item.q_difficulty}, Marks: {item.q_marks} ]
                   </Text>
@@ -272,7 +361,9 @@ const DrtScreen06 = ({route}) => {
             }>
             <Text style={styles.viewText}>View Topics</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.approveButton} onPress={handleView}>
+          <TouchableOpacity
+            style={styles.approveButton}
+            onPress={handleApprove}>
             <Text style={styles.viewText}>Approve</Text>
           </TouchableOpacity>
         </View>
@@ -568,6 +659,16 @@ const styles = StyleSheet.create({
   },
   commentInput: {
     color: 'black',
+  },
+  image: {
+    width: 250,
+    height: 150,
+    marginTop: 20,
+    marginBottom: 20,
+    // borderWidth: 1,
+    // alignSelf: 'center',
+    // borderColor: 'black',
+    resizeMode: 'contain',
   },
 });
 

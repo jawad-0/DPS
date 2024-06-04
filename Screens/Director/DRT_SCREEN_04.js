@@ -47,7 +47,7 @@ const DrtScreen04 = ({route}) => {
   const handleView = () => {
     navigation.navigate('DrtScreen06', {
       paperId: paperId,
-      courseId: courseId
+      courseId: courseId,
     });
   };
 
@@ -138,14 +138,14 @@ const DrtScreen04 = ({route}) => {
               : 'No teachers available'}
           </Text> */}
         <View style={styles.paperInfo}>
-          <Text style={styles.label}>
-            Teachers:{' '}
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Text style={styles.label}>Teachers: </Text>
             <Text style={styles.data_faculty}>
               {paperheaderfaculty.length > 0
                 ? paperheaderfaculty.map(faculty => faculty.f_name).join(', ')
                 : ''}
             </Text>
-          </Text>
+          </View>
           {/* <Text style={styles.label}>
             Course Title: <Text style={styles.data}>{coursetitle}</Text>
           </Text> */}
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderWidth: 1,
     padding: 5,
-    alignItems: 'center'
+    alignItems: 'center',
   },
   label: {
     color: 'black',
@@ -227,6 +227,11 @@ const styles = StyleSheet.create({
   },
   data_faculty: {
     color: 'blue',
+    width: 245,
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 5,
+    marginLeft: 10,
   },
   paperInfo: {
     marginTop: 5,

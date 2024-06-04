@@ -305,18 +305,24 @@ const FctScreen05 = ({route}) => {
           <Text style={styles.label}>CLOS</Text>
           <View style={styles.CLOScontainer}>
             {/* {console.log('selectedCLOIds:', selectedCLOIds)} */}
-            {CLOS.map((CLO, index) => (
-              <View key={index} style={styles.checkboxContainer}>
-                <TouchableOpacity onPress={() => console.log(CLO.clo_text)}>
-                  <Text style={styles.clonumbertext}>{CLO.clo_number}</Text>
-                </TouchableOpacity>
-                <CheckBox
-                  disabled={false}
-                  value={selectedCLOIds && selectedCLOIds.includes(CLO.clo_id)}
-                  onValueChange={() => toggleCheckBox(CLO.clo_id)}
-                />
-              </View>
-            ))}
+            {CLOS.length > 0 ? (
+              CLOS.map((CLO, index) => (
+                <View key={index} style={styles.checkboxContainer}>
+                  <TouchableOpacity onPress={() => console.log(CLO.clo_text)}>
+                    <Text style={styles.clonumbertext}>{CLO.clo_number}</Text>
+                  </TouchableOpacity>
+                  <CheckBox
+                    disabled={false}
+                    value={
+                      selectedCLOIds && selectedCLOIds.includes(CLO.clo_id)
+                    }
+                    onValueChange={() => toggleCheckBox(CLO.clo_id)}
+                  />
+                </View>
+              ))
+            ) : (
+              <Text style={styles.noCLOText}>No CLOs available</Text>
+            )}
           </View>
 
           <TouchableOpacity
