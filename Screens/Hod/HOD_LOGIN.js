@@ -72,7 +72,10 @@ const HodLogin = () => {
             />
           </View>
           <View style={styles.buttonscontainer}>
-            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <TouchableOpacity
+              style={styles.button}
+              activeOpacity={0.8}
+              onPress={handleLogin}>
               <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
           </View>

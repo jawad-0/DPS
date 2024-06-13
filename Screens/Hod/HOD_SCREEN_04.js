@@ -93,6 +93,7 @@ const HodScreen04 = ({route}) => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
+            activeOpacity={0.5}
             onPress={() => navigation.navigate('HodScreen02')}>
             <Image
               source={require('../../assets/arrow.png')}
@@ -152,11 +153,13 @@ const HodScreen04 = ({route}) => {
                 <View style={styles.modalbuttonscontainer}>
                   <TouchableOpacity
                     style={styles.modalcancelbutton}
+                    activeOpacity={0.5}
                     onPress={() => setShowModal(false)}>
                     <Text style={styles.editbuttonText}>No</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.modaldeletebutton}
+                    activeOpacity={0.5}
                     onPress={() => {
                       confirmDelete(itemToDelete);
                     }}>
@@ -182,6 +185,7 @@ const HodScreen04 = ({route}) => {
                   <View style={styles.buttonsContainer}>
                     <TouchableOpacity
                       style={styles.deleteButton}
+                      activeOpacity={0.5}
                       onPress={() =>
                         handleDelete(item.c_code, item.c_title, item.ac_id)
                       }>
@@ -200,6 +204,7 @@ const HodScreen04 = ({route}) => {
           <View style={styles.addbuttonContainer}>
             <TouchableOpacity
               style={styles.addButton}
+              activeOpacity={0.8}
               onPress={() => handleAdd()}>
               <Image
                 source={require('../../assets/add_icon.png')}

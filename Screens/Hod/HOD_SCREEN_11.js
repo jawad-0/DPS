@@ -93,6 +93,7 @@ const HodScreen11 = () => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
+            activeOpacity={0.5}
             onPress={() => navigation.navigate('HodScreen01')}>
             <Image
               source={require('../../assets/arrow.png')}
@@ -134,7 +135,10 @@ const HodScreen11 = () => {
             />
           </View>
           {isChanged && (
-            <TouchableOpacity style={styles.button} onPress={updateDifficulty}>
+            <TouchableOpacity
+              style={styles.button}
+              activeOpacity={0.8}
+              onPress={updateDifficulty}>
               <Text style={styles.buttonText}>Save</Text>
             </TouchableOpacity>
           )}

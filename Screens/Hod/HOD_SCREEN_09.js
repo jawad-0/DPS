@@ -95,6 +95,7 @@ const HodScreen09 = () => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
+            activeOpacity={0.5}
             onPress={() => navigation.navigate('HodScreen01')}>
             <Image
               source={require('../../assets/arrow.png')}
@@ -137,6 +138,7 @@ const HodScreen09 = () => {
                   <View style={styles.radiobuttonContainer}>
                     <TouchableOpacity
                       style={styles.radioContainer}
+                      activeOpacity={0.5}
                       onPress={() => assignRole(item)}>
                       <View
                         style={[

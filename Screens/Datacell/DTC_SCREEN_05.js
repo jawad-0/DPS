@@ -88,6 +88,7 @@ const DtcScreen04 = ({route}) => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
+            activeOpacity={0.5}
             onPress={() => navigation.navigate('DtcScreen01')}>
             <Image
               source={require('../../assets/arrow.png')}
@@ -127,7 +128,10 @@ const DtcScreen04 = ({route}) => {
             onChangeText={text => setCreditHours(text)}
           />
 
-          <TouchableOpacity style={styles.button} onPress={handlePostData}>
+          <TouchableOpacity
+            style={styles.button}
+            activeOpacity={0.8}
+            onPress={handlePostData}>
             <Text style={styles.buttonText}>Update</Text>
           </TouchableOpacity>
         </View>

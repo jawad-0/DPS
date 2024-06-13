@@ -20,7 +20,7 @@ import {useNavigation} from '@react-navigation/native';
 
 const DtcScreen03 = ({route}) => {
   const navigation = useNavigation();
-  const {itemId,itemName,itemUsername,itemPassword} = route.params;
+  const {itemId, itemName, itemUsername, itemPassword} = route.params;
   const [name, setName] = useState(itemName);
   const [username, setUsername] = useState(itemUsername);
   const [password, setPassword] = useState(itemPassword);
@@ -29,22 +29,22 @@ const DtcScreen03 = ({route}) => {
     // fetchData();
   }, []);
 
-//   const fetchData = () => {
-//     const apiEndpoint = `http://${ip}:${faculty_port}/getSingleFaculty/${itemId}`;
-//     Keyboard.dismiss();
-//     fetch(apiEndpoint)
-//       .then(response => response.json())
-//       .then(data => {
-//         const facultyData = data[0];
-//         // console.log('Data fetched successfully:', facultyData);
-//         setName(facultyData.f_name);
-//         setUsername(facultyData.username);
-//         setPassword(facultyData.password);
-//       })
-//       .catch(error => {
-//         console.error('Error fetching data:', error);
-//       });
-//   };
+  //   const fetchData = () => {
+  //     const apiEndpoint = `http://${ip}:${faculty_port}/getSingleFaculty/${itemId}`;
+  //     Keyboard.dismiss();
+  //     fetch(apiEndpoint)
+  //       .then(response => response.json())
+  //       .then(data => {
+  //         const facultyData = data[0];
+  //         // console.log('Data fetched successfully:', facultyData);
+  //         setName(facultyData.f_name);
+  //         setUsername(facultyData.username);
+  //         setPassword(facultyData.password);
+  //       })
+  //       .catch(error => {
+  //         console.error('Error fetching data:', error);
+  //       });
+  //   };
 
   const handlePostData = () => {
     if (
@@ -88,6 +88,7 @@ const DtcScreen03 = ({route}) => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
+            activeOpacity={0.5}
             onPress={() => navigation.navigate('DtcScreen02')}>
             <Image
               source={require('../../assets/arrow.png')}
@@ -126,7 +127,10 @@ const DtcScreen03 = ({route}) => {
             secureTextEntry={true}
           />
 
-          <TouchableOpacity style={styles.button} onPress={handlePostData}>
+          <TouchableOpacity
+            style={styles.button}
+            activeOpacity={0.8}
+            onPress={handlePostData}>
             <Text style={styles.buttonText}>Update</Text>
           </TouchableOpacity>
         </View>

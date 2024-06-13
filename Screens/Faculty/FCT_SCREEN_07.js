@@ -29,10 +29,18 @@ const FctScreen07 = ({route}) => {
   const [topictaught, setTopicTaught] = useState([]);
   const [subtopictaught, setSubTopicTaught] = useState([]);
   const [pressedButton, setPressedButton] = useState('initial');
+  const [expandedTopics, setExpandedTopics] = useState({});
+
+  const toggleSubtopics = t_id => {
+    setExpandedTopics(prev => ({
+      ...prev,
+      [t_id]: !prev[t_id],
+    }));
+  };
 
   useEffect(() => {
     fetchData();
-    fetchData2();
+    fetchPaperHeaderFaculty();
     fetchCommonSubTopics(courseId);
   }, []);
 
@@ -60,7 +68,7 @@ const FctScreen07 = ({route}) => {
       fetchSubTopicTaught(facultyId);
     }
     fetchData();
-    fetchData2();
+    fetchPaperHeaderFaculty();
     setPressedButton(button);
   };
 
@@ -133,7 +141,7 @@ const FctScreen07 = ({route}) => {
       });
   };
 
-  const fetchData2 = () => {
+  const fetchPaperHeaderFaculty = () => {
     const apiEndpoint = `http://${ip}:${port}/getpaperheaderfaculty/${courseId}`;
     fetch(apiEndpoint)
       .then(response => response.json())
@@ -210,7 +218,7 @@ const FctScreen07 = ({route}) => {
       .then(data => {
         ToastAndroid.show('Added Successfully !', ToastAndroid.SHORT);
         fetchData();
-        fetchData2();
+        fetchPaperHeaderFaculty();
         fetchTopicTaught(facultyId);
       })
       .catch(error => {
@@ -235,7 +243,7 @@ const FctScreen07 = ({route}) => {
         console.log('Network response was not ok');
       }
       fetchData();
-      fetchData2();
+      fetchPaperHeaderFaculty();
       fetchTopicTaught(facultyId);
       ToastAndroid.show('Deleted Successfully !', ToastAndroid.SHORT);
       return response.json();
@@ -277,7 +285,7 @@ const FctScreen07 = ({route}) => {
       .then(data => {
         ToastAndroid.show('Added Successfully !', ToastAndroid.SHORT);
         fetchData();
-        fetchData2();
+        fetchPaperHeaderFaculty();
         fetchTopicTaught(facultyId);
         fetchSubTopicTaught(facultyId);
       })
@@ -304,7 +312,7 @@ const FctScreen07 = ({route}) => {
         console.log('Network response was not ok');
       }
       fetchData();
-      fetchData2();
+      fetchPaperHeaderFaculty();
       fetchTopicTaught(facultyId);
       fetchSubTopicTaught(facultyId);
       ToastAndroid.show('Deleted Successfully !', ToastAndroid.SHORT);
@@ -388,22 +396,41 @@ const FctScreen07 = ({route}) => {
               <FlatList
                 data={topics}
                 style={styles.flatlist}
+                showsVerticalScrollIndicator={false}
                 keyExtractor={(item, index) => index.toString()}
-                renderItem={({item, index}) => (
+                renderItem={({item}) => (
                   <View style={styles.initiallistItem}>
-                    <Text style={styles.topicText}>{item.t_name}</Text>
-                    <View style={styles.subtopicContainer}>
-                      {subtopics[item.t_id] &&
-                        subtopics[item.t_id].map(subtopic => (
-                          <TouchableOpacity
-                            key={subtopic.st_id}
-                            style={styles.subtopicButton}>
-                            <Text style={styles.subtopicText}>
-                              {subtopic.st_name}
-                            </Text>
-                          </TouchableOpacity>
-                        ))}
-                    </View>
+                    <TouchableOpacity
+                      onPress={() => {
+                        if (
+                          !subtopics[item.t_id] ||
+                          subtopics[item.t_id].length === 0
+                        ) {
+                          ToastAndroid.show(
+                            'No subtopics available!',
+                            ToastAndroid.SHORT,
+                          );
+                        } else {
+                          toggleSubtopics(item.t_id);
+                        }
+                      }}
+                      activeOpacity={0.5}>
+                      <Text style={styles.topicText}>{item.t_name}</Text>
+                    </TouchableOpacity>
+                    {expandedTopics[item.t_id] && (
+                      <View style={styles.subtopicContainer}>
+                        {subtopics[item.t_id] &&
+                          subtopics[item.t_id].map(subtopic => (
+                            <View
+                              key={subtopic.st_id}
+                              style={styles.subtopicButton}>
+                              <Text style={styles.subtopicText}>
+                                {subtopic.st_name}
+                              </Text>
+                            </View>
+                          ))}
+                      </View>
+                    )}
                   </View>
                 )}
               />
@@ -424,6 +451,7 @@ const FctScreen07 = ({route}) => {
               <FlatList
                 data={topics}
                 style={styles.flatlist}
+                showsVerticalScrollIndicator={false}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({item, index}) => (
                   <View style={styles.coveredlistItem}>
@@ -519,6 +547,7 @@ const FctScreen07 = ({route}) => {
               <FlatList
                 data={topics}
                 style={styles.flatlist}
+                showsVerticalScrollIndicator={false}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({item, index}) => (
                   <View style={styles.commonlistItem}>
@@ -621,6 +650,7 @@ const FctScreen07 = ({route}) => {
                 <FlatList
                   data={topics}
                   style={styles.progressflatlist}
+                  showsVerticalScrollIndicator={false}
                   keyExtractor={(item, index) => index.toString()}
                   renderItem={({item, index}) => (
                     <View style={styles.progresslistItem}>

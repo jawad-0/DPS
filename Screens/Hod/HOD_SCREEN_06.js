@@ -102,6 +102,7 @@ const HodScreen06 = ({route}) => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
+            activeOpacity={0.5}
             onPress={() =>
               navigation.navigate('HodScreen05', {
                 itemId: courseId,
@@ -130,15 +131,26 @@ const HodScreen06 = ({route}) => {
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item, index}) => (
               <View style={styles.listItemContainer}>
-                <TouchableOpacity
-                  style={styles.listItem}
-                  onPress={() => checkCLO(item)}>
-                  <Text style={styles.indexText}>CLO {index + 1}:</Text>
+                <View style={styles.listItem} onPress={() => checkCLO(item)}>
+                  <View style={{flexDirection: 'column'}}>
+                    <Text style={styles.indexText}>{item.clo_number}</Text>
+                    {item.status === 'pending' && (
+                      <Text style={styles.pendingText}>{item.status}</Text>
+                    )}
+                    {item.status === 'approved' && (
+                      <Text style={styles.approvedText}>{item.status}</Text>
+                    )}
+                    {item.status === 'disapproved' && (
+                      <Text style={styles.disapprovedText}>{item.status}</Text>
+                    )}
+                  </View>
                   <Text style={styles.cloText}>{item.clo_text}</Text>
-                </TouchableOpacity>
-                {(item.status === 'disapproved' && (
+                </View>
+                {((item.status === 'disapproved' ||
+                  item.status === 'pending') && (
                   <TouchableOpacity
                     style={styles.approveButton}
+                    activeOpacity={0.8}
                     onPress={() => handleStatus(item.clo_id, item.status)}>
                     <Text style={styles.approveButtonText}>Approve</Text>
                   </TouchableOpacity>
@@ -146,6 +158,7 @@ const HodScreen06 = ({route}) => {
                   (item.status === 'approved' && (
                     <TouchableOpacity
                       style={styles.disapproveButton}
+                      activeOpacity={0.8}
                       onPress={() => handleStatus(item.clo_id, item.status)}>
                       <Text style={styles.disapproveButtonText}>
                         Disapprove
@@ -291,8 +304,10 @@ const styles = StyleSheet.create({
   indexText: {
     fontSize: 20,
     color: 'blue',
-    marginLeft: 20,
+    marginLeft: 15,
     fontWeight: 'bold',
+    width: 80,
+    textAlign: 'center',
   },
   button: {
     backgroundColor: '#58FFAB',
@@ -358,6 +373,30 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     alignSelf: 'center',
+  },
+  approvedText: {
+    fontSize: 13,
+    color: 'green',
+    marginLeft: 15,
+    fontWeight: 'bold',
+    width: 80,
+    textAlign: 'center',
+  },
+  disapprovedText: {
+    fontSize: 13,
+    color: 'red',
+    marginLeft: 15,
+    fontWeight: 'bold',
+    width: 80,
+    textAlign: 'center',
+  },
+  pendingText: {
+    fontSize: 13,
+    color: 'blue',
+    marginLeft: 15,
+    fontWeight: 'bold',
+    width: 80,
+    textAlign: 'center',
   },
 });
 

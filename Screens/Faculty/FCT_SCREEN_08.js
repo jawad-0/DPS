@@ -385,7 +385,11 @@ const FctScreen08 = ({route}) => {
           <Text style={styles.headerText}>Paper Setting</Text>
         </View>
 
-        <View style={{backgroundColor: 'black'}}>
+        <View
+          style={{
+            backgroundColor: 'white',
+            borderRadius: 15,
+          }}>
           {!modalVisible && (
             <View style={{flexDirection: 'row'}}>
               <View style={styles.uniInfoStart}>
@@ -455,6 +459,8 @@ const FctScreen08 = ({route}) => {
                 width: '96%',
                 height: 200,
                 marginLeft: '2%',
+                borderTopLeftRadius: 15,
+                borderTopRightRadius: 15,
                 borderBottomLeftRadius: 15,
                 borderBottomRightRadius: 15,
                 borderRightWidth: 2,
@@ -751,6 +757,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: 'black',
+    borderTopLeftRadius: 15,
   },
   uniInfo: {
     // marginTop: 10,
@@ -777,6 +784,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: 'black',
+    borderTopRightRadius: 15,
   },
   uniInfoText: {
     fontSize: 13,

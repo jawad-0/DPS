@@ -87,6 +87,7 @@ const DtcScreen06 = () => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
+            activeOpacity={0.5}
             onPress={() => navigation.navigate('DtcScreen01')}>
             <Image
               source={require('../../assets/arrow.png')}
@@ -132,6 +133,7 @@ const DtcScreen06 = () => {
                 <View style={styles.column}>
                   <TouchableOpacity
                     style={styles.printButton}
+                    activeOpacity={0.5}
                     onPress={() => handleStatus(item.p_id)}>
                     <Text style={styles.label}>Print</Text>
                   </TouchableOpacity>

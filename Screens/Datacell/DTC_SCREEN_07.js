@@ -60,6 +60,7 @@ const DtcScreen07 = () => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
+            activeOpacity={0.5}
             onPress={() => navigation.navigate('DtcScreen01')}>
             <Image
               source={require('../../assets/arrow.png')}

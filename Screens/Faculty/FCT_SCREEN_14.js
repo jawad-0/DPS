@@ -125,9 +125,7 @@ const FctScreen14 = ({route}) => {
                           <Text style={styles.data_code}>{item.c_code}</Text>
                           <Text style={styles.data_title}>{item.c_title}</Text>
                         </View>
-                        <Text style={styles.data_feedback}>
-                          Q-No# {item.q_id}: {item.fb_text}
-                        </Text>
+                        <Text style={styles.data_feedback}>{item.fb_text}</Text>
                       </View>
                     </View>
                   ) : null

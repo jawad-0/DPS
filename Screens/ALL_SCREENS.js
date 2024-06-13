@@ -1,6 +1,6 @@
 APP.js             // Main File with Navigation / Screen Components
 CONFIG.js          // Configuration File with IP and Ports
-ROLE_SCRENN.js     // Role Screen with 4 Buttons
+ROLE_SCRENN.js     // Role Screen with 4 Main Role Buttons
 
 DTC_LOGIN.js       // Login Screen For Datacell
 DTC_SCREEN_01.js   // Datacell Dashboard with 4 Main Buttons
@@ -45,7 +45,7 @@ FCT_SCREEN_05.js   // Manage Topics (Add/Edit/Manage Mapping/Search/Edit_Status/
 FCT_SCREEN_06.js   // Manage Sub-Topics (Add/Edit/)
 FCT_SCREEN_07.js   // View Topics -> Covered/Common/Progress
 FCT_SCREEN_08.js   // Paper Settings (Paper Creation) ----------------------------------------------
-FCT_SCREEN_09.js   // Manage Paper Settings Header (Add/Edit)
+FCT_SCREEN_09.js   // Manage Paper Header (Add/Edit)
 FCT_SCREEN_10.js   // Paper CLO Grid (View)
 FCT_SCREEN_11.js   // Manage Paper Selection
 FCT_SCREEN_14.js   // Paper Notifications (View)

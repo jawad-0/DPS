@@ -28,7 +28,10 @@ const HodScreen01 = () => {
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerText}>Dashboard</Text>
-          <TouchableOpacity style={styles.backButton} onPress={handleLogout}>
+          <TouchableOpacity
+            style={styles.backButton}
+            activeOpacity={0.5}
+            onPress={handleLogout}>
             <Image
               source={require('../../assets/logout2.png')}
               style={styles.backIcon}
@@ -44,36 +47,43 @@ const HodScreen01 = () => {
           style={styles.buttonscontainer}>
           <TouchableOpacity
             style={styles.button}
+            activeOpacity={0.8}
             onPress={() => navigation.navigate('HodScreen02')}>
             <Text style={styles.buttonText}>Faculty{'\n'}Details</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
+            activeOpacity={0.8}
             onPress={() => navigation.navigate('HodScreen03')}>
             <Text style={styles.buttonText}>Course{'\n'}Details</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
+            activeOpacity={0.8}
             onPress={() => navigation.navigate('HodScreen08')}>
             <Text style={styles.buttonText}>Assign{'\n'}Courses</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
+            activeOpacity={0.8}
             onPress={() => navigation.navigate('HodScreen09')}>
             <Text style={styles.buttonText}>Assign{'\n'}Role</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
+            activeOpacity={0.8}
             onPress={() => navigation.navigate('HodScreen10')}>
             <Text style={styles.buttonText}>Manage{'\n'}CLOS Grid</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
+            activeOpacity={0.8}
             onPress={() => navigation.navigate('HodScreen11')}>
             <Text style={styles.buttonText}>Manage{'\n'}Difficulty</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
+            activeOpacity={0.8}
             onPress={() => navigation.navigate('HodScreen12')}>
             <Text style={styles.buttonText}>Manage{'\n'}Session</Text>
           </TouchableOpacity>

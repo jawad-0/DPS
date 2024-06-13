@@ -334,7 +334,11 @@ const FctScreen11 = ({route}) => {
           <Text style={styles.headerText}>Manage Paper</Text>
         </View>
 
-        <View style={{backgroundColor: 'black', borderRadius: 10}}>
+        <View
+          style={{
+            backgroundColor: 'white',
+            borderRadius: 15,
+          }}>
           {!modalVisible && (
             <View style={{flexDirection: 'row'}}>
               <View style={styles.uniInfoStart}>
@@ -499,7 +503,7 @@ const styles = StyleSheet.create({
   },
   flatlist: {
     // marginTop: 5,
-    maxHeight: 545,
+    maxHeight: 530,
   },
   data_text: {
     color: 'black',
@@ -577,6 +581,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: 'black',
+    borderTopLeftRadius: 15,
   },
   uniInfo: {
     // marginTop: 10,
@@ -603,6 +608,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: 'black',
+    borderTopRightRadius: 15,
   },
   uniInfoText: {
     fontSize: 13,

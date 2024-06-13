@@ -94,6 +94,7 @@ const HodScreen05 = ({route}) => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
+            activeOpacity={0.5}
             onPress={() => navigation.navigate('HodScreen03')}>
             <Image
               source={require('../../assets/arrow.png')}
@@ -145,11 +146,13 @@ const HodScreen05 = ({route}) => {
                 <View style={styles.modalbuttonscontainer}>
                   <TouchableOpacity
                     style={styles.modalcancelbutton}
+                    activeOpacity={0.5}
                     onPress={() => setShowModal(false)}>
                     <Text style={styles.editbuttonText}>No</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.modaldeletebutton}
+                    activeOpacity={0.5}
                     onPress={() => {
                       confirmDelete(itemToDelete);
                     }}>
@@ -174,6 +177,7 @@ const HodScreen05 = ({route}) => {
                   <View style={styles.buttonsContainer}>
                     <TouchableOpacity
                       style={styles.deleteButton}
+                      activeOpacity={0.5}
                       onPress={() =>
                         handleDelete(item.c_title, item.f_name, item.ac_id)
                       }>
@@ -192,6 +196,7 @@ const HodScreen05 = ({route}) => {
           <View style={styles.CLObuttonContainer}>
             <TouchableOpacity
               style={styles.CLOButton}
+              activeOpacity={0.8}
               onPress={() => handleCLO()}>
               <Text style={styles.CLOText}>Manage CLOS</Text>
             </TouchableOpacity>
@@ -353,7 +358,7 @@ const styles = StyleSheet.create({
     height: 40,
     width: 160,
     borderWidth: 2,
-    borderColor: 'white',
+    borderColor: 'black',
   },
   CLOText: {
     fontSize: 20,

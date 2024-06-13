@@ -172,6 +172,7 @@ const HodScreen12 = () => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
+            activeOpacity={0.5}
             onPress={() => navigation.navigate('HodScreen01')}>
             <Image
               source={require('../../assets/arrow.png')}
@@ -205,12 +206,14 @@ const HodScreen12 = () => {
             {mode === 'edit' && (
               <TouchableOpacity
                 style={styles.clearbutton}
+                activeOpacity={0.8}
                 onPress={handleClear}>
                 <Text style={styles.clearText}>CLEAR</Text>
               </TouchableOpacity>
             )}
             <TouchableOpacity
               style={styles.button}
+              activeOpacity={0.8}
               onPress={handleAddOrUpdateCLO}>
               <Text style={styles.buttonText}>
                 {mode === 'add' ? 'ADD' : 'UPDATE'}
@@ -249,12 +252,14 @@ const HodScreen12 = () => {
                     {item.flag === 'inactive' ? (
                       <TouchableOpacity
                         style={styles.disableButton}
+                        activeOpacity={0.8}
                         onPress={() => handleStatus(item.s_id, item.flag)}>
                         <Text style={styles.disablebuttonText}>Set Active</Text>
                       </TouchableOpacity>
                     ) : (
                       <TouchableOpacity
                         style={styles.enableButton}
+                        activeOpacity={0.8}
                         onPress={() => console.log(item.s_id, item.flag)}>
                         <Text style={styles.enablebuttonText}>Actived</Text>
                       </TouchableOpacity>

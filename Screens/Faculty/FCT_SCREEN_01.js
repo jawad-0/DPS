@@ -70,7 +70,10 @@ const FctScreen01 = ({route}) => {
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerText}>Faculty Dashboard</Text>
-          <TouchableOpacity style={styles.backButton} onPress={handleLogout}>
+          <TouchableOpacity
+            style={styles.backButton}
+            activeOpacity={0.5}
+            onPress={handleLogout}>
             <Image
               source={require('../../assets/logout2.png')}
               style={styles.backIcon}

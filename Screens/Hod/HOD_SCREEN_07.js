@@ -104,6 +104,7 @@ const HodScreen07 = ({route}) => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
+            activeOpacity={0.5}
             onPress={() =>
               navigation.navigate('HodScreen04', {
                 facultyId: facultyId,
@@ -161,7 +162,9 @@ const HodScreen07 = ({route}) => {
                 renderItem={({item}) => (
                   <View style={styles.listItem1}>
                     <View style={styles.checkbox}>
-                      <TouchableOpacity onPress={() => handleUnassign(item)}>
+                      <TouchableOpacity
+                        activeOpacity={0.5}
+                        onPress={() => handleUnassign(item)}>
                         <Image
                           source={require('../../assets/checkedbox.png')}
                           style={styles.checkedIcon}
@@ -196,7 +199,9 @@ const HodScreen07 = ({route}) => {
                 renderItem={({item}) => (
                   <View style={styles.listItem2}>
                     <View style={styles.checkbox}>
-                      <TouchableOpacity onPress={() => handleAssign(item)}>
+                      <TouchableOpacity
+                        activeOpacity={0.5}
+                        onPress={() => handleAssign(item)}>
                         <Image
                           source={require('../../assets/uncheckedbox.png')}
                           style={styles.uncheckedIcon}

@@ -12,7 +12,12 @@ import {
   Keyboard,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import { scale, verticalScale, moderateScale, moderateVerticalScale } from 'react-native-size-matters';
+import {
+  scale,
+  verticalScale,
+  moderateScale,
+  moderateVerticalScale,
+} from 'react-native-size-matters';
 // import SplashScreen from 'react-native-splash-screen';
 
 const DtcLogin = () => {
@@ -73,7 +78,10 @@ const DtcLogin = () => {
             />
           </View>
           <View style={styles.buttonscontainer}>
-            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <TouchableOpacity
+              style={styles.button}
+              activeOpacity={0.8}
+              onPress={handleLogin}>
               <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
           </View>

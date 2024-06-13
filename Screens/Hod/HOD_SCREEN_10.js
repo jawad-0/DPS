@@ -198,6 +198,7 @@ const HodScreen10 = () => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
+            activeOpacity={0.5}
             onPress={() => navigation.navigate('HodScreen01')}>
             <Image
               source={require('../../assets/arrow.png')}
@@ -253,6 +254,7 @@ const HodScreen10 = () => {
                     styles.listItem,
                     selectedItemIndex === index ? styles.selectedItem : null,
                   ]}
+                  activeOpacity={0.8}
                   onPress={() => fetchCLOWeightage(item.clo_id, index)}>
                   <Text style={styles.indexText}>{item.clo_number}</Text>
                 </TouchableOpacity>
@@ -405,6 +407,7 @@ const HodScreen10 = () => {
             <View style={{alignItems: 'flex-end'}}>
               <TouchableOpacity
                 style={styles.updateButton}
+                activeOpacity={0.8}
                 onPress={addGridViewWeightage}>
                 <Text style={styles.updateText}>Update</Text>
               </TouchableOpacity>

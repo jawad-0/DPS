@@ -286,34 +286,40 @@ const FctScreen09 = ({route}) => {
             onChangeText={text => setDuration(text)}
           />
 
-          <Text style={styles.label}>Term</Text>
-          <View style={{flexDirection: 'row', marginTop: 15, marginLeft: 40}}>
-            <View style={{flexDirection: 'row'}}>
-              <Text style={styles.label2}>Mid</Text>
-              <TouchableOpacity
-                style={[
-                  styles.circle,
-                  {
-                    backgroundColor: term === 'Mid' ? '#58FFAB' : 'transparent',
-                  },
-                ]}
-                onPress={handlePressMid}
-              />
-            </View>
-            <View style={{flexDirection: 'row'}}>
-              <Text style={styles.label2}>Final</Text>
-              <TouchableOpacity
-                style={[
-                  styles.circle,
-                  {
-                    backgroundColor:
-                      term === 'Final' ? '#58FFAB' : 'transparent',
-                  },
-                ]}
-                onPress={handlePressFinal}
-              />
-            </View>
-          </View>
+          {mode === 'add' && (
+            <>
+              <Text style={styles.label}>Term</Text>
+              <View
+                style={{flexDirection: 'row', marginTop: 15, marginLeft: 40}}>
+                <View style={{flexDirection: 'row'}}>
+                  <Text style={styles.label2}>Mid</Text>
+                  <TouchableOpacity
+                    style={[
+                      styles.circle,
+                      {
+                        backgroundColor:
+                          term === 'Mid' ? '#58FFAB' : 'transparent',
+                      },
+                    ]}
+                    onPress={handlePressMid}
+                  />
+                </View>
+                <View style={{flexDirection: 'row'}}>
+                  <Text style={styles.label2}>Final</Text>
+                  <TouchableOpacity
+                    style={[
+                      styles.circle,
+                      {
+                        backgroundColor:
+                          term === 'Final' ? '#58FFAB' : 'transparent',
+                      },
+                    ]}
+                    onPress={handlePressFinal}
+                  />
+                </View>
+              </View>
+            </>
+          )}
 
           <View
             style={{
@@ -727,7 +733,7 @@ const styles = StyleSheet.create({
   modalText: {
     fontSize: 18,
     marginBottom: 10,
-    color: 'black'
+    color: 'black',
   },
   closeButton: {
     marginTop: 20,

@@ -57,7 +57,7 @@ const FctScreen04 = ({route}) => {
   };
 
   const fetchData = () => {
-    const apiEndpoint = `http://${ip}:${clo_port}/getCLO/${courseId}`;
+    const apiEndpoint = `http://${ip}:${clo_port}/getApprovedCLO/${courseId}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {

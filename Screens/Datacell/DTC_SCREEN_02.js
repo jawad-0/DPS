@@ -179,6 +179,7 @@ const DtcScreen02 = () => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
+            activeOpacity={0.5}
             onPress={() => navigation.navigate('DtcScreen01')}>
             <Image
               source={require('../../assets/arrow.png')}
@@ -218,7 +219,10 @@ const DtcScreen02 = () => {
             secureTextEntry={true}
           />
 
-          <TouchableOpacity style={styles.button} onPress={handlePostData}>
+          <TouchableOpacity
+            style={styles.button}
+            activeOpacity={0.8}
+            onPress={handlePostData}>
             <Text style={styles.buttonText}>Add User</Text>
           </TouchableOpacity>
 
@@ -330,12 +334,14 @@ const DtcScreen02 = () => {
                     {item.status === 'disabled' ? (
                       <TouchableOpacity
                         style={styles.disableButton}
+                        activeOpacity={0.5}
                         onPress={() => handleStatus(item.f_id, item.status)}>
                         <Text style={styles.disablebuttonText}>D</Text>
                       </TouchableOpacity>
                     ) : (
                       <TouchableOpacity
                         style={styles.enableButton}
+                        activeOpacity={0.5}
                         onPress={() => handleStatus(item.f_id, item.status)}>
                         <Text style={styles.enablebuttonText}>E</Text>
                       </TouchableOpacity>

@@ -27,7 +27,10 @@ const DtcScreen01 = () => {
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerText}>Dashboard</Text>
-          <TouchableOpacity style={styles.backButton} onPress={handleLogout}>
+          <TouchableOpacity
+            style={styles.backButton}
+            activeOpacity={0.5}
+            onPress={handleLogout}>
             <Image
               source={require('../../assets/logout2.png')}
               style={styles.backIcon}
@@ -41,21 +44,25 @@ const DtcScreen01 = () => {
         <View style={styles.buttonscontainer}>
           <TouchableOpacity
             style={styles.button}
+            activeOpacity={0.8}
             onPress={() => navigation.navigate('DtcScreen02')}>
             <Text style={styles.buttonText}>Manage{'\n'}Faculty</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
+            activeOpacity={0.8}
             onPress={() => navigation.navigate('DtcScreen04')}>
             <Text style={styles.buttonText}>Manage{'\n'}Courses</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
+            activeOpacity={0.8}
             onPress={() => navigation.navigate('DtcScreen06')}>
             <Text style={styles.buttonText}>Approved{'\n'}Papers</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
+            activeOpacity={0.8}
             onPress={() => navigation.navigate('DtcScreen07')}>
             <Text style={styles.buttonText}>Printed{'\n'}Papers</Text>
           </TouchableOpacity>

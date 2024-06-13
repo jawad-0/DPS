@@ -144,6 +144,7 @@ const HodScreen08 = () => {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
+            activeOpacity={0.5}
             onPress={() => navigation.navigate('HodScreen01')}>
             <Image
               source={require('../../assets/arrow.png')}
@@ -196,7 +197,9 @@ const HodScreen08 = () => {
                 renderItem={({item}) => (
                   <View style={styles.listItem1}>
                     <View style={styles.checkbox}>
-                      <TouchableOpacity onPress={() => handleUnassign(item)}>
+                      <TouchableOpacity
+                        activeOpacity={0.5}
+                        onPress={() => handleUnassign(item)}>
                         <Image
                           source={require('../../assets/checkedbox.png')}
                           style={styles.checkedIcon}
@@ -231,7 +234,9 @@ const HodScreen08 = () => {
                 renderItem={({item}) => (
                   <View style={styles.listItem2}>
                     <View style={styles.checkbox}>
-                      <TouchableOpacity onPress={() => handleAssign(item)}>
+                      <TouchableOpacity
+                        activeOpacity={0.5}
+                        onPress={() => handleAssign(item)}>
                         <Image
                           source={require('../../assets/uncheckedbox.png')}
                           style={styles.uncheckedIcon}
@@ -421,11 +426,11 @@ const styles = StyleSheet.create({
   },
   flatlist1: {
     marginTop: 10,
-    maxHeight: 180
+    maxHeight: 180,
   },
   flatlist2: {
     marginTop: 10,
-    maxHeight: 360
+    maxHeight: 360,
   },
   checkbox: {
     width: 20,
