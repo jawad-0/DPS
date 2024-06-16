@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import {ip, port} from '../CONFIG';
 import {useNavigation} from '@react-navigation/native';
+import {SelectList} from 'react-native-dropdown-select-list';
 
 const HodScreen11 = () => {
   const navigation = useNavigation();
@@ -19,32 +20,56 @@ const HodScreen11 = () => {
   const [medium, setMedium] = useState('');
   const [hard, setHard] = useState('');
   const [isChanged, setIsChanged] = useState(false);
+  const [number, setNumber] = useState();
+  const [numberOfQuestions, setNumberOfQuestions] = useState([]);
 
   useEffect(() => {
-    fetchDifficulty();
+    fetchNumberOfQuestions();
   }, []);
 
-  const fetchDifficulty = () => {
-    const apiEndpoint = `http://${ip}:${port}/getdifficulty`;
+  const fetchNumberOfQuestions = () => {
+    const apiEndpoint = `http://${ip}:${port}/getNumberOfQuestions`;
     Keyboard.dismiss();
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
         console.log('Data fetched successfully:', data);
-        if (Array.isArray(data) && data.length >= 3) {
-          setEasy(data[0].number.toString());
-          setMedium(data[1].number.toString());
-          setHard(data[2].number.toString());
-        } else {
-          console.error('Unexpected data format:', data);
-        }
+        const transformedData = data.map(difficulty => ({
+          key: difficulty.number_of_questions,
+          value: difficulty.number_of_questions,
+        }));
+        setNumberOfQuestions(transformedData);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
       });
   };
 
-  const updateDifficulty = () => {
+  const fetchDifficulty = numberOfQuestions => {
+    const apiEndpoint = `http://${ip}:${port}/getdifficulty/${numberOfQuestions}`;
+    Keyboard.dismiss();
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        console.log('Data fetched successfully:', data);
+        setEasy(data[0].easy.toString());
+        setMedium(data[0].medium.toString());
+        setHard(data[0].hard.toString());
+        setNumber(data[0].number_of_questions);
+        // if (Array.isArray(data) && data.length >= 3) {
+        //   setEasy(data[0].number.toString());
+        //   setMedium(data[1].number.toString());
+        //   setHard(data[2].number.toString());
+        // } else {
+        //   console.error('Unexpected data format:', data);
+        // }
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  };
+
+  const updateDifficulty = number => {
     if (easy.trim() === '' || medium.trim() === '' || hard.trim() === '') {
       ToastAndroid.show('Error: Please fill all fields.', ToastAndroid.SHORT);
       return;
@@ -55,16 +80,34 @@ const HodScreen11 = () => {
       ToastAndroid.show('All fields must be integers.', ToastAndroid.SHORT);
       return;
     }
-    const apiEndpoint = `http://${ip}:${port}/savedifficulty`;
+    // Convert string inputs to integers
+    const easyValue = parseInt(easy, 10);
+    const mediumValue = parseInt(medium, 10);
+    const hardValue = parseInt(hard, 10);
+
+    // Check if the numbers are negetive
+    if (easyValue < 0 || mediumValue < 0 || hardValue < 0) {
+      ToastAndroid.show('All fields must be non-negative.', ToastAndroid.SHORT);
+      return;
+    }
+    // Check if the sum of easy, medium, and hard equals number
+    if (easyValue + mediumValue + hardValue !== number) {
+      ToastAndroid.show(
+        'The sum of easy, medium, and hard should be equal to the total number of questions.',
+        ToastAndroid.SHORT,
+      );
+      return;
+    }
+    const apiEndpoint = `http://${ip}:${port}/savedifficulty/${number}`;
     fetch(apiEndpoint, {
-      method: 'POST',
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        easy: easy,
-        medium: medium,
-        hard: hard,
+        easy: easyValue,
+        medium: mediumValue,
+        hard: hardValue,
       }),
     })
       .then(response => response.json())
@@ -72,7 +115,7 @@ const HodScreen11 = () => {
         console.log('Data posted successfully:', data);
         ToastAndroid.show('Updated Successfully !', ToastAndroid.SHORT);
         Keyboard.dismiss();
-        fetchDifficulty();
+        fetchDifficulty(number);
         setIsChanged(false); // Reset change flag after successful update
       })
       .catch(error => {
@@ -104,6 +147,22 @@ const HodScreen11 = () => {
           <Text style={styles.headerText}>Manage Difficulty</Text>
         </View>
         <View style={styles.form}>
+          <View style={styles.pickerContainer}>
+            <SelectList
+              data={numberOfQuestions}
+              setSelected={key => {
+                fetchDifficulty(key);
+              }}
+              search={false}
+              save="number_of_questions"
+              placeholder="Select Number Of Questions"
+              // searchPlaceholder="Search Number Of Questions"
+              boxStyles={{backgroundColor: 'gray'}}
+              inputStyles={{color: 'white'}}
+              dropdownStyles={{backgroundColor: 'black', borderColor: 'white'}}
+              dropdownTextStyles={{color: 'white'}}
+            />
+          </View>
           <Text style={styles.label}>EASY</Text>
           <View style={{flexDirection: 'row'}}>
             <Text style={styles.label2}>Number of Easy Questions</Text>
@@ -138,7 +197,7 @@ const HodScreen11 = () => {
             <TouchableOpacity
               style={styles.button}
               activeOpacity={0.8}
-              onPress={updateDifficulty}>
+              onPress={() => updateDifficulty(number)}>
               <Text style={styles.buttonText}>Save</Text>
             </TouchableOpacity>
           )}
@@ -242,6 +301,16 @@ const styles = StyleSheet.create({
   backIcon: {
     height: 20,
     width: 20,
+  },
+  pickerContainer: {
+    borderWidth: 2,
+    // borderColor: 'white',
+    backgroundColor: 'black',
+    borderRadius: 10,
+    justifyContent: 'center',
+    marginLeft: 50,
+    marginRight: 50,
+    marginBottom: 20,
   },
 });
 

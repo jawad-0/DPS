@@ -3,6 +3,7 @@ import {
   View,
   Text,
   Image,
+  Modal,
   FlatList,
   Keyboard,
   TextInput,
@@ -18,11 +19,23 @@ const DrtScreen02 = () => {
   const [pressedButton, setPressedButton] = useState('button1');
   const [uploadedpapers, setUploadedPapers] = useState([]);
   const [pendingpapers, setPendingPapers] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     fetchUploaded();
     fetchPending();
   }, []);
+
+  const handleItemPress = item => {
+    setSelectedItem(item);
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setSelectedItem(null);
+  };
 
   const handleButtonPress = button => {
     // Set the pressed button
@@ -175,7 +188,10 @@ const DrtScreen02 = () => {
                 showsVerticalScrollIndicator={false}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({item}) => (
-                  <View style={styles.listItem}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={styles.listItem}
+                    onPress={() => handleItemPress(item)}>
                     <View style={styles.column}>
                       <Text style={styles.data_name}>{item.c_title}</Text>
                     </View>
@@ -197,9 +213,38 @@ const DrtScreen02 = () => {
                         </TouchableOpacity>
                       </View>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 )}
               />
+              {selectedItem && (
+                <Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={modalVisible}
+                  onRequestClose={handleCloseModal}>
+                  <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                      <Text style={styles.modalText}>
+                        Session: {selectedItem.session}
+                      </Text>
+                      <Text style={styles.modalText}>
+                        Year: {selectedItem.year}
+                      </Text>
+                      <Text style={styles.modalText}>
+                        Term:{' '}
+                        <Text style={{fontWeight: 'bold', color: 'green'}}>
+                          {selectedItem.term}
+                        </Text>
+                      </Text>
+                      <TouchableOpacity
+                        style={styles.closeButton}
+                        onPress={handleCloseModal}>
+                        <Text style={styles.closeButtonText}>Close</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </Modal>
+              )}
             </>
           )}
           {pressedButton === 'button2' && (
@@ -210,7 +255,10 @@ const DrtScreen02 = () => {
                 showsVerticalScrollIndicator={false}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({item}) => (
-                  <View style={styles.listItem}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={styles.listItem}
+                    onPress={() => handleItemPress(item)}>
                     <View style={styles.column}>
                       <Text style={styles.data_name}>{item.c_title}</Text>
                     </View>
@@ -232,9 +280,38 @@ const DrtScreen02 = () => {
                         </TouchableOpacity>
                       </View> */}
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 )}
               />
+              {selectedItem && (
+                <Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={modalVisible}
+                  onRequestClose={handleCloseModal}>
+                  <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                      <Text style={styles.modalText}>
+                        Session: {selectedItem.session}
+                      </Text>
+                      <Text style={styles.modalText}>
+                        Year: {selectedItem.year}
+                      </Text>
+                      <Text style={styles.modalText}>
+                        Term:{' '}
+                        <Text style={{fontWeight: 'bold', color: 'green'}}>
+                          {selectedItem.term}
+                        </Text>
+                      </Text>
+                      <TouchableOpacity
+                        style={styles.closeButton}
+                        onPress={handleCloseModal}>
+                        <Text style={styles.closeButtonText}>Close</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </Modal>
+              )}
             </>
           )}
         </View>
@@ -420,6 +497,38 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: 'poppins',
     textAlign: 'center',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: 250,
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 10,
+    color: 'black',
+  },
+  closeButton: {
+    marginTop: 10,
+    height: 30,
+    width: 70,
+    backgroundColor: 'red',
+    borderRadius: 10,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    height: 30,
+    textAlign: 'center',
+    textAlignVertical: 'center',
   },
 });
 

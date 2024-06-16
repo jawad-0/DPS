@@ -36,6 +36,12 @@ const FctScreen11 = ({route}) => {
     facultyName,
     facultyRole,
   } = route.params;
+  const [easy, setEasy] = useState(0);
+  const [medium, setMedium] = useState(0);
+  const [hard, setHard] = useState(0);
+  const [easyCount, setEasyCount] = useState(0);
+  const [mediumCount, setMediumCount] = useState(0);
+  const [hardCount, setHardCount] = useState(0);
   const [modalVisible, setModalVisible] = useState(true);
   const [loading, setLoading] = useState(true);
   const [paperheader, setPaperHeader] = useState([]);
@@ -51,6 +57,8 @@ const FctScreen11 = ({route}) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [topicId, setSelectedTopic] = useState(null);
   const [checkedQuestions, setCheckedQuestions] = useState([]);
+  const [selectedCount, setSelectedCount] = useState(0);
+  const [questionsCount, setQuestionsCount] = useState(0);
 
   useEffect(() => {
     fetchPaper();
@@ -74,19 +82,127 @@ const FctScreen11 = ({route}) => {
     Keyboard.dismiss();
   };
 
-  const handleCheckBoxChange = q_id => {
+  //   const handleCheckBoxChange = q_id => {
+  //     setCheckedQuestions(prevChecked => {
+  //       const isChecked = !prevChecked.includes(q_id);
+  //       console.log(
+  //         `Question ID ${q_id} is ${isChecked ? 'selected' : 'deselected'}`,
+  //       );
+  //       return isChecked
+  //         ? [...prevChecked, q_id]
+  //         : prevChecked.filter(id => id !== q_id);
+  //     });
+  //   };
+
+  const handleCheckBoxChange = item => {
+    const q_id = item.q_id;
     setCheckedQuestions(prevChecked => {
       const isChecked = !prevChecked.includes(q_id);
       console.log(
         `Question ID ${q_id} is ${isChecked ? 'selected' : 'deselected'}`,
       );
-      return isChecked
+      const newCheckedQuestions = isChecked
         ? [...prevChecked, q_id]
         : prevChecked.filter(id => id !== q_id);
+      setSelectedCount(newCheckedQuestions.length);
+
+      // Get the question difficulty
+      if (item) {
+        if (isChecked) {
+          if (item.q_difficulty === 'Easy') setEasyCount(prev => prev + 1);
+          else if (item.q_difficulty === 'Medium')
+            setMediumCount(prev => prev + 1);
+          else if (item.q_difficulty === 'Hard') setHardCount(prev => prev + 1);
+        } else {
+          if (item.q_difficulty === 'Easy') setEasyCount(prev => prev - 1);
+          else if (item.q_difficulty === 'Medium')
+            setMediumCount(prev => prev - 1);
+          else if (item.q_difficulty === 'Hard') setHardCount(prev => prev - 1);
+        }
+      }
+
+      return newCheckedQuestions;
     });
   };
 
+  const fetchDifficulty = numberOfQuestions => {
+    const apiEndpoint = `http://${ip}:${port}/getdifficulty/${numberOfQuestions}`;
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        console.log('Data fetched successfully:', data);
+        setEasy(data[0].easy.toString());
+        setMedium(data[0].medium.toString());
+        setHard(data[0].hard.toString());
+        // setNumber(data[0].number_of_questions);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  };
+
+  const fetchQuestionsCount = paperId => {
+    const apiEndpoint = `http://${ip}:${port}/getNumberOfQuestions/${paperId}`;
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const numberOfQuestions = data[0].no_of_questions;
+          setQuestionsCount(numberOfQuestions);
+        }
+        // console.log('Data fetched successfully:', data);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  };
+
+  const checkCountBeforeSubmission = () => {
+    if (selectedCount === questionsCount) {
+      return true;
+    } else {
+      ToastAndroid.show(
+        "Selected Count Doesn't Match Number Of Questions",
+        ToastAndroid.SHORT,
+      );
+      return false;
+    }
+  };
+
+  const checkDifficultyBeforeSubmission = () => {
+    if (easyCount < easy) {
+      ToastAndroid.show(
+        'Easy Difficulty Count Does Not Match!',
+        ToastAndroid.SHORT,
+      );
+    }
+    if (mediumCount < medium) {
+      ToastAndroid.show(
+        'Medium Difficulty Count Does Not Match!',
+        ToastAndroid.SHORT,
+      );
+    }
+    if (hardCount < hard) {
+      ToastAndroid.show(
+        'Hard Difficulty Count Does Not Match!',
+        ToastAndroid.SHORT,
+      );
+    }
+
+    if (easyCount < easy || mediumCount < medium || hardCount < hard) {
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = () => {
+    if (!checkCountBeforeSubmission()) {
+      return;
+    }
+    if (!checkDifficultyBeforeSubmission()) {
+      return;
+    }
     const apiEndpoint = `http://${ip}:${port}/editquestionstatus`;
     const data = {
       paperId: paperId,
@@ -161,12 +277,15 @@ const FctScreen11 = ({route}) => {
       });
   };
 
-  const handleButtonClick = paperID => () => {
-    setPaperID(paperID);
-    fetchQuestions(paperID);
-    fetchPaperHeader(paperID);
-    fetchTopics(courseId);
-    fetchfacultyData(courseId);
+  const handleButtonClick = paper => () => {
+    console.log(paper);
+    setPaperID(paper.p_id);
+    fetchQuestions(paper.p_id);
+    fetchQuestionsCount(paper.p_id);
+    fetchDifficulty(paper.no_of_questions);
+    fetchPaperHeader(paper.p_id);
+    fetchTopics(paper.c_id);
+    fetchfacultyData(paper.c_id);
     setModalVisible(false);
   };
 
@@ -290,7 +409,7 @@ const FctScreen11 = ({route}) => {
                     key={index}
                     style={styles.modalbutton}
                     activeOpacity={0.8}
-                    onPress={handleButtonClick(paper.p_id)}>
+                    onPress={handleButtonClick(paper)}>
                     <Text style={styles.modalText}>{paper.term} Term</Text>
                   </TouchableOpacity>
                 ))}
@@ -403,6 +522,25 @@ const FctScreen11 = ({route}) => {
 
           {!modalVisible && (
             <View style={styles.paperInfo}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                }}>
+                <Text style={styles.counterText}>
+                  <Text style={{color: 'blue'}}>Questions : </Text> {selectedCount}{' '}
+                  |{' '}
+                </Text>
+                <Text style={styles.counterText}>
+                  <Text style={{color: 'green'}}>Easy : </Text> {easyCount} |{' '}
+                </Text>
+                <Text style={styles.counterText}>
+                  <Text style={{color: 'purple'}}>Medium : </Text> {mediumCount} |{' '}
+                </Text>
+                <Text style={styles.counterText}>
+                  <Text style={{color: 'red'}}>Hard : </Text> {hardCount}
+                </Text>
+              </View>
               <FlatList
                 data={questions}
                 style={styles.flatlist}
@@ -433,9 +571,7 @@ const FctScreen11 = ({route}) => {
                         <View style={styles.checkboxBorder}>
                           <CheckBox
                             value={checkedQuestions.includes(item.q_id)}
-                            onValueChange={() =>
-                              handleCheckBoxChange(item.q_id)
-                            }
+                            onValueChange={() => handleCheckBoxChange(item)}
                           />
                         </View>
                         <Text style={styles.checkboxLabel}>Select</Text>
@@ -503,7 +639,7 @@ const styles = StyleSheet.create({
   },
   flatlist: {
     // marginTop: 5,
-    maxHeight: 530,
+    maxHeight: 510,
   },
   data_text: {
     color: 'black',
@@ -1014,6 +1150,12 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 16,
     color: 'black',
+  },
+  counterText: {
+    color: 'black',
+    fontSize: 15,
+    fontWeight: 'bold',
+    textAlignVertical: 'center'
   },
 });
 

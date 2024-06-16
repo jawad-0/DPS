@@ -10,6 +10,7 @@ import {
   Keyboard,
   ImageBackground,
   TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {RadioButton} from 'react-native-paper';
@@ -112,6 +113,7 @@ const DrtScreen06 = ({route}) => {
       .then(({status, body}) => {
         if (status === 200) {
           console.log('Data posted successfully:', body);
+          fetchQuestions();
           ToastAndroid.show('Status updated successfully!', ToastAndroid.SHORT);
         } else {
           console.error('API returned an error:', body);
@@ -243,26 +245,34 @@ const DrtScreen06 = ({route}) => {
         </View>
 
         <View style={styles.courseInfo}>
-          <Text style={styles.courseInfoText}>
-            <Text style={{textDecorationLine: 'underline'}}>Course Title</Text>{' '}
-            : {coursetitle}
-          </Text>
-          <Text style={styles.courseInfoText}>
-            <Text style={{textDecorationLine: 'underline'}}>Date Of Exam</Text>{' '}
-            : {examdate}{' '}
-            <Text style={{textDecorationLine: 'underline'}}>Duration</Text> :{' '}
-            {duration}{' '}
-            <Text style={{textDecorationLine: 'underline'}}>Code</Text> :{' '}
-            {coursecode}{' '}
-            <Text style={{textDecorationLine: 'underline'}}>Degree</Text> :{' '}
-            {degree} {'\n'}
-            <Text style={{textDecorationLine: 'underline'}}>
-              Teachers
-            </Text> :{' '}
-            {paperheaderfaculty.length > 0
-              ? paperheaderfaculty.map(faculty => faculty.f_name).join(', ')
-              : ''}
-          </Text>
+          <ScrollView>
+            <Text style={styles.courseInfoText}>
+              <Text style={{textDecorationLine: 'underline'}}>
+                Course Title
+              </Text>{' '}
+              : {coursetitle}
+            </Text>
+            <Text style={styles.courseInfoText}>
+              <Text style={{textDecorationLine: 'underline'}}>
+                Date Of Exam
+              </Text>{' '}
+              : {examdate}{' '}
+              <Text style={{textDecorationLine: 'underline'}}>Duration</Text> :{' '}
+              {duration}{' '}
+              <Text style={{textDecorationLine: 'underline'}}>Code</Text> :{' '}
+              {coursecode}{' '}
+              <Text style={{textDecorationLine: 'underline'}}>Degree</Text> :{' '}
+              {degree} {'\n'}
+              <Text style={{textDecorationLine: 'underline'}}>
+                Teachers
+              </Text> :{' '}
+              <Text style={{maxWidth: 100}}>
+                {paperheaderfaculty.length > 0
+                  ? paperheaderfaculty.map(faculty => faculty.f_name).join(', ')
+                  : ''}
+              </Text>
+            </Text>
+          </ScrollView>
         </View>
 
         <View style={styles.paperInfo}>
@@ -465,6 +475,7 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     borderWidth: 1,
     padding: 5,
+    maxHeight: 80,
   },
   label: {
     color: 'white',

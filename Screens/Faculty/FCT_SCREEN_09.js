@@ -28,6 +28,7 @@ const FctScreen09 = ({route}) => {
   const [exam_date, setExamDate] = useState('');
   const [duration, setDuration] = useState('');
   const [term, setTerm] = useState('');
+  const [noofquestions, setNumberOfQuestions] = useState('');
   const [paperID, setPaperID] = useState('');
   const [papers, setPapers] = useState([]);
   const [mode, setMode] = useState('add');
@@ -59,6 +60,7 @@ const FctScreen09 = ({route}) => {
     setDegree('');
     setExamDate('');
     setDuration('');
+    setNumberOfQuestions('');
     setTerm('');
     Keyboard.dismiss();
   };
@@ -79,6 +81,7 @@ const FctScreen09 = ({route}) => {
     setDegree(item.degree);
     setExamDate(item.exam_date);
     setDuration(item.duration.toString());
+    setNumberOfQuestions(item.no_of_questions.toString());
     setTerm(item.term);
   };
 
@@ -123,6 +126,7 @@ const FctScreen09 = ({route}) => {
         exam_date: exam_date,
         duration: duration,
         term: term,
+        no_of_questions: noofquestions,
         c_id: courseId,
       }),
     })
@@ -152,7 +156,8 @@ const FctScreen09 = ({route}) => {
     if (
       degree.trim() === '' ||
       exam_date.trim() === '' ||
-      duration.trim() === ''
+      duration.trim() === '' ||
+      noofquestions.trim() === ''
     ) {
       ToastAndroid.show('Error: Please fill all fields.', ToastAndroid.SHORT);
       return;
@@ -169,6 +174,7 @@ const FctScreen09 = ({route}) => {
         degree: degree,
         exam_date: exam_date,
         duration: duration,
+        no_of_questions: noofquestions,
       }),
     })
       .then(response =>
@@ -240,7 +246,7 @@ const FctScreen09 = ({route}) => {
           <Text
             style={{
               alignSelf: 'center',
-              marginTop: 30,
+              marginTop: 10,
               fontWeight: 'bold',
               fontSize: 25,
               color: 'white',
@@ -267,15 +273,6 @@ const FctScreen09 = ({route}) => {
             onChangeText={text => setDegree(text)}
           />
 
-          <Text style={styles.label}>Date of Exam</Text>
-          <TextInput
-            style={styles.input}
-            value={exam_date}
-            placeholder="YYYY-MM-DD"
-            placeholderTextColor={'gray'}
-            onChangeText={text => setExamDate(text)}
-          />
-
           <Text style={styles.label}>Duration</Text>
           <TextInput
             style={styles.input}
@@ -286,11 +283,30 @@ const FctScreen09 = ({route}) => {
             onChangeText={text => setDuration(text)}
           />
 
+          <Text style={styles.label}>Number Of Questions</Text>
+          <TextInput
+            style={styles.input}
+            value={noofquestions}
+            placeholder="Enter Number Of Questions (numeric)"
+            placeholderTextColor={'gray'}
+            keyboardType="numeric"
+            onChangeText={text => setNumberOfQuestions(text)}
+          />
+
+          <Text style={styles.label}>Date of Exam</Text>
+          <TextInput
+            style={styles.input}
+            value={exam_date}
+            placeholder="YYYY-MM-DD"
+            placeholderTextColor={'gray'}
+            onChangeText={text => setExamDate(text)}
+          />
+
           {mode === 'add' && (
             <>
               <Text style={styles.label}>Term</Text>
               <View
-                style={{flexDirection: 'row', marginTop: 15, marginLeft: 40}}>
+                style={{flexDirection: 'row', marginTop: 5, marginLeft: 40}}>
                 <View style={{flexDirection: 'row'}}>
                   <Text style={styles.label2}>Mid</Text>
                   <TouchableOpacity
@@ -421,7 +437,7 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
-    marginTop: 20,
+    marginTop: 10,
     // backgroundColor: 'black',
   },
   header: {
@@ -545,7 +561,7 @@ const styles = StyleSheet.create({
     padding: 10,
     height: 40,
     width: 100,
-    marginTop: 20,
+    marginTop: 5,
     borderRadius: 15,
     alignItems: 'center',
     alignSelf: 'center',
@@ -564,7 +580,7 @@ const styles = StyleSheet.create({
     padding: 10,
     height: 40,
     width: 100,
-    marginTop: 20,
+    marginTop: 5,
     borderRadius: 15,
     alignItems: 'center',
     alignSelf: 'center',
@@ -618,7 +634,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flatlist: {
-    marginTop: 20,
+    marginTop: 10,
   },
   backgroundImage: {
     flex: 1,
