@@ -44,7 +44,7 @@ FCT_SCREEN_04.js   // View CLO
 FCT_SCREEN_05.js   // Manage Topics (Add/Edit/Manage Mapping/Search/Edit_Status/Add_SubTopic_Button)
 FCT_SCREEN_06.js   // Manage Sub-Topics (Add/Edit/)
 FCT_SCREEN_07.js   // View Topics -> Covered/Common/Progress
-FCT_SCREEN_08.js   // Paper Settings (Paper Creation) ----------------------------------------------
+FCT_SCREEN_08.js   // Paper Settings (Paper Creation)
 FCT_SCREEN_09.js   // Manage Paper Header (Add/Edit)
 FCT_SCREEN_10.js   // Paper CLO Grid (View)
 FCT_SCREEN_11.js   // Manage Paper Selection

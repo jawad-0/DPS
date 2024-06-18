@@ -103,35 +103,13 @@ const FctScreen02 = ({route}) => {
                   facultyRole: facultyRole,
                 })
               }>
-              <Text style={styles.buttonText}>PAPER SETTINGS</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.button}
-              activeOpacity={0.8}
-              onPress={() =>
-                navigation.navigate('FctScreen07', {
-                  courseId: courseId,
-                  courseName: courseName,
-                  courseCode: courseCode,
-                  facultyId: facultyId,
-                  facultyRole: facultyRole,
-                })
-              }>
-              <Text style={styles.buttonText}>VIEW TOPICS</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.button}
-              activeOpacity={0.8}
-              onPress={() =>
-                navigation.navigate('FctScreen04', {
-                  courseId: courseId,
-                  courseName: courseName,
-                  courseCode: courseCode,
-                  facultyId: facultyId,
-                  facultyRole: facultyRole,
-                })
-              }>
-              <Text style={styles.buttonText}>VIEW CLOS</Text>
+              <View style={styles.buttonContent}>
+                <Image
+                  source={require('../../assets/paper_settings.png')}
+                  style={{width: 25, height: 25, marginRight: 5}}
+                />
+                <Text style={styles.buttonText}>PAPER SETTINGS</Text>
+              </View>
             </TouchableOpacity>
             {facultyRole === 'senior' && (
               <>
@@ -150,12 +128,56 @@ const FctScreen02 = ({route}) => {
                   }>
                   <View style={styles.buttonContent}>
                     <Image
-                      source={require('../../assets/setting.png')}
-                      style={styles.buttonImage}
+                      source={require('../../assets/paper.png')}
+                      style={{width: 35, height: 35}}
                     />
                     <Text style={styles.buttonText}>MANAGE PAPER</Text>
                   </View>
                 </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.button}
+                  activeOpacity={0.8}
+                  onPress={() =>
+                    navigation.navigate('FctScreen09', {
+                      courseId: courseId,
+                      courseName: courseName,
+                      courseCode: courseCode,
+                      facultyId: facultyId,
+                      facultyRole: facultyRole,
+                    })
+                  }>
+                  <View style={styles.buttonContent}>
+                    <Image
+                      source={require('../../assets/setting.png')}
+                      style={styles.buttonImage}
+                    />
+                    <Text style={styles.buttonText}>MANAGE HEADER</Text>
+                  </View>
+                </TouchableOpacity>
+              </>
+            )}
+            <TouchableOpacity
+              style={styles.button}
+              activeOpacity={0.8}
+              onPress={() =>
+                navigation.navigate('FctScreen07', {
+                  courseId: courseId,
+                  courseName: courseName,
+                  courseCode: courseCode,
+                  facultyId: facultyId,
+                  facultyRole: facultyRole,
+                })
+              }>
+              <View style={styles.buttonContent}>
+                <Image
+                  source={require('../../assets/view.png')}
+                  style={styles.buttonImage}
+                />
+                <Text style={styles.buttonText}>VIEW TOPICS</Text>
+              </View>
+            </TouchableOpacity>
+            {facultyRole === 'senior' && (
+              <>
                 <TouchableOpacity
                   style={styles.button}
                   activeOpacity={0.8}
@@ -176,6 +198,30 @@ const FctScreen02 = ({route}) => {
                     <Text style={styles.buttonText}>MANAGE TOPICS</Text>
                   </View>
                 </TouchableOpacity>
+              </>
+            )}
+            <TouchableOpacity
+              style={styles.button}
+              activeOpacity={0.8}
+              onPress={() =>
+                navigation.navigate('FctScreen04', {
+                  courseId: courseId,
+                  courseName: courseName,
+                  courseCode: courseCode,
+                  facultyId: facultyId,
+                  facultyRole: facultyRole,
+                })
+              }>
+              <View style={styles.buttonContent}>
+                <Image
+                  source={require('../../assets/view.png')}
+                  style={styles.buttonImage}
+                />
+                <Text style={styles.buttonText}>VIEW CLOS</Text>
+              </View>
+            </TouchableOpacity>
+            {facultyRole === 'senior' && (
+              <>
                 <TouchableOpacity
                   style={styles.button}
                   activeOpacity={0.8}
@@ -200,7 +246,7 @@ const FctScreen02 = ({route}) => {
                   style={styles.button}
                   activeOpacity={0.8}
                   onPress={() =>
-                    navigation.navigate('FctScreen09', {
+                    navigation.navigate('FctScreen10', {
                       courseId: courseId,
                       courseName: courseName,
                       courseCode: courseCode,
@@ -210,25 +256,11 @@ const FctScreen02 = ({route}) => {
                   }>
                   <View style={styles.buttonContent}>
                     <Image
-                      source={require('../../assets/setting.png')}
+                      source={require('../../assets/view.png')}
                       style={styles.buttonImage}
                     />
-                    <Text style={styles.buttonText}>MANAGE HEADER</Text>
+                    <Text style={styles.buttonText}>VIEW CLOS GRID</Text>
                   </View>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.button}
-                  activeOpacity={0.8}
-                  onPress={() =>
-                    navigation.navigate('FctScreen10', {
-                      courseId: courseId,
-                      courseName: courseName,
-                      courseCode: courseCode,
-                      facultyId: facultyId,
-                      facultyRole: facultyRole,
-                    })
-                  }>
-                  <Text style={styles.buttonText}>GRID VIEW</Text>
                 </TouchableOpacity>
               </>
             )}
@@ -383,7 +415,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   button: {
-    backgroundColor: '#58FFAB',
+    backgroundColor: '#E6E6FA',
     padding: 10,
     height: 60,
     width: 300,

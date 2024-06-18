@@ -155,10 +155,10 @@ const FctScreen08 = ({route}) => {
       });
   };
 
-  const handleButtonClick = paperID => () => {
-    setPaperID(paperID);
-    fetchQuestions(paperID);
-    fetchPaperHeader(paperID);
+  const handleButtonClick = paperId => () => {
+    setPaperID(paperId);
+    fetchQuestions(paperId);
+    fetchPaperHeader(paperId);
     fetchTopics(courseId);
     fetchfacultyData(courseId);
     setModalVisible(false);

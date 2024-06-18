@@ -528,17 +528,19 @@ const FctScreen11 = ({route}) => {
                   justifyContent: 'center',
                 }}>
                 <Text style={styles.counterText}>
-                  <Text style={{color: 'blue'}}>Questions : </Text> {selectedCount}{' '}
-                  |{' '}
+                  <Text style={{color: 'blue'}}>Questions: </Text>{' '}
+                  {selectedCount}/{questionsCount} |{' '}
                 </Text>
                 <Text style={styles.counterText}>
-                  <Text style={{color: 'green'}}>Easy : </Text> {easyCount} |{' '}
+                  <Text style={{color: 'green'}}>Easy: </Text>{easyCount}/
+                  {easy} |{' '}
                 </Text>
                 <Text style={styles.counterText}>
-                  <Text style={{color: 'purple'}}>Medium : </Text> {mediumCount} |{' '}
+                  <Text style={{color: 'purple'}}>Medium: </Text>{mediumCount}/
+                  {medium} |{' '}
                 </Text>
                 <Text style={styles.counterText}>
-                  <Text style={{color: 'red'}}>Hard : </Text> {hardCount}
+                  <Text style={{color: 'red'}}>Hard: </Text>{hardCount}/{hard}
                 </Text>
               </View>
               <FlatList
@@ -1155,7 +1157,7 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 15,
     fontWeight: 'bold',
-    textAlignVertical: 'center'
+    textAlignVertical: 'center',
   },
 });
 
