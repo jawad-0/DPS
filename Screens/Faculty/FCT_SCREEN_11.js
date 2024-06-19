@@ -17,14 +17,7 @@ import {
 } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 import {useNavigation} from '@react-navigation/native';
-import SelectDropdown from 'react-native-select-dropdown';
-import * as ImagePicker from 'react-native-image-picker';
-import {launchImageLibrary} from 'react-native-image-picker';
-import {Picker} from '@react-native-picker/picker';
-import {RadioButton} from 'react-native-paper';
 import {ip, port} from '../CONFIG';
-import {SelectList} from 'react-native-dropdown-select-list';
-// import SplashScreen from 'react-native-splash-screen';
 
 const FctScreen11 = ({route}) => {
   const navigation = useNavigation();
@@ -36,6 +29,7 @@ const FctScreen11 = ({route}) => {
     facultyName,
     facultyRole,
   } = route.params;
+  const [term, setTerm] = useState('');
   const [easy, setEasy] = useState(0);
   const [medium, setMedium] = useState(0);
   const [hard, setHard] = useState(0);
@@ -51,7 +45,7 @@ const FctScreen11 = ({route}) => {
   const [papers, setPapers] = useState('');
   const [questiontext, setQuestionText] = useState('');
   const [difficulty, setDifficulty] = useState('');
-  const [marks, setMarks] = useState('');
+  const [marks, setMarks] = useState(0);
   const [paperId, setPaperID] = useState('');
   const [mode, setMode] = useState('add');
   const [selectedImage, setSelectedImage] = useState(null);
@@ -59,6 +53,12 @@ const FctScreen11 = ({route}) => {
   const [checkedQuestions, setCheckedQuestions] = useState([]);
   const [selectedCount, setSelectedCount] = useState(0);
   const [questionsCount, setQuestionsCount] = useState(0);
+  const [validMidCLOS, setValidMidCLOS] = useState([]);
+  const [validFinalCLOS, setValidFinalCLOS] = useState([]);
+  const [invalidMidCLOS, setInvalidMidCLOS] = useState([]);
+  const [invalidFinalCLOS, setInvalidFinalCLOS] = useState([]);
+  const [questionValidMidCLOS, setQuestionValidMidCLOS] = useState([]);
+  const [questionValidFinalCLOS, setQuestionValidFinalCLOS] = useState([]);
 
   useEffect(() => {
     fetchPaper();
@@ -94,8 +94,14 @@ const FctScreen11 = ({route}) => {
   //     });
   //   };
 
-  const handleCheckBoxChange = item => {
+  const handleCheckBoxChange = async item => {
     const q_id = item.q_id;
+    // Await the result of validateQuestionCLOS
+    const isValid = await validateQuestionCLOS(q_id, term);
+    if (!isValid) {
+      ToastAndroid.show('CLOS not matching!', ToastAndroid.SHORT);
+      return;
+    }
     setCheckedQuestions(prevChecked => {
       const isChecked = !prevChecked.includes(q_id);
       console.log(
@@ -113,16 +119,179 @@ const FctScreen11 = ({route}) => {
           else if (item.q_difficulty === 'Medium')
             setMediumCount(prev => prev + 1);
           else if (item.q_difficulty === 'Hard') setHardCount(prev => prev + 1);
+          // Add q_marks
+          const newQuestionMarks = marks + Number(item.q_marks);
+          setMarks(newQuestionMarks);
         } else {
           if (item.q_difficulty === 'Easy') setEasyCount(prev => prev - 1);
           else if (item.q_difficulty === 'Medium')
             setMediumCount(prev => prev - 1);
           else if (item.q_difficulty === 'Hard') setHardCount(prev => prev - 1);
+          // Subtract q_marks
+          const newQuestionMarks = marks - Number(item.q_marks);
+          setMarks(newQuestionMarks);
         }
       }
-
       return newCheckedQuestions;
     });
+  };
+
+  const validateQuestionCLOS = async (q_id, term) => {
+    let isValid = false;
+    let questionValidCLOS = [];
+    try {
+      if (term === 'Mid') {
+        // console.log('> Mid Paper');
+        questionValidCLOS = await fetchQuestionValidMidCLOS(q_id);
+        // console.log('> Mid Question CLO Check');
+        console.log(`Question ID ${q_id} is selected`);
+        // console.log('Fetched Mid Question CLOs:', questionValidCLOS);
+        console.log('Valid Mid CLOS:', validMidCLOS);
+        isValid = matchCLOSValidity(questionValidCLOS, validMidCLOS);
+        // console.log(`Validation Result: ${isValid}`);
+      } else if (term === 'Final') {
+        // console.log('> Final Paper');
+        questionValidCLOS = await fetchQuestionValidFinalCLOS(q_id);
+        // console.log('> Mid Question CLO Check');
+        console.log(`Question ID ${q_id} is selected`);
+        // console.log('Fetched Final Question CLOs:', questionValidCLOS);
+        console.log('Valid Final CLOS:', validFinalCLOS);
+        isValid = matchCLOSValidity(questionValidCLOS, validFinalCLOS);
+        // console.log(`Validation Result: ${isValid}`);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+
+    return isValid;
+  };
+
+  const matchCLOSValidity = (questionValidCLOS, validCLOS, courseId) => {
+    console.log('Checking CLO Validity...');
+    console.log('Question Valid CLOS:', questionValidCLOS);
+    console.log('Paper Valid CLOS:', validCLOS);
+
+    // Create a Set of valid CLO numbers for faster lookup
+    const validCLONumbers = new Set(validCLOS.map(clo => clo.clo_number));
+    console.log('Valid CLO Numbers:', validCLONumbers);
+
+    // Collect invalid CLO numbers
+    const invalidCLONumbers = [];
+
+    // Check if every CLO number in questionValidCLOS is also in validCLONumbers
+    for (const clo of questionValidCLOS) {
+      //   if (!validCLONumbers.has(clo.clo_number) || clo.c_id !== courseId) {
+      if (!validCLONumbers.has(clo.clo_number)) {
+        invalidCLONumbers.push(clo.clo_number);
+      }
+    }
+
+    if (invalidCLONumbers.length > 0) {
+      const errorMessage = `Invalid CLO Numbers: ${invalidCLONumbers.join(
+        ', ',
+      )}`;
+      console.log(errorMessage);
+      ToastAndroid.show(errorMessage, ToastAndroid.SHORT);
+      console.log('Validation Result: false');
+      return false;
+    }
+
+    console.log('All CLOs are valid.');
+    return true;
+  };
+
+  const fetchbyTerm = paper => {
+    if (paper.term === 'Mid') {
+      console.log('> Mid Paper');
+      fetchValidMidCLOS(paper.c_id);
+      fetchInvalidMidCLOS(paper.c_id);
+    } else if (paper.term === 'Final') {
+      console.log('> Final Paper');
+      fetchValidFinalCLOS(paper.c_id);
+      fetchInvalidFinalCLOS(paper.c_id);
+    }
+  };
+
+  const fetchValidMidCLOS = courseId => {
+    const apiEndpoint = `http://${ip}:${port}/getValidMidCLOS/${courseId}`;
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        console.log('Data fetched successfully:', data);
+        setValidMidCLOS(data);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  };
+
+  const fetchValidFinalCLOS = courseId => {
+    const apiEndpoint = `http://${ip}:${port}/getValidFinalCLOS/${courseId}`;
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        console.log('Data fetched successfully:', data);
+        setValidFinalCLOS(data);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  };
+
+  const fetchInvalidMidCLOS = courseId => {
+    const apiEndpoint = `http://${ip}:${port}/getInvalidMidCLOS/${courseId}`;
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        // console.log('Data fetched successfully:', data);
+        setInvalidMidCLOS(data);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  };
+
+  const fetchInvalidFinalCLOS = courseId => {
+    const apiEndpoint = `http://${ip}:${port}/getInvalidFinalCLOS/${courseId}`;
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        // console.log('Data fetched successfully:', data);
+        setInvalidFinalCLOS(data);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  };
+
+  const fetchQuestionValidMidCLOS = async questionId => {
+    console.log('Fetching Mid CLOs...');
+    const apiEndpoint = `http://${ip}:${port}/getQuestionValidMidCLOS/${questionId}`;
+    try {
+      const response = await fetch(apiEndpoint);
+      const data = await response.json();
+      console.log('Mid CLOs Data Fetched:', data);
+      setQuestionValidMidCLOS(data);
+      return data; // Return the fetched data directly
+    } catch (error) {
+      console.error('Error fetching mid CLOs:', error);
+      return []; // Return an empty array in case of error
+    }
+  };
+
+  const fetchQuestionValidFinalCLOS = async questionId => {
+    console.log('Fetching Final CLOs...');
+    const apiEndpoint = `http://${ip}:${port}/getQuestionValidFinalCLOS/${questionId}`;
+    try {
+      const response = await fetch(apiEndpoint);
+      const data = await response.json();
+      console.log('Final CLOs Data Fetched:', data);
+      setQuestionValidFinalCLOS(data);
+      return data; // Return the fetched data directly
+    } catch (error) {
+      console.error('Error fetching final CLOs:', error);
+      return []; // Return an empty array in case of error
+    }
   };
 
   const fetchDifficulty = numberOfQuestions => {
@@ -130,7 +299,7 @@ const FctScreen11 = ({route}) => {
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
-        console.log('Data fetched successfully:', data);
+        // console.log('Data fetched successfully:', data);
         setEasy(data[0].easy.toString());
         setMedium(data[0].medium.toString());
         setHard(data[0].hard.toString());
@@ -203,33 +372,87 @@ const FctScreen11 = ({route}) => {
     if (!checkDifficultyBeforeSubmission()) {
       return;
     }
-    const apiEndpoint = `http://${ip}:${port}/editquestionstatus`;
-    const data = {
+
+    // Endpoint for editquestionstatus
+    const questionStatusEndpoint = `http://${ip}:${port}/editquestionstatus`;
+    const questionStatusData = {
       paperId: paperId,
       q_ids: checkedQuestions,
     };
-    fetch(apiEndpoint, {
+
+    // Endpoint for editpendingpaperstatus
+    const pendingPaperStatusEndpoint = `http://${ip}:${port}/editpendingpaperstatus/${paperId}`;
+
+    // Fetch for editquestionstatus
+    fetch(questionStatusEndpoint, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(questionStatusData),
     })
-      .then(response =>
-        response.json().then(data => ({status: response.status, body: data})),
-      )
-      .then(({status, body}) => {
-        if (status === 200) {
-          console.log('Data posted successfully:', body);
-          ToastAndroid.show('Added Successfully!', ToastAndroid.SHORT);
+      .then(questionStatusResponse => {
+        if (questionStatusResponse.ok) {
+          // If editquestionstatus is successful, just call the editpendingpaperstatus endpoint
+          fetch(pendingPaperStatusEndpoint, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+            .then(pendingPaperStatusResponse => {
+              if (pendingPaperStatusResponse.ok) {
+                ToastAndroid.show('Added Successfully!', ToastAndroid.SHORT);
+              } else {
+                ToastAndroid.show('Failed to add paper.', ToastAndroid.LONG);
+              }
+            })
+            .catch(error => {
+              ToastAndroid.show('Failed to add paper.', ToastAndroid.LONG);
+            });
         } else {
-          ToastAndroid.show(`${body.error}`, ToastAndroid.LONG);
+          ToastAndroid.show('Failed to add paper.', ToastAndroid.LONG);
         }
       })
       .catch(error => {
         ToastAndroid.show('Failed to add paper.', ToastAndroid.LONG);
       });
   };
+
+  //   const handleSubmit = () => {
+  //     if (!checkCountBeforeSubmission()) {
+  //       return;
+  //     }
+  //     if (!checkDifficultyBeforeSubmission()) {
+  //       return;
+  //     }
+  //     const apiEndpoint = `http://${ip}:${port}/editquestionstatus`;
+  //     const data = {
+  //       paperId: paperId,
+  //       q_ids: checkedQuestions,
+  //     };
+  //     fetch(apiEndpoint, {
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(data),
+  //     })
+  //       .then(response =>
+  //         response.json().then(data => ({status: response.status, body: data})),
+  //       )
+  //       .then(({status, body}) => {
+  //         if (status === 200) {
+  //           console.log('Data posted successfully:', body);
+  //           ToastAndroid.show('Added Successfully!', ToastAndroid.SHORT);
+  //         } else {
+  //           ToastAndroid.show(`${body.error}`, ToastAndroid.LONG);
+  //         }
+  //       })
+  //       .catch(error => {
+  //         ToastAndroid.show('Failed to add paper.', ToastAndroid.LONG);
+  //       });
+  //   };
 
   const difficultyOptions = ['Easy', 'Medium', 'Hard'];
 
@@ -279,6 +502,8 @@ const FctScreen11 = ({route}) => {
 
   const handleButtonClick = paper => () => {
     console.log(paper);
+    fetchbyTerm(paper);
+    setTerm(paper.term);
     setPaperID(paper.p_id);
     fetchQuestions(paper.p_id);
     fetchQuestionsCount(paper.p_id);
@@ -317,66 +542,6 @@ const FctScreen11 = ({route}) => {
       })
       .catch(error => {
         console.error('Error fetching data:', error);
-      });
-  };
-
-  const addQuestion = () => {
-    setMode('add');
-    if (
-      questiontext.trim() === '' ||
-      marks.trim() === '' ||
-      !difficulty ||
-      !topicId
-    ) {
-      ToastAndroid.show('Error: Please fill all fields.', ToastAndroid.SHORT);
-      return;
-    }
-
-    const apiEndpoint = `http://${ip}:${port}/addQuestion`;
-
-    const formData = new FormData();
-    formData.append('q_text', questiontext);
-    formData.append('q_marks', marks);
-    formData.append('q_difficulty', difficulty);
-    formData.append('f_name', facultyName);
-    formData.append('t_id', topicId);
-    formData.append('p_id', paperId);
-    formData.append('f_id', facultyId);
-
-    if (selectedImage) {
-      const filename = selectedImage.split('/').pop();
-      const match = /\.(\w+)$/.exec(filename);
-      const type = match ? `image/${match[1]}` : `image`;
-      formData.append('q_image', {
-        uri: selectedImage,
-        name: filename,
-        type: type,
-      });
-    }
-
-    fetch(apiEndpoint, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-      .then(response =>
-        response.json().then(data => ({status: response.status, body: data})),
-      )
-      .then(({status, body}) => {
-        if (status === 200) {
-          console.log('Data posted successfully:', body);
-          ToastAndroid.show('Added Successfully!', ToastAndroid.SHORT);
-          fetchPaper();
-          fetchQuestions(paperId);
-          handleClear();
-        } else {
-          ToastAndroid.show(`${body.error}`, ToastAndroid.LONG);
-        }
-      })
-      .catch(error => {
-        ToastAndroid.show('Failed to add paper.', ToastAndroid.LONG);
       });
   };
 
@@ -532,16 +697,49 @@ const FctScreen11 = ({route}) => {
                   {selectedCount}/{questionsCount} |{' '}
                 </Text>
                 <Text style={styles.counterText}>
-                  <Text style={{color: 'green'}}>Easy: </Text>{easyCount}/
-                  {easy} |{' '}
+                  <Text style={{color: 'green'}}>Easy: </Text>
+                  {easyCount}/{easy} |{' '}
                 </Text>
                 <Text style={styles.counterText}>
-                  <Text style={{color: 'purple'}}>Medium: </Text>{mediumCount}/
-                  {medium} |{' '}
+                  <Text style={{color: 'purple'}}>Medium: </Text>
+                  {mediumCount}/{medium} |{' '}
                 </Text>
                 <Text style={styles.counterText}>
-                  <Text style={{color: 'red'}}>Hard: </Text>{hardCount}/{hard}
+                  <Text style={{color: 'red'}}>Hard: </Text>
+                  {hardCount}/{hard}
                 </Text>
+              </View>
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    width: '80%',
+                  }}>
+                  <Text style={styles.validCLOSText}>
+                    <Text style={{color: 'blue'}}>Valid CLOS: </Text>
+                  </Text>
+                  {validMidCLOS.map((clo, index) => (
+                    <Text key={index} style={styles.validCLOSText}>
+                      {clo.clo_number}{' '}
+                    </Text>
+                  ))}
+                  {validFinalCLOS.map((clo, index) => (
+                    <Text key={index} style={styles.validCLOSText}>
+                      {clo.clo_number}{' '}
+                    </Text>
+                  ))}
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    width: '20%',
+                  }}>
+                  <Text style={styles.validCLOSText}>
+                    <Text style={{color: 'blue'}}>Marks: {marks}</Text>
+                  </Text>
+                </View>
               </View>
               <FlatList
                 data={questions}
@@ -569,14 +767,28 @@ const FctScreen11 = ({route}) => {
                       <Text style={styles.data_difficulty}>
                         [ {item.f_name} ]
                       </Text>
-                      <View style={styles.checkboxContainer}>
-                        <View style={styles.checkboxBorder}>
-                          <CheckBox
-                            value={checkedQuestions.includes(item.q_id)}
-                            onValueChange={() => handleCheckBoxChange(item)}
-                          />
+                      <View style={{flexDirection: 'row'}}>
+                        <View style={styles.checkboxContainer1}>
+                          <View style={styles.checkboxBorder1}>
+                            <CheckBox
+                              value={
+                                item.q_status === 'uploaded' ||
+                                checkedQuestions.includes(item.q_id)
+                              }
+                              onValueChange={() => handleCheckBoxChange(item)}
+                            />
+                          </View>
+                          <Text style={styles.checkboxLabel1}>Select</Text>
                         </View>
-                        <Text style={styles.checkboxLabel}>Select</Text>
+                        {/* <View style={styles.checkboxContainer2}>
+                          <View style={styles.checkboxBorder2}>
+                            <CheckBox
+                              value={checkedQuestions.includes(item.q_id)}
+                              onValueChange={() => handleCheckBoxChange(item)}
+                            />
+                          </View>
+                          <Text style={styles.checkboxLabel2}>Additional</Text>
+                        </View> */}
                       </View>
                     </View>
                   </View>
@@ -641,7 +853,7 @@ const styles = StyleSheet.create({
   },
   flatlist: {
     // marginTop: 5,
-    maxHeight: 510,
+    maxHeight: 490,
   },
   data_text: {
     color: 'black',
@@ -1139,21 +1351,42 @@ const styles = StyleSheet.create({
     // borderColor: 'black',
     resizeMode: 'contain',
   },
-  checkboxContainer: {
+  checkboxContainer1: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 10,
   },
-  checkboxBorder: {
+  checkboxBorder1: {
     borderRadius: 4,
     backgroundColor: '#E6E6FA',
   },
-  checkboxLabel: {
+  checkboxLabel1: {
+    marginLeft: 8,
+    fontSize: 16,
+    color: 'black',
+  },
+  checkboxContainer2: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    marginLeft: 15,
+  },
+  checkboxBorder2: {
+    borderRadius: 4,
+    backgroundColor: '#E6E6FA',
+  },
+  checkboxLabel2: {
     marginLeft: 8,
     fontSize: 16,
     color: 'black',
   },
   counterText: {
+    color: 'black',
+    fontSize: 15,
+    fontWeight: 'bold',
+    textAlignVertical: 'center',
+  },
+  validCLOSText: {
     color: 'black',
     fontSize: 15,
     fontWeight: 'bold',

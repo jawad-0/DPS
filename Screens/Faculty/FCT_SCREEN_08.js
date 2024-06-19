@@ -14,6 +14,7 @@ import {
   TouchableOpacity,
   Platform,
   BackHandler,
+  Button,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import SelectDropdown from 'react-native-select-dropdown';
@@ -22,7 +23,12 @@ import {launchImageLibrary} from 'react-native-image-picker';
 import {Picker} from '@react-native-picker/picker';
 import {RadioButton} from 'react-native-paper';
 import {ip, port} from '../CONFIG';
-import {SelectList} from 'react-native-dropdown-select-list';
+import MultiSelect from 'react-native-multiple-select';
+import {
+  SelectList,
+  MultipleSelectList,
+} from 'react-native-dropdown-select-list';
+
 // import SplashScreen from 'react-native-splash-screen';
 
 const FctScreen08 = ({route}) => {
@@ -36,11 +42,14 @@ const FctScreen08 = ({route}) => {
     facultyRole,
   } = route.params;
   const [modalVisible, setModalVisible] = useState(true);
+  const [topicmodalVisible, setTopicModalVisible] = useState(false);
+  const [questionmodalVisible, setQuestionModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [paperheader, setPaperHeader] = useState([]);
   const [paperheaderfaculty, setPaperHeaderFaculty] = useState([]);
   const [questions, setQuestion] = useState([]);
   const [topics, setTopics] = useState([]);
+  const [questiontopics, setQuestionTopics] = useState([]);
   const [papers, setPapers] = useState('');
   const [questiontext, setQuestionText] = useState('');
   const [difficulty, setDifficulty] = useState('');
@@ -49,16 +58,41 @@ const FctScreen08 = ({route}) => {
   const [mode, setMode] = useState('add');
   const [selectedImage, setSelectedImage] = useState(null);
   const [topicId, setSelectedTopic] = useState(null);
+  const [selectedTopics, setSelectedTopics] = useState([]);
+  const [selectedItems, setSelectedItems] = useState([]);
+
+  //   const onSelectedItemsChange = selectedItems => {
+  //     console.log(selectedItems);
+  //     setSelectedTopics(selectedItems);
+  //   };
+
+  //   const onSelectedItemsChange = (selectedItems) => {
+  //     console.log(selectedItems);
+  //     // if (selectedTopics.includes(item)) {
+  //     //     setSelectedTopics(selectedTopics.filter(id => id !== item));
+  //     // } else {
+  //     //     setSelectedTopics([...selectedTopics, item]);
+  //     // }
+  //     // console.log(selectedTopics);
+  //   };
 
   useEffect(() => {
     fetchPaper();
     console.log(`${facultyName} -> Creating Questions`);
+    setSelectedItems(selectedTopics);
     // const backHandler = BackHandler.addEventListener(
     //   'hardwareBackPress',
     //   handleBackButtonPress,
     // );
     // return () => backHandler.remove();
   }, []);
+
+  const onSelectedItemsChange = selectedItems => {
+    // console.log("Selected items (onSelectedItemsChange): ", selectedItems);
+    setSelectedTopics(selectedItems);
+    setSelectedItems(selectedItems);
+    console.log('Updated selected topics state: ', selectedTopics);
+  };
 
   //  const handleBackButtonPress = () => {
   //    if (modalVisible) {
@@ -124,13 +158,32 @@ const FctScreen08 = ({route}) => {
       });
   };
 
-  const fetchTopics = () => {
+  const fetchQuestionTopics = questionId => {
+    const apiEndpoint = `http://${ip}:${port}/getQuestiontopics/${questionId}`;
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        console.log('Data fetched successfully:', data);
+        setQuestionTopics(data);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  };
+
+  const fetchTopics = courseId => {
     const apiEndpoint = `http://${ip}:${port}/gettopic/${courseId}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
         // console.log('Data fetched successfully:', data);
-        setTopics(data);
+        const transformedData = data.map(topic => ({
+          key: topic.t_id,
+          value: topic.t_name,
+        }));
+        setTopics(transformedData);
+        console.log('Data fetched successfully:', transformedData);
+        // setTopics(data);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
@@ -208,7 +261,7 @@ const FctScreen08 = ({route}) => {
       questiontext.trim() === '' ||
       marks.trim() === '' ||
       !difficulty ||
-      !topicId
+      selectedTopics.length === 0
     ) {
       ToastAndroid.show('Error: Please fill all fields.', ToastAndroid.SHORT);
       return;
@@ -221,9 +274,12 @@ const FctScreen08 = ({route}) => {
     formData.append('q_marks', marks);
     formData.append('q_difficulty', difficulty);
     formData.append('f_name', facultyName);
-    formData.append('t_id', topicId);
     formData.append('p_id', paperId);
     formData.append('f_id', facultyId);
+    // Append each topic ID separately
+    selectedTopics.forEach(topicId => {
+      formData.append('t_ids[]', topicId);
+    });
 
     if (selectedImage) {
       const filename = selectedImage.split('/').pop();
@@ -272,9 +328,7 @@ const FctScreen08 = ({route}) => {
   //       ToastAndroid.show('Error: Please fill all fields.', ToastAndroid.SHORT);
   //       return;
   //     }
-
   //     const apiEndpoint = `http://${ip}:${port}/addQuestion`;
-
   //     fetch(apiEndpoint, {
   //       method: 'POST',
   //       headers: {
@@ -361,6 +415,87 @@ const FctScreen08 = ({route}) => {
                 )}
               </>
             )}
+          </View>
+        </Modal>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={topicmodalVisible}>
+          <View style={styles.topicmodalView}>
+            {loading ? (
+              <ActivityIndicator size="large" color="#0000ff" />
+            ) : (
+              <>
+                <MultipleSelectList
+                  setSelected={onSelectedItemsChange}
+                  data={topics}
+                  save="key"
+                  label="Selected Topics"
+                  placeholder="Select Topics"
+                  selectedItems={selectedItems}
+                  boxStyles={{backgroundColor: 'white', width: '100%'}}
+                  inputStyles={{color: 'black'}}
+                  dropdownStyles={{
+                    backgroundColor: 'white',
+                    borderColor: 'black',
+                  }}
+                  dropdownTextStyles={{color: 'black'}}
+                  labelStyles={{color: 'black'}}
+                />
+              </>
+            )}
+            <TouchableOpacity
+              style={styles.closeButton}
+              activeOpacity={0.8}
+              onPress={() => {
+                console.log(selectedTopics);
+                setTopicModalVisible(false);
+              }}>
+              <Text style={styles.closeText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={questionmodalVisible}>
+          <View style={styles.questionmodalView}>
+            {loading ? (
+              <ActivityIndicator size="large" color="#0000ff" />
+            ) : (
+              <>
+                {questiontopics.length > 0 ? (
+                  questiontopics.map((topic, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={styles.questionmodalbutton}
+                      activeOpacity={0.8}>
+                      <Text style={styles.questionmodalText}>
+                        {topic.t_name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <TouchableOpacity
+                    style={styles.questionmodalbutton}
+                    activeOpacity={0.8}>
+                    <Text style={styles.questionmodalText}>
+                      No topics mapped!
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </>
+            )}
+            <TouchableOpacity
+              style={styles.closeButton}
+              activeOpacity={0.8}
+              onPress={() => {
+                setQuestionModalVisible(false);
+              }}>
+              <Text style={styles.closeText}>Close</Text>
+            </TouchableOpacity>
           </View>
         </Modal>
 
@@ -522,7 +657,20 @@ const FctScreen08 = ({route}) => {
                     style={[styles.Text, {marginRight: 10, marginLeft: 25}]}>
                     Topic
                   </Text>
-                  <SelectDropdown
+                  <TouchableOpacity
+                    onPress={() => setTopicModalVisible(true)}
+                    style={{
+                      backgroundColor: '#E6E6FA',
+                      borderRadius: 8,
+                      width: '35%',
+                      height: 27,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      alignSelf: 'center',
+                    }}>
+                    <Text style={{color: 'black', fontSize: 18}}>Select</Text>
+                  </TouchableOpacity>
+                  {/* <SelectDropdown
                     data={topics}
                     onSelect={(selectedItem, index) => {
                       console.log(selectedItem.t_id, index);
@@ -548,7 +696,7 @@ const FctScreen08 = ({route}) => {
                         />
                       </View>
                     )}
-                  />
+                  /> */}
                 </View>
                 <View
                   style={{
@@ -587,7 +735,13 @@ const FctScreen08 = ({route}) => {
                 showsVerticalScrollIndicator={false}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({item, index}) => (
-                  <View style={styles.listItem}>
+                  <TouchableOpacity
+                    style={styles.listItem}
+                    activeOpacity={0.5}
+                    onPress={() => {
+                      setQuestionModalVisible(true),
+                        fetchQuestionTopics(item.q_id);
+                    }}>
                     <View style={styles.column}>
                       <Text style={styles.data_text}>
                         Question # {index + 1} :
@@ -608,7 +762,7 @@ const FctScreen08 = ({route}) => {
                         [ {item.f_name} ]
                       </Text>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 )}
               />
             </View>
@@ -667,6 +821,55 @@ const styles = StyleSheet.create({
   modalText: {
     color: 'black',
     fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  topicmodalView: {
+    margin: 20,
+    marginTop: '69%',
+    backgroundColor: '#E6E6FA',
+    borderColor: 'black',
+    borderWidth: 2,
+    borderRadius: 20,
+    width: '90%',
+    // height: 550,
+    height: 'auto',
+    padding: 10,
+    alignItems: 'center',
+    alignSelf: 'center',
+    // borderColor: 'white',
+    // borderWidth: 2,
+    // shadowColor: '#000',
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 2,
+    // },
+    // shadowOpacity: 0.25,
+    // shadowRadius: 4,
+    // elevation: 5,
+  },
+  questionmodalView: {
+    marginTop: '69%',
+    backgroundColor: '#E6E6FA',
+    borderRadius: 20,
+    width: '90%',
+    padding: 5,
+    alignItems: 'center',
+    alignSelf: 'center',
+    // borderColor: 'white',
+    // borderWidth: 2,
+    // shadowColor: '#000',
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 2,
+    // },
+    // shadowOpacity: 0.25,
+    // shadowRadius: 4,
+    // elevation: 5,
+  },
+  questionmodalText: {
+    color: 'black',
+    fontSize: 17,
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -865,6 +1068,18 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     marginBottom: 20,
+    marginTop: 20,
+  },
+  questionmodalbutton: {
+    backgroundColor: 'white',
+    height: 40,
+    width: '100%',
+    borderWidth: 1,
+    borderRadius: 7,
+    borderColor: 'black',
+    alignItems: 'center',
+    alignSelf: 'center',
+    justifyContent: 'center',
     marginTop: 20,
   },
   emptymodalbutton: {
@@ -1164,6 +1379,13 @@ const styles = StyleSheet.create({
     // borderWidth: 2,
     // borderColor: 'yellow',
   },
+  row3: {
+    flexDirection: 'row',
+    height: 40,
+    marginTop: 5,
+    // borderWidth: 2,
+    // borderColor: 'yellow',
+  },
   image: {
     width: 250,
     height: 150,
@@ -1173,6 +1395,20 @@ const styles = StyleSheet.create({
     // alignSelf: 'center',
     // borderColor: 'black',
     resizeMode: 'contain',
+  },
+  closeButton: {
+    backgroundColor: 'red',
+    borderRadius: 5,
+    padding: 3,
+    width: 70,
+    marginTop: 15,
+    marginBottom: 5,
+  },
+  closeText: {
+    color: 'white',
+    fontSize: 17,
+    fontWeight: 'bold',
+    alignSelf: 'center',
   },
 });
 
