@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {ip, course_port} from '../CONFIG';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 
 const DrtScreen02 = () => {
   const navigation = useNavigation();
@@ -26,6 +26,13 @@ const DrtScreen02 = () => {
     fetchUploaded();
     fetchPending();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchUploaded();
+      fetchPending();
+    }, []),
+  );
 
   const handleItemPress = item => {
     setSelectedItem(item);

@@ -51,6 +51,7 @@ const FctScreen08 = ({route}) => {
   const [topics, setTopics] = useState([]);
   const [questiontopics, setQuestionTopics] = useState([]);
   const [papers, setPapers] = useState('');
+  const [questionId, setQuestionId] = useState('');
   const [questiontext, setQuestionText] = useState('');
   const [difficulty, setDifficulty] = useState('');
   const [marks, setMarks] = useState('');
@@ -107,7 +108,7 @@ const FctScreen08 = ({route}) => {
     if (mode === 'add') {
       addQuestion();
     } else if (mode === 'edit') {
-      updateQuestion(questionID);
+      updateQuestion(questionId);
     }
   };
 
@@ -144,6 +145,58 @@ const FctScreen08 = ({route}) => {
   };
 
   const difficultyOptions = ['Easy', 'Medium', 'Hard'];
+
+  const handleCantEdit = () => {
+    handleClear();
+    ToastAndroid.show(`Can't Edit Others Question.`, ToastAndroid.SHORT);
+  };
+
+  const handleEdit = item => {
+    setMode('edit');
+    const questionId = item.q_id;
+    const getTopicsEndpoint = `http://${ip}:${port}/getQuestionTopics/${questionId}`;
+    fetch(getTopicsEndpoint)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch question topics: ${response.status}`,
+          );
+        }
+        return response.json();
+      })
+      .then(data => {
+        const topics = data.map(topic => topic.t_id);
+        setSelectedTopics(topics);
+        const getQuestionEndpoint = `http://${ip}:${port}/getsinglequestion/${questionId}`;
+        fetch(getQuestionEndpoint)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(
+                `Failed to fetch question details: ${response.status}`,
+              );
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (data.length > 0) {
+              const question = data[0];
+              console.log(question);
+              setQuestionId(question.q_id);
+              setQuestionText(question.q_text);
+              setMarks(question.q_marks.toString());
+              setDifficulty(question.q_difficulty);
+            } else {
+              console.error('No question data found');
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching question details:', error);
+          });
+      })
+      .catch(error => {
+        console.error('Error fetching question topics:', error);
+      });
+  };
 
   const fetchQuestions = paperID => {
     const apiEndpoint = `http://${ip}:${port}/getQuestion/${paperID}`;
@@ -318,6 +371,60 @@ const FctScreen08 = ({route}) => {
       });
   };
 
+  const updateQuestion = questionId => {
+    if (questiontext.trim() === '' || marks.trim() === '' || !difficulty) {
+      ToastAndroid.show('Error: Please fill all fields.', ToastAndroid.SHORT);
+      return;
+    }
+
+    const apiEndpoint = `http://${ip}:${port}/editQuestion/${questionId}`;
+
+    const formData = new FormData();
+    formData.append('q_text', questiontext);
+    formData.append('q_marks', marks);
+    formData.append('q_difficulty', difficulty);
+    // Append each topic ID separately
+    selectedTopics.forEach(topicId => {
+      formData.append('t_ids[]', topicId);
+    });
+
+    if (selectedImage) {
+      const filename = selectedImage.split('/').pop();
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : `image`;
+      formData.append('q_image', {
+        uri: selectedImage,
+        name: filename,
+        type: type,
+      });
+    }
+
+    fetch(apiEndpoint, {
+      method: 'PUT',
+      body: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+      .then(response =>
+        response.json().then(data => ({status: response.status, body: data})),
+      )
+      .then(({status, body}) => {
+        if (status === 200) {
+          console.log('Question updated successfully:', body);
+          ToastAndroid.show('Updated Successfully!', ToastAndroid.SHORT);
+          fetchPaper();
+          fetchQuestions(paperId);
+          handleClear();
+        } else {
+          ToastAndroid.show(`${body.error}`, ToastAndroid.LONG);
+        }
+      })
+      .catch(error => {
+        ToastAndroid.show('Failed to update question.', ToastAndroid.LONG);
+      });
+  };
+
   //   const addQuestion = () => {
   //     setMode('add');
   //     if (
@@ -433,7 +540,6 @@ const FctScreen08 = ({route}) => {
                   save="key"
                   label="Selected Topics"
                   placeholder="Select Topics"
-                  selectedItems={selectedItems}
                   boxStyles={{backgroundColor: 'white', width: '100%'}}
                   inputStyles={{color: 'black'}}
                   dropdownStyles={{
@@ -444,6 +550,22 @@ const FctScreen08 = ({route}) => {
                   labelStyles={{color: 'black'}}
                 />
               </>
+            )}
+            {questiontopics.length > 0 ? (
+              questiontopics.map((topic, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.questionmodalbutton}
+                  activeOpacity={0.8}>
+                  <Text style={styles.questionmodalText}>{topic.t_name}</Text>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <TouchableOpacity
+                style={styles.questionmodalbutton}
+                activeOpacity={0.8}>
+                <Text style={styles.questionmodalText}>No topics mapped!</Text>
+              </TouchableOpacity>
             )}
             <TouchableOpacity
               style={styles.closeButton}
@@ -619,7 +741,7 @@ const FctScreen08 = ({route}) => {
                     setDifficulty(selectedItem);
                     console.log(selectedItem, index);
                   }}
-                  defaultButtonText="Select"
+                  defaultButtonText={difficulty || 'Select'}
                   buttonTextAfterSelection={(selectedItem, index) => {
                     return selectedItem;
                   }}
@@ -647,6 +769,7 @@ const FctScreen08 = ({route}) => {
                   style={styles.marksInput}
                   value={marks}
                   keyboardType="numeric"
+                  // placeholder='--'
                   placeholderTextColor={'gray'}
                   onChangeText={text => setMarks(text)}
                 />
@@ -720,7 +843,9 @@ const FctScreen08 = ({route}) => {
                     style={styles.addButton}
                     activeOpacity={0.8}
                     onPress={handleAddOrUpdateQuestion}>
-                    <Text style={styles.addText}>ADD</Text>
+                    <Text style={styles.addText}>
+                      {mode === 'add' ? 'ADD' : 'UPDATE'}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -761,6 +886,29 @@ const FctScreen08 = ({route}) => {
                       <Text style={styles.data_difficulty}>
                         [ {item.f_name} ]
                       </Text>
+                    </View>
+                    <View style={styles.buttonsContainer}>
+                      {facultyId === item.f_id ? (
+                        <TouchableOpacity
+                          style={styles.editButton}
+                          onPress={() => handleEdit(item)}>
+                          <Image
+                            source={require('../../assets/edit_icon.png')}
+                            style={styles.editIcon}
+                            resizeMode="contain"
+                          />
+                        </TouchableOpacity>
+                      ) : (
+                        <TouchableOpacity
+                          style={styles.editButton}
+                          onPress={handleCantEdit}>
+                          <Image
+                            source={require('../../assets/red_edit_icon.png')}
+                            style={styles.editIcon}
+                            resizeMode="contain"
+                          />
+                        </TouchableOpacity>
+                      )}
                     </View>
                   </TouchableOpacity>
                 )}
@@ -1258,8 +1406,8 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     borderRadius: 10,
     justifyContent: 'center',
-    width: '50%',
-    marginLeft: '30%',
+    width: '70%',
+    marginLeft: '20%',
     marginRight: '10%',
   },
   addText: {
@@ -1409,6 +1557,26 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: 'bold',
     alignSelf: 'center',
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    maxWidth: '100%',
+    marginLeft: 5,
+    marginTop: 40,
+    // borderWidth: 1,
+    // borderColor: 'black',
+    justifyContent: 'center',
+  },
+  editButton: {
+    // backgroundColor: 'blue',
+    padding: 2,
+    height: 25,
+    width: 25,
+    borderRadius: 13,
+  },
+  editIcon: {
+    height: 18,
+    width: 18,
   },
 });
 

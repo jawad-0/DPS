@@ -10,6 +10,7 @@ DTC_SCREEN_04.js   // Courses (Add/Edit_Status/Search)
 DTC_SCREEN_05.js   // Courses (Edit)
 DTC_SCREEN_06.js   // Approved Papers
 DTC_SCREEN_07.js   // Printed Papers
+DTC_SCREEN_08.js   // Papers History
 
 DRT_LOGIN.js       // Login Screen For DRT
 DRT_SCREEN_01.js   // Director Dashboard with 2 Main Buttons
@@ -18,8 +19,8 @@ DRT_SCREEN_03.js   // Approved Papers / Printed Papers
 DRT_SCREEN_04.js   // Paper Information (Details/Comment_Button/View_Button)
 DRT_SCREEN_05.js   // Comments on Paper (Sending)
 DRT_SCREEN_06.js   // Paper Accpet/Reject/Comment Questions ----------------------------- (working)
-DRT_SCREEN_07.js   // Additional Questions --------------------------------------------------------
-DRT_SCREEN_08.js   // View Course Topics ----------------------------------------------------------
+DRT_SCREEN_07.js   // Additional Questions
+DRT_SCREEN_08.js   // View Course Topics
 
 HOD_LOGIN.js       // Login Screen For HOD
 HOD_SCREEN_01.js   // HOD Dashboard with 7 Main Buttons

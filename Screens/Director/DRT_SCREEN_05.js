@@ -25,6 +25,10 @@ const DrtScreen05 = ({route}) => {
   }, []);
 
   const handleComment = () => {
+    if (comments.trim() === '') {
+      ToastAndroid.show('Error: Please type the Comment.', ToastAndroid.SHORT);
+      return;
+    }
     const apiEndpoint = `http://${ip}:${feedback_port}/addfeedback`;
     fetch(apiEndpoint, {
       method: 'POST',
@@ -119,7 +123,7 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderWidth: 1,
     padding: 5,
-    alignItems: 'center'
+    alignItems: 'center',
   },
   label: {
     color: 'white',
@@ -144,7 +148,7 @@ const styles = StyleSheet.create({
   courseText: {
     color: 'black',
     fontSize: 20,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   headerText: {
     height: 70,

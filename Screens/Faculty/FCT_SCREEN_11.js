@@ -373,8 +373,8 @@ const FctScreen11 = ({route}) => {
       return;
     }
 
-    // Endpoint for editquestionstatus
-    const questionStatusEndpoint = `http://${ip}:${port}/editquestionstatus`;
+    // Endpoint for editpendingquestionstatus
+    const questionStatusEndpoint = `http://${ip}:${port}/editpendingquestionstatus`;
     const questionStatusData = {
       paperId: paperId,
       q_ids: checkedQuestions,
@@ -383,7 +383,7 @@ const FctScreen11 = ({route}) => {
     // Endpoint for editpendingpaperstatus
     const pendingPaperStatusEndpoint = `http://${ip}:${port}/editpendingpaperstatus/${paperId}`;
 
-    // Fetch for editquestionstatus
+    // Fetch for editpendingquestionstatus
     fetch(questionStatusEndpoint, {
       method: 'PUT',
       headers: {
@@ -393,7 +393,7 @@ const FctScreen11 = ({route}) => {
     })
       .then(questionStatusResponse => {
         if (questionStatusResponse.ok) {
-          // If editquestionstatus is successful, just call the editpendingpaperstatus endpoint
+          // If editpendingquestionstatus is successful, just call the editpendingpaperstatus endpoint
           fetch(pendingPaperStatusEndpoint, {
             method: 'PUT',
             headers: {
@@ -426,7 +426,7 @@ const FctScreen11 = ({route}) => {
   //     if (!checkDifficultyBeforeSubmission()) {
   //       return;
   //     }
-  //     const apiEndpoint = `http://${ip}:${port}/editquestionstatus`;
+  //     const apiEndpoint = `http://${ip}:${port}/editpendingquestionstatus`;
   //     const data = {
   //       paperId: paperId,
   //       q_ids: checkedQuestions,
@@ -453,8 +453,6 @@ const FctScreen11 = ({route}) => {
   //         ToastAndroid.show('Failed to add paper.', ToastAndroid.LONG);
   //       });
   //   };
-
-  const difficultyOptions = ['Easy', 'Medium', 'Hard'];
 
   const fetchQuestions = paperID => {
     const apiEndpoint = `http://${ip}:${port}/getQuestion/${paperID}`;
@@ -763,6 +761,9 @@ const FctScreen11 = ({route}) => {
                       )}
                       <Text style={styles.data_difficulty}>
                         [ {item.q_difficulty}, Marks: {item.q_marks} ]
+                      </Text>
+                      <Text style={styles.data_difficulty}>
+                        [ {item.mapped_clos} ]
                       </Text>
                       <Text style={styles.data_difficulty}>
                         [ {item.f_name} ]

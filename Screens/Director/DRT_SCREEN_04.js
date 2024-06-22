@@ -139,37 +139,47 @@ const DrtScreen04 = ({route}) => {
           </Text> */}
         <View style={styles.paperInfo}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Text style={styles.label}>Teachers: </Text>
+            <Text style={styles.mainlabel}>Teachers: </Text>
             <Text style={styles.data_faculty}>
               {paperheaderfaculty.length > 0
-                ? paperheaderfaculty.map(faculty => faculty.f_name).join(', ')
+                ? paperheaderfaculty.map(faculty => faculty.f_name).join('\n')
                 : ''}
             </Text>
           </View>
           {/* <Text style={styles.label}>
             Course Title: <Text style={styles.data}>{coursetitle}</Text>
           </Text> */}
-          <Text style={styles.label}>
+          {/* <Text style={styles.label}>
             Course Code: <Text style={styles.data}>{coursecode}</Text>
-          </Text>
-          <Text style={styles.label}>
-            Date of Exam: <Text style={styles.data}>{examdate}</Text>
-          </Text>
-          <Text style={styles.label}>
-            Duration: <Text style={styles.data}>{duration}</Text>
-          </Text>
-          <Text style={styles.label}>
-            Degree: <Text style={styles.data}>{degree}</Text>
-          </Text>
-          <Text style={styles.label}>
-            Session: <Text style={styles.data}>{session}</Text>
-          </Text>
-          <Text style={styles.label}>
-            Term: <Text style={styles.data}>{term}</Text>
-          </Text>
-          <Text style={styles.label}>
-            Year: <Text style={styles.data}>{year}</Text>
-          </Text>
+          </Text> */}
+          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.mainlabel}>Course Code:</Text>
+            <Text style={styles.label}>{coursecode}</Text>
+          </View>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.mainlabel}>Date of Exam:</Text>
+            <Text style={styles.label}>{examdate}</Text>
+          </View>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.mainlabel}>Duration:</Text>
+            <Text style={styles.label}>{duration}</Text>
+          </View>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.mainlabel}>Degree:</Text>
+            <Text style={styles.label}>{degree}</Text>
+          </View>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.mainlabel}>Session:</Text>
+            <Text style={styles.label}>{session}</Text>
+          </View>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.mainlabel}>Term:</Text>
+            <Text style={styles.label}>{term}</Text>
+          </View>
+          <View style={{flexDirection: 'row'}}>
+            <Text style={styles.mainlabel}>Year:</Text>
+            <Text style={styles.label}>{year}</Text>
+          </View>
         </View>
         <View>
           <TouchableOpacity style={styles.viewButton} onPress={handleView}>
@@ -209,8 +219,16 @@ const styles = StyleSheet.create({
     padding: 5,
     alignItems: 'center',
   },
-  label: {
+  mainlabel: {
     color: 'black',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 5,
+    marginLeft: 10,
+    width: 130,
+  },
+  label: {
+    color: 'green',
     fontSize: 20,
     fontWeight: 'bold',
     marginTop: 5,
@@ -222,9 +240,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     // marginLeft: 10,
   },
-  data: {
-    color: 'green',
-  },
   data_faculty: {
     color: 'blue',
     width: 245,
@@ -232,6 +247,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 5,
     marginLeft: 10,
+    flexWrap: 'wrap',
   },
   paperInfo: {
     marginTop: 5,
@@ -317,10 +333,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   viewButton: {
-    width: 160,
-    height: 45,
+    width: 150,
+    height: 40,
     alignSelf: 'center',
-    marginTop: 30,
+    marginTop: 10,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: 'white',
@@ -330,14 +346,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   viewText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
   },
   viewIcon: {
-    height: 30,
-    width: 30,
+    height: 25,
+    width: 25,
   },
 });
 

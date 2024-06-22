@@ -8,6 +8,7 @@ import {
   ImageBackground,
   TouchableOpacity,
   Platform,
+  ScrollView,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 // import SplashScreen from 'react-native-splash-screen';
@@ -41,7 +42,9 @@ const DtcScreen01 = () => {
         <View>
           <Text style={styles.welcomeText}>Welcome DATACELL !</Text>
         </View>
-        <View style={styles.buttonscontainer}>
+        <ScrollView
+          style={styles.buttonscontainer}
+          showsVerticalScrollIndicator={false}>
           <TouchableOpacity
             style={styles.button}
             activeOpacity={0.8}
@@ -66,7 +69,13 @@ const DtcScreen01 = () => {
             onPress={() => navigation.navigate('DtcScreen07')}>
             <Text style={styles.buttonText}>Printed{'\n'}Papers</Text>
           </TouchableOpacity>
-        </View>
+          <TouchableOpacity
+            style={styles.button}
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate('DtcScreen08')}>
+            <Text style={styles.buttonText}>View{'\n'}History</Text>
+          </TouchableOpacity>
+        </ScrollView>
       </View>
     </ImageBackground>
   );

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {RadioButton} from 'react-native-paper';
 import {ip, port} from '../CONFIG';
 // import SplashScreen from 'react-native-splash-screen';
@@ -22,8 +22,13 @@ const DrtScreen06 = ({route}) => {
   const {paperId} = route.params;
   const [acceptOptions, setAcceptOptions] = useState([]);
   const [rejectOptions, setRejectOptions] = useState([]);
-  const [commentInputs, setCommentInputs] = useState({});
+  const [acceptedCount, setAcceptedCount] = useState(0);
+  const [rejectedCount, setRejectedCount] = useState(0);
+  const [commentInputs, setCommentInputs] = useState([]);
+  const [comments, setComments] = useState('');
   const [paperheaderfaculty, setPaperHeaderFaculty] = useState('');
+  const [questionsCount, setQuestionsCount] = useState(0);
+  const [selectedCount, setSelectedCount] = useState(0);
   const [courseId, setCourseId] = useState('');
   const [coursetitle, setCourseTitle] = useState('');
   const [coursecode, setCourseCode] = useState('');
@@ -37,43 +42,104 @@ const DrtScreen06 = ({route}) => {
   const [questions, setQuestion] = useState('');
 
   useEffect(() => {
-    // console.log(paperId);
     fetchQuestions();
     fetchPaperHeader();
+    fetchQuestionsCount(paperId);
   }, []);
 
-  const handleApprove = () => {
-    const hasRejectedQuestions = Object.values(rejectOptions).some(
-      value => value === true,
-    );
+  useFocusEffect(
+    useCallback(() => {
+      fetchQuestions();
+      fetchPaperHeader();
+      fetchQuestionsCount(paperId);
+    }, [paperId]),
+  );
 
-    if (hasRejectedQuestions) {
-      handleComment();
-    }
-    handleAcceptReject();
+  const handleApprove = () => {
+    // const hasRejectedQuestions = Object.values(rejectOptions).some(
+    //   value => value === true,
+    // );
+    // if (hasRejectedQuestions) {
+    //   addFeedback();
+    // }
+  };
+
+  //   const handleOptionSelect = (q_id, option) => {
+  //     if (option === 'accept') {
+  //       setAcceptOptions(prevOptions => ({
+  //         ...prevOptions,
+  //         [q_id]: true,
+  //       }));
+  //       setRejectOptions(prevOptions => ({
+  //         ...prevOptions,
+  //         [q_id]: false,
+  //       }));
+  //     } else if (option === 'reject') {
+  //       setRejectOptions(prevOptions => ({
+  //         ...prevOptions,
+  //         [q_id]: true,
+  //       }));
+  //       setAcceptOptions(prevOptions => ({
+  //         ...prevOptions,
+  //         [q_id]: false,
+  //       }));
+  //     }
+  //   };
+
+  const handleAdditional = item => {
+    navigation.navigate('DrtScreen07', {
+      term: term,
+      paperId: paperId,
+      courseId: courseId,
+      questionId: item.q_id,
+      difficulty: item.q_difficulty,
+    });
   };
 
   const handleOptionSelect = (q_id, option) => {
     if (option === 'accept') {
-      setAcceptOptions(prevOptions => ({
-        ...prevOptions,
-        [q_id]: true,
-      }));
+      setAcceptOptions(prevOptions => {
+        if (rejectOptions[q_id]) {
+          setRejectedCount(prevCount => prevCount - 1);
+        }
+        if (!prevOptions[q_id]) {
+          setAcceptedCount(prevCount => prevCount + 1);
+          setSelectedCount(prevCount => prevCount + 1);
+        }
+        return {
+          ...prevOptions,
+          [q_id]: true,
+        };
+      });
       setRejectOptions(prevOptions => ({
         ...prevOptions,
         [q_id]: false,
       }));
     } else if (option === 'reject') {
-      setRejectOptions(prevOptions => ({
-        ...prevOptions,
-        [q_id]: true,
-      }));
+      setRejectOptions(prevOptions => {
+        if (acceptOptions[q_id]) {
+          setAcceptedCount(prevCount => prevCount - 1);
+          setSelectedCount(prevCount => prevCount - 1);
+        }
+        if (!prevOptions[q_id]) {
+          setRejectedCount(prevCount => prevCount + 1);
+        }
+        return {
+          ...prevOptions,
+          [q_id]: true,
+        };
+      });
       setAcceptOptions(prevOptions => ({
         ...prevOptions,
         [q_id]: false,
       }));
     }
   };
+
+  //  const approve = () => {
+  //    console.log(`Accepted : ${acceptedCount}`);
+  //    console.log(`Rejected : ${rejectedCount}`);
+  //  };
 
   const handleCommentChange = (q_id, text) => {
     setCommentInputs(prevInputs => ({
@@ -82,17 +148,44 @@ const DrtScreen06 = ({route}) => {
     }));
   };
 
-  const handleAcceptReject = () => {
-    const apiEndpoint = `http://${ip}:${port}/editquestionstatus2`;
+  const fetchQuestionsCount = paperId => {
+    const apiEndpoint = `http://${ip}:${port}/getNumberOfQuestions/${paperId}`;
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const numberOfQuestions = data[0].no_of_questions;
+          setQuestionsCount(numberOfQuestions);
+        }
+        // console.log('Data fetched successfully:', data);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  };
+
+  const checkCountBeforeSubmission = () => {
+    if (acceptedCount === questionsCount) {
+      return true;
+    } else {
+      ToastAndroid.show(
+        `Count Doesn't Match Number Of Questions: "${questionsCount}"`,
+        ToastAndroid.SHORT,
+      );
+      return false;
+    }
+  };
+
+  const handlePaperApprove = () => {
+    if (!checkCountBeforeSubmission()) {
+      return;
+    }
+    const apiEndpoint = `http://${ip}:${port}/edituploadedquestionstatus`;
     const acceptedQIds = Object.keys(acceptOptions).filter(
       key => acceptOptions[key],
     );
-    const rejectedQIds = Object.keys(rejectOptions).filter(
-      key => rejectOptions[key],
-    );
     const data = {
       acceptedQIds,
-      rejectedQIds,
     };
     fetch(apiEndpoint, {
       method: 'PUT',
@@ -101,59 +194,201 @@ const DrtScreen06 = ({route}) => {
       },
       body: JSON.stringify(data),
     })
-      .then(response =>
-        response
-          .json()
-          .then(data => ({status: response.status, body: data}))
-          .catch(err => {
-            console.error('Error parsing JSON:', err);
-            throw new Error('Error parsing JSON');
-          }),
-      )
-      .then(({status, body}) => {
-        if (status === 200) {
-          console.log('Data posted successfully:', body);
-          fetchQuestions();
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to update question status.');
+        }
+        return response.json();
+      })
+      .then(body => {
+        console.log('Data posted successfully:', body);
+        fetchQuestions();
+        // If edituploadedquestionstatus is successful, call the paper status endpoint
+        const paperStatusEndpoint = `http://${ip}:${port}/edituploadedpaperstatus/${paperId}`;
+        return fetch(paperStatusEndpoint, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      })
+      .then(paperStatusResponse => {
+        if (paperStatusResponse.ok) {
+          navigation.navigate('DrtScreen02');
           ToastAndroid.show('Status updated successfully!', ToastAndroid.SHORT);
         } else {
-          console.error('API returned an error:', body);
-          ToastAndroid.show(`${body.error}`, ToastAndroid.LONG);
+          console.error('Failed to update paper status');
+          ToastAndroid.show(
+            'Failed to update paper status.',
+            ToastAndroid.LONG,
+          );
         }
+      })
+      .catch(error => {
+        console.error('Error during API call:', error);
+        ToastAndroid.show('Failed to update status.', ToastAndroid.LONG);
       });
-    //   .catch(error => {
-    //     console.error('Error during API call:', error);
-    //     ToastAndroid.show('Failed to update status.', ToastAndroid.LONG);
-    //   });
   };
 
-  const handleComment = () => {
-    const apiEndpoint = `http://${ip}:${port}/addfeedback`;
-    for (const [q_id, fb_text] of Object.entries(commentInputs)) {
-      fetch(apiEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fb_text,
-          p_id: paperId,
-          c_id: courseId,
-          q_id,
-        }),
-      })
-        .then(response => response.json())
-        .then(data => {
-          console.log('Data posted successfully:', data);
-          ToastAndroid.show('Added Successfully!', ToastAndroid.SHORT);
-          setCommentInputs(prevInputs => ({
-            ...prevInputs,
-            [q_id]: '',
-          }));
-        })
-        .catch(error => {
-          console.error('Error posting data:', error);
-        });
+  //   const handlePaperApprove = () => {
+  //     if (!checkCountBeforeSubmission()) {
+  //       return;
+  //     }
+  //     const apiEndpoint = `http://${ip}:${port}/edituploadedquestionstatus`;
+  //     const acceptedQIds = Object.keys(acceptOptions).filter(
+  //       key => acceptOptions[key],
+  //     );
+  //     const rejectedQIds = Object.keys(rejectOptions).filter(
+  //       key => rejectOptions[key],
+  //     );
+  //     const data = {
+  //       acceptedQIds,
+  //       rejectedQIds,
+  //     };
+  //     fetch(apiEndpoint, {
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(data),
+  //     })
+  //       .then(response =>
+  //         response
+  //           .json()
+  //           .then(data => ({status: response.status, body: data}))
+  //           .catch(err => {
+  //             console.error('Error parsing JSON:', err);
+  //             throw new Error('Error parsing JSON');
+  //           }),
+  //       )
+  //       .then(({status, body}) => {
+  //         if (status === 200) {
+  //           console.log('Data posted successfully:', body);
+  //           fetchQuestions();
+  //           ToastAndroid.show('Status updated successfully!', ToastAndroid.SHORT);
+  //         } else {
+  //           console.error('API returned an error:', body);
+  //           ToastAndroid.show(`${body.error}`, ToastAndroid.LONG);
+  //         }
+  //       });
+  //     //   .catch(error => {
+  //     //     console.error('Error during API call:', error);
+  //     //     ToastAndroid.show('Failed to update status.', ToastAndroid.LONG);
+  //     //   });
+  //   };
+
+  const handleSubmit = () => {
+    if (!checkCountBeforeSubmission()) {
+      return;
     }
+    if (!checkDifficultyBeforeSubmission()) {
+      return;
+    }
+
+    // Endpoint for editpendingquestionstatus
+    const questionStatusEndpoint = `http://${ip}:${port}/editpendingquestionstatus`;
+    const questionStatusData = {
+      paperId: paperId,
+      q_ids: checkedQuestions,
+    };
+
+    // Endpoint for editpendingpaperstatus
+    const pendingPaperStatusEndpoint = `http://${ip}:${port}/editpendingpaperstatus/${paperId}`;
+
+    // Fetch for editpendingquestionstatus
+    fetch(questionStatusEndpoint, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(questionStatusData),
+    })
+      .then(questionStatusResponse => {
+        if (questionStatusResponse.ok) {
+          // If editpendingquestionstatus is successful, just call the editpendingpaperstatus endpoint
+          fetch(pendingPaperStatusEndpoint, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+            .then(pendingPaperStatusResponse => {
+              if (pendingPaperStatusResponse.ok) {
+                ToastAndroid.show('Added Successfully!', ToastAndroid.SHORT);
+              } else {
+                ToastAndroid.show('Failed to add paper.', ToastAndroid.LONG);
+              }
+            })
+            .catch(error => {
+              ToastAndroid.show('Failed to add paper.', ToastAndroid.LONG);
+            });
+        } else {
+          ToastAndroid.show('Failed to add paper.', ToastAndroid.LONG);
+        }
+      })
+      .catch(error => {
+        ToastAndroid.show('Failed to add paper.', ToastAndroid.LONG);
+      });
+  };
+
+  //   const addFeedback = () => {
+  //     const apiEndpoint = `http://${ip}:${port}/addfeedback`;
+  //     for (const [q_id, fb_text] of Object.entries(commentInputs)) {
+  //       fetch(apiEndpoint, {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({
+  //           fb_text,
+  //           p_id: paperId,
+  //           c_id: courseId,
+  //           q_id,
+  //         }),
+  //       })
+  //         .then(response => response.json())
+  //         .then(data => {
+  //           console.log('Data posted successfully:', data);
+  //           ToastAndroid.show('Added Successfully!', ToastAndroid.SHORT);
+  //           setCommentInputs(prevInputs => ({
+  //             ...prevInputs,
+  //             [q_id]: '',
+  //           }));
+  //         })
+  //         .catch(error => {
+  //           console.error('Error posting data:', error);
+  //         });
+  //     }
+  //     Keyboard.dismiss();
+  //   };
+
+  const addFeedback = questionId => {
+    if (comments.trim() === '') {
+      ToastAndroid.show('Error: Please type the Comment.', ToastAndroid.SHORT);
+      return;
+    }
+    const apiEndpoint = `http://${ip}:${port}/addfeedback`;
+    fetch(apiEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        fb_text: comments,
+        p_id: paperId,
+        c_id: courseId,
+        q_id: questionId,
+      }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        setComments('');
+        console.log('Data posted successfully:', data);
+        ToastAndroid.show('Added Successfully!', ToastAndroid.SHORT);
+      })
+      .catch(error => {
+        console.error('Error posting data:', error);
+      });
     Keyboard.dismiss();
   };
 
@@ -212,140 +447,219 @@ const DrtScreen06 = ({route}) => {
       style={styles.backgroundImage}>
       <View style={styles.container}>
         <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() =>
+              navigation.navigate('DrtScreen04', {
+                paperId: paperId,
+              })
+            }>
+            <Image
+              source={require('../../assets/arrow.png')}
+              style={styles.backIcon}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
           <Text style={styles.headerText}>Paper Setting</Text>
         </View>
 
-        <View style={{flexDirection: 'row'}}>
-          <View style={styles.uniInfoStart}>
-            <Image
-              source={require('../../assets/barani.png')}
-              style={styles.baraniIcon}
-              resizeMode="contain"
-            />
-          </View>
-          <View style={styles.uniInfo}>
-            <Text style={styles.uniInfoText}>
-              Barani Institute of Information Technology
-            </Text>
-            <Text style={styles.uniInfoText}>
-              PMAS Arid Agriculture University,
-            </Text>
-            <Text style={styles.uniInfoText}>Rawalpindi Pakistan</Text>
-            <Text style={styles.uniInfoText}>
-              {session} {year} : {term} Term Examination
-            </Text>
-          </View>
-          <View style={styles.uniInfoEnd}>
-            <Image
-              source={require('../../assets/barani.png')}
-              style={styles.baraniIcon}
-              resizeMode="contain"
-            />
-          </View>
-        </View>
-
-        <View style={styles.courseInfo}>
-          <ScrollView>
-            <Text style={styles.courseInfoText}>
-              <Text style={{textDecorationLine: 'underline'}}>
-                Course Title
-              </Text>{' '}
-              : {coursetitle}
-            </Text>
-            <Text style={styles.courseInfoText}>
-              <Text style={{textDecorationLine: 'underline'}}>
-                Date Of Exam
-              </Text>{' '}
-              : {examdate}{' '}
-              <Text style={{textDecorationLine: 'underline'}}>Duration</Text> :{' '}
-              {duration}{' '}
-              <Text style={{textDecorationLine: 'underline'}}>Code</Text> :{' '}
-              {coursecode}{' '}
-              <Text style={{textDecorationLine: 'underline'}}>Degree</Text> :{' '}
-              {degree} {'\n'}
-              <Text style={{textDecorationLine: 'underline'}}>
-                Teachers
-              </Text> :{' '}
-              <Text style={{maxWidth: 100}}>
-                {paperheaderfaculty.length > 0
-                  ? paperheaderfaculty.map(faculty => faculty.f_name).join(', ')
-                  : ''}
+        <View
+          style={{
+            backgroundColor: 'white',
+            borderTopLeftRadius: 15,
+            borderTopEndRadius: 15,
+          }}>
+          <View style={{flexDirection: 'row'}}>
+            <View style={styles.uniInfoStart}>
+              <Image
+                source={require('../../assets/barani.png')}
+                style={styles.baraniIcon}
+                resizeMode="contain"
+              />
+            </View>
+            <View style={styles.uniInfo}>
+              <Text style={styles.uniInfoText}>
+                Barani Institute of Information Technology
               </Text>
-            </Text>
-          </ScrollView>
+              <Text style={styles.uniInfoText}>
+                PMAS Arid Agriculture University,
+              </Text>
+              <Text style={styles.uniInfoText}>Rawalpindi Pakistan</Text>
+              <Text style={styles.uniInfoText}>
+                {session} {year} : {term} Term Examination
+              </Text>
+            </View>
+            <View style={styles.uniInfoEnd}>
+              <Image
+                source={require('../../assets/barani.png')}
+                style={styles.baraniIcon}
+                resizeMode="contain"
+              />
+            </View>
+          </View>
+
+          <View style={styles.courseInfo}>
+            <ScrollView>
+              <Text style={styles.courseInfoText}>
+                <Text style={{textDecorationLine: 'underline'}}>
+                  Course Title
+                </Text>{' '}
+                : {coursetitle}
+              </Text>
+              <Text style={styles.courseInfoText}>
+                <Text style={{textDecorationLine: 'underline'}}>
+                  Date Of Exam
+                </Text>{' '}
+                : {examdate}{' '}
+                <Text style={{textDecorationLine: 'underline'}}>Duration</Text>{' '}
+                : {duration}{' '}
+                <Text style={{textDecorationLine: 'underline'}}>Code</Text> :{' '}
+                {coursecode}{' '}
+                <Text style={{textDecorationLine: 'underline'}}>Degree</Text> :{' '}
+                {degree} {'\n'}
+                <Text style={{textDecorationLine: 'underline'}}>
+                  Teachers
+                </Text>{' '}
+                :{' '}
+                <Text style={{maxWidth: 100}}>
+                  {paperheaderfaculty.length > 0
+                    ? paperheaderfaculty
+                        .map(faculty => faculty.f_name)
+                        .join(', ')
+                    : ''}
+                </Text>
+              </Text>
+            </ScrollView>
+          </View>
         </View>
 
-        <View style={styles.paperInfo}>
-          <FlatList
-            data={questions}
-            style={styles.flatlist}
-            showsVerticalScrollIndicator={false}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({item, index}) => (
-              <View style={styles.listItem}>
-                <View style={styles.column}>
-                  <Text style={styles.data_text}>Question # {index + 1} :</Text>
-                  <Text style={styles.data_text}>{item.q_text}</Text>
-                  {item.imageData && (
-                    <Image
-                      source={{
-                        uri: `data:image/jpeg;base64,${item.imageData}`,
-                      }}
-                      style={styles.image}
-                    />
-                  )}
-                  <Text style={styles.data_difficulty}>
-                    [ {item.q_difficulty}, Marks: {item.q_marks} ]
-                  </Text>
-                  <View style={styles.radioButtonsContainer}>
-                    <View style={styles.radioButton}>
-                      <Text style={styles.radioText}>Accept</Text>
-                      <RadioButton
-                        value={item.q_id}
-                        color="green"
-                        uncheckedColor="green"
-                        status={
-                          acceptOptions[item.q_id] ? 'checked' : 'unchecked'
-                        }
-                        onPress={() => handleOptionSelect(item.q_id, 'accept')}
+        <View
+          style={{
+            backgroundColor: 'white',
+            borderBottomLeftRadius: 15,
+            borderBottomRightRadius: 15,
+            borderTopWidth: 1,
+            borderTopColor: 'black',
+          }}>
+          <View style={styles.paperInfo}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <Text style={styles.counterText}>
+                <Text style={{color: 'blue'}}>Accepted: </Text> {selectedCount}
+                /{questionsCount}{' '}
+              </Text>
+            </View>
+            <FlatList
+              data={questions}
+              style={styles.flatlist}
+              showsVerticalScrollIndicator={false}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({item, index}) => (
+                <View style={styles.listItem}>
+                  <View style={styles.column}>
+                    <Text style={styles.data_text}>
+                      Question # {index + 1} :
+                    </Text>
+                    <Text style={styles.data_text}>{item.q_text}</Text>
+                    {item.imageData && (
+                      <Image
+                        source={{
+                          uri: `data:image/jpeg;base64,${item.imageData}`,
+                        }}
+                        style={styles.image}
                       />
+                    )}
+                    <Text style={styles.data_difficulty}>
+                      [ {item.q_difficulty}, Marks: {item.q_marks} ]
+                    </Text>
+                    <Text style={styles.data_difficulty}>
+                      [ {item.mapped_clos} ]
+                    </Text>
+                    <View style={styles.radioButtonsContainer}>
+                      <View style={styles.radioButton}>
+                        <Text style={styles.radioText}>Accept</Text>
+                        <RadioButton
+                          value={item.q_id}
+                          color="green"
+                          uncheckedColor="green"
+                          status={
+                            acceptOptions[item.q_id] ? 'checked' : 'unchecked'
+                          }
+                          onPress={() =>
+                            handleOptionSelect(item.q_id, 'accept')
+                          }
+                        />
+                      </View>
+                      <View style={styles.radioButton}>
+                        <Text style={styles.radioText}>Reject</Text>
+                        <RadioButton
+                          value={item.q_id}
+                          color="red"
+                          uncheckedColor="red"
+                          status={
+                            rejectOptions[item.q_id] ? 'checked' : 'unchecked'
+                          }
+                          onPress={() =>
+                            handleOptionSelect(item.q_id, 'reject')
+                          }
+                        />
+                      </View>
                     </View>
-                    <View style={styles.radioButton}>
-                      <Text style={styles.radioText}>Reject</Text>
-                      <RadioButton
-                        value={item.q_id}
-                        color="red"
-                        uncheckedColor="red"
-                        status={
-                          rejectOptions[item.q_id] ? 'checked' : 'unchecked'
-                        }
-                        onPress={() => handleOptionSelect(item.q_id, 'reject')}
-                      />
-                    </View>
-                  </View>
-                  {rejectOptions[item.q_id] && (
-                    <View style={styles.commentBox}>
-                      <TextInput
-                        style={styles.commentInput}
-                        placeholder="Comments"
-                        placeholderTextColor={'gray'}
-                        multiline
-                        value={commentInputs[item.q_id] || ''}
-                        onChangeText={text =>
-                          handleCommentChange(item.q_id, text)
-                        }
-                      />
-                    </View>
-                  )}
-                  {/* Debugging the q_id */}
-                  {/* <Text style={{color: 'black'}}>Question ID: {item.q_id}</Text>
+                    {rejectOptions[item.q_id] && (
+                      <View>
+                        <View style={styles.commentBox}>
+                          {/* <TextInput
+                            style={styles.commentInput}
+                            placeholder="Comments"
+                            placeholderTextColor={'gray'}
+                            multiline
+                            value={commentInputs[item.q_id] || ''}
+                            onChangeText={text =>
+                              handleCommentChange(item.q_id, text)
+                            }
+                          /> */}
+                          <TextInput
+                            style={styles.commentInput}
+                            placeholder="Comments"
+                            placeholderTextColor={'gray'}
+                            multiline
+                            value={comments}
+                            onChangeText={text => setComments(text)}
+                          />
+                          <TouchableOpacity
+                            style={styles.sendButton}
+                            onPress={() => addFeedback(item.q_id)}>
+                            <Image
+                              source={require('../../assets/send_black.png')}
+                              style={styles.sendIcon}
+                              resizeMode="contain"
+                            />
+                          </TouchableOpacity>
+                        </View>
+                        <View style={{alignItems: 'flex-end', width: '100%'}}>
+                          <TouchableOpacity
+                            style={styles.additionalButton}
+                            activeOpacity={0.8}
+                            onPress={() => handleAdditional(item)}>
+                            <Text style={styles.additionalButtonText}>
+                              Additional
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    )}
+                    {/* Debugging the q_id */}
+                    {/* <Text style={{color: 'black'}}>Question ID: {item.q_id}</Text>
                   <Text style={{color: 'black'}}>
                     Accepted: {acceptOptions[item.q_id] ? 'Yes' : 'No'}
                   </Text>
                   <Text>
                     Rejected: {rejectOptions[item.q_id] ? 'Yes' : 'No'}
                   </Text> */}
-                  {/* <View style={styles.buttonscontainer}>
+                    {/* <View style={styles.buttonscontainer}>
                     <TouchableOpacity style={styles.acceptButton}>
                       <Text style={styles.buttonText}>Accept</Text>
                     </TouchableOpacity>
@@ -353,10 +667,11 @@ const DrtScreen06 = ({route}) => {
                       <Text style={styles.buttonText}>Reject</Text>
                     </TouchableOpacity>
                   </View> */}
+                  </View>
                 </View>
-              </View>
-            )}
-          />
+              )}
+            />
+          </View>
         </View>
         <View style={styles.buttonscontainer2}>
           <TouchableOpacity
@@ -373,7 +688,7 @@ const DrtScreen06 = ({route}) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.approveButton}
-            onPress={handleApprove}>
+            onPress={handlePaperApprove}>
             <Text style={styles.viewText}>Approve</Text>
           </TouchableOpacity>
         </View>
@@ -397,7 +712,7 @@ const styles = StyleSheet.create({
   },
   flatlist: {
     // marginTop: 5,
-    maxHeight: 500,
+    maxHeight: 505,
   },
   data_text: {
     color: 'black',
@@ -424,7 +739,7 @@ const styles = StyleSheet.create({
   },
   uniInfoStart: {
     marginLeft: '2%',
-    marginTop: 30,
+    marginTop: 10,
     width: '13%',
     justifyContent: 'center',
     backgroundColor: 'white',
@@ -437,7 +752,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'black',
   },
   uniInfo: {
-    marginTop: 30,
+    marginTop: 10,
     width: '70%',
     backgroundColor: 'white',
     // borderRadius: 10,
@@ -449,7 +764,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'black',
   },
   uniInfoEnd: {
-    marginTop: 30,
+    marginTop: 10,
     marginLeft: -0.4,
     width: '13%',
     justifyContent: 'center',
@@ -471,7 +786,6 @@ const styles = StyleSheet.create({
     marginLeft: '2%',
     width: '96%',
     backgroundColor: 'white',
-    // borderRadius: 10,
     borderColor: 'white',
     borderWidth: 1,
     padding: 5,
@@ -497,7 +811,7 @@ const styles = StyleSheet.create({
     color: 'cyan',
   },
   paperInfo: {
-    marginTop: 20,
+    marginTop: 10,
     marginLeft: 5,
     borderRadius: 10,
     width: '96%',
@@ -509,7 +823,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     height: 70,
-    width: '100%',
+    width: 320,
     textAlignVertical: 'center',
     justifyContent: 'center',
     fontSize: 26,
@@ -578,17 +892,12 @@ const styles = StyleSheet.create({
   },
   backButton: {
     justifyContent: 'center',
-    borderRadius: 5,
-    height: 30,
-    width: 25,
-    alignSelf: 'center',
-    // borderWidth: 2,
-    // borderColor: 'white',
+    borderRadius: 13,
+    marginLeft: 20,
   },
   backIcon: {
-    height: 30,
-    width: 30,
-    alignSelf: 'center',
+    height: 20,
+    width: 20,
   },
   commentButton: {
     justifyContent: 'center',
@@ -663,13 +972,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   commentBox: {
-    borderWidth: 2,
-    borderColor: 'gray',
-    borderRadius: 15,
     marginTop: 5,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 5,
   },
   commentInput: {
     color: 'black',
+    borderWidth: 2,
+    width: '90%',
+    borderColor: 'gray',
+    borderRadius: 15,
   },
   image: {
     width: 250,
@@ -680,6 +993,38 @@ const styles = StyleSheet.create({
     // alignSelf: 'center',
     // borderColor: 'black',
     resizeMode: 'contain',
+  },
+  additionalButton: {
+    backgroundColor: '#20B2AA',
+    width: '30%',
+    height: 25,
+    textAlign: 'center',
+    borderRadius: 7,
+    justifyContent: 'center',
+  },
+  additionalButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  sendButton: {
+    justifyContent: 'center',
+    alignSelf: 'center',
+    borderRadius: 5,
+    height: 30,
+    width: 25,
+    marginLeft: 10,
+  },
+  sendIcon: {
+    height: 30,
+    width: 30,
+    alignSelf: 'center',
+  },
+  counterText: {
+    color: 'black',
+    fontSize: 15,
+    fontWeight: 'bold',
+    textAlignVertical: 'center',
   },
 });
 
