@@ -884,6 +884,9 @@ const FctScreen08 = ({route}) => {
                         [ {item.q_difficulty}, Marks: {item.q_marks} ]
                       </Text>
                       <Text style={styles.data_difficulty}>
+                        [ {item.mapped_clos} ]
+                      </Text>
+                      <Text style={styles.data_difficulty}>
                         [ {item.f_name} ]
                       </Text>
                     </View>

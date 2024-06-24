@@ -106,12 +106,27 @@ const FctScreen15 = ({route}) => {
                       </Text>
                     </Text>
                   </View>
-                ) : item.status === 'approved' ? (
+                ) : item.status === 'uploaded' ? (
                   <View style={styles.column}>
                     <Text style={styles.label}>
                       <Text
                         style={{
                           color: '#00FFFF',
+                          textShadowColor: 'black',
+                          textShadowOffset: {width: 1, height: 1},
+                          textShadowRadius: 2,
+                          backgroundColor: 'transparent',
+                        }}>
+                        {item.status}
+                      </Text>
+                    </Text>
+                  </View>
+                ) : item.status === 'approved' ? (
+                  <View style={styles.column}>
+                    <Text style={styles.label}>
+                      <Text
+                        style={{
+                          color: '#F4A460',
                           textShadowColor: 'black',
                           textShadowOffset: {width: 1, height: 1},
                           textShadowRadius: 2,

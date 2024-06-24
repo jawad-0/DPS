@@ -68,6 +68,14 @@ const HodScreen12 = () => {
       ToastAndroid.show('Error: Please fill all fields.', ToastAndroid.SHORT);
       return;
     }
+    const validNames = ['Fall', 'Spring', 'Summer'];
+    if (!validNames.includes(name)) {
+      ToastAndroid.show(
+        'Error: Name must be "Fall", "Spring", or "Summer".',
+        ToastAndroid.SHORT,
+      );
+      return;
+    }
     const isInteger = value => Number.isInteger(Number(value));
     // Method 2 -- const isInteger = value => /^\d+$/.test(value);
     if (!isInteger(year)) {

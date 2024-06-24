@@ -67,6 +67,9 @@ const FctScreen07 = ({route}) => {
       fetchTopicTaught(facultyId);
       fetchSubTopicTaught(facultyId);
     }
+    if (button == 'button2') {
+      fetchCommonSubTopics(courseId);
+    }
     fetchData();
     fetchPaperHeaderFaculty();
     setPressedButton(button);
@@ -166,6 +169,8 @@ const FctScreen07 = ({route}) => {
       .then(response => response.json())
       .then(data => {
         setTopicTaught(data);
+        console.log(`Data ${data}`);
+        data.forEach(obj => console.log(JSON.stringify(obj)));
       })
       .catch(error => {
         // console.error('Error fetching data:', error);
@@ -199,6 +204,14 @@ const FctScreen07 = ({route}) => {
 
   const isSubTopicTaught = subtopicId =>
     subtopictaught.some(subtopic => subtopic.st_id === subtopicId);
+
+  //   const isTopicTaught = topicId => {
+  //     if (topictaught.length > 0) {
+  //       return topictaught.some(topic => topic.t_id === topicId);
+  //     } else {
+  //       return false;
+  //     }
+  //   };
 
   const addTopicTaught = topicId => {
     console.log('Yes');
@@ -959,7 +972,7 @@ const styles = StyleSheet.create({
   },
   progressflatlist: {
     marginTop: 10,
-    maxHeight: 400,
+    maxHeight: 450,
   },
   backgroundImage: {
     flex: 1,

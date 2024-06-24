@@ -3,6 +3,7 @@ import {
   View,
   Text,
   Image,
+  Modal,
   FlatList,
   Keyboard,
   TextInput,
@@ -16,16 +17,28 @@ import {useNavigation} from '@react-navigation/native';
 const DtcScreen07 = () => {
   const navigation = useNavigation();
   const [facultyMembers, setFacultyMembers] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    fetchData();
+    fetchPrintedPapers();
   }, []);
+
+  const handleItemPress = item => {
+    setSelectedItem(item);
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setSelectedItem(null);
+  };
 
   const handleSearch = text => {
     const apiEndpoint = `http://${ip}:${printed_port}/searchprintedpapers?search=${text}`;
 
     if (text.trim() === '') {
-      fetchData();
+      fetchPrintedPapers();
     } else {
       fetch(apiEndpoint)
         .then(response => response.json())
@@ -38,7 +51,7 @@ const DtcScreen07 = () => {
     }
   };
 
-  const fetchData = () => {
+  const fetchPrintedPapers = () => {
     const apiEndpoint = `http://${ip}:${printed_port}/getprintedpapers`;
     // Keyboard.dismiss();
     fetch(apiEndpoint)
@@ -72,6 +85,44 @@ const DtcScreen07 = () => {
         </View>
         {/* <ScrollView> */}
         <View style={styles.form}>
+          {selectedItem && (
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={modalVisible}
+              onRequestClose={handleCloseModal}>
+              <View style={styles.modalContainer}>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalText}>
+                    Session: {selectedItem.session}
+                  </Text>
+                  <Text style={styles.modalText}>
+                    Year: {selectedItem.year}
+                  </Text>
+                  <Text style={styles.modalText}>
+                    Term:{' '}
+                    <Text style={{fontWeight: 'bold', color: 'green'}}>
+                      {selectedItem.term}
+                    </Text>
+                  </Text>
+                  <Text style={styles.modalText}>
+                    Degree: {selectedItem.degree}
+                  </Text>
+                  <Text style={styles.modalText}>
+                    Date: {selectedItem.exam_date}
+                  </Text>
+                  <Text style={styles.modalText}>
+                    Duration: {selectedItem.duration}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={handleCloseModal}>
+                    <Text style={styles.closeButtonText}>Close</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
+          )}
           <TextInput
             style={styles.searchinput}
             placeholder="Search"
@@ -98,7 +149,10 @@ const DtcScreen07 = () => {
             style={styles.flatlist}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item}) => (
-              <View style={styles.listItem}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={styles.listItem}
+                onPress={() => handleItemPress(item)}>
                 <View style={styles.column}>
                   <Text style={styles.data_name}>{item.c_title}</Text>
                 </View>
@@ -106,7 +160,7 @@ const DtcScreen07 = () => {
                 <View style={styles.column}>
                   <Text style={styles.label}>Printed</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             )}
           />
         </View>
@@ -243,6 +297,38 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     // borderWidth: 1,
     // borderColor: 'white',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: 250,
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 10,
+    color: 'black',
+  },
+  closeButton: {
+    marginTop: 10,
+    height: 30,
+    width: 70,
+    backgroundColor: 'red',
+    borderRadius: 10,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    height: 30,
+    textAlign: 'center',
+    textAlignVertical: 'center',
   },
 });
 

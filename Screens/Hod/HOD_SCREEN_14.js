@@ -16,40 +16,29 @@ import {ip, port} from '../CONFIG';
 import {useNavigation} from '@react-navigation/native';
 import SelectDropdown from 'react-native-select-dropdown';
 
-const HodScreen13 = () => {
+const HodScreen14 = ({route}) => {
   const navigation = useNavigation();
-  const [year, setYear] = useState('');
-  const [session, setSession] = useState('');
-  const [courses, setCourses] = useState('');
+  const {courseId, courseTitle, courseCode, year, session} = route.params;
+  const [assignedTo, setAssignedTo] = useState([]);
 
   useEffect(() => {
-    fetchCourses();
+    fetchAssignedTo();
   }, []);
 
-  const handleView = item => {
-    navigation.navigate('HodScreen14', {
-      courseId: item.c_id,
-      courseTitle: item.c_title,
-      courseCode: item.c_code,
-      year: year,
-      session: session,
-    });
-  };
-
-  const yearOptions = ['2023', '2024', '2025'];
-  const sessionOptions = ['Fall', 'Spring', 'Summer'];
-
-  const fetchCourses = () => {
-    const apiEndpoint = `http://${ip}:${port}/getCourse`;
-    // Keyboard.dismiss();
+  const fetchAssignedTo = () => {
+    const c_id = courseId;
+    const apiEndpoint = `http://${ip}:${port}/getHistoryAssignedTo/${c_id}/${year}/${session}`;
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
-        // console.log('Data fetched successfully:', data);
-        setCourses(data);
+        // console.log('Data fetched successfully:', assignedData);
+        // console.log(data);
+        const ids = data.map(item => item.ac_id); // Extract all IDs
+        console.log('All assigned course IDs:', ids);
+        setAssignedTo(data);
       })
       .catch(error => {
-        console.error('Error fetching data:', error);
+        // console.error('Error fetching data:', error);
       });
   };
 
@@ -62,7 +51,7 @@ const HodScreen13 = () => {
           <TouchableOpacity
             style={styles.backButton}
             activeOpacity={0.5}
-            onPress={() => navigation.navigate('HodScreen01')}>
+            onPress={() => navigation.navigate('HodScreen13')}>
             <Image
               source={require('../../assets/arrow.png')}
               style={styles.backIcon}
@@ -73,108 +62,31 @@ const HodScreen13 = () => {
         </View>
         {/* <ScrollView> */}
         <View style={styles.form}>
-          {year === '' && session === '' && (
-            <Text style={styles.label}>
-              Select Year & Session for History **
-            </Text>
-          )}
-          {(year !== '' || session !== '') && (
-            <Text style={styles.label}></Text>
-          )}
-
-          <SelectDropdown
-            data={yearOptions}
-            onSelect={(selectedItem, index) => {
-              setYear(selectedItem);
-              console.log(selectedItem);
-            }}
-            defaultButtonText="Select Year"
-            buttonTextAfterSelection={(selectedItem, index) => {
-              return selectedItem;
-            }}
-            rowTextForSelection={(item, index) => {
-              return item;
-            }}
-            buttonStyle={styles.dropdownButtonStyle}
-            buttonTextStyle={styles.dropdownButtonTextStyle}
-            dropdownStyle={styles.dropdownMenuStyle}
-            rowStyle={styles.dropdownRowStyle}
-            rowTextStyle={styles.dropdownRowTextStyle}
-            renderDropdownIcon={() => (
-              <View style={styles.dropdownIcon}>
-                <Image
-                  source={require('../../assets/arrow3.png')}
-                  style={styles.dropdownIconStyle}
-                />
+          <Text style={styles.label}>Course Name</Text>
+          <Text style={styles.name}>{courseTitle}</Text>
+          <Text style={styles.label}>Assigned To</Text>
+          {assignedTo.length === 0 && (
+            <View style={styles.flatlist}>
+              <View style={styles.listItem}>
+                <View style={styles.column}>
+                  <Text style={styles.no_data}>No records found!</Text>
+                </View>
               </View>
-            )}
-          />
-          <SelectDropdown
-            data={sessionOptions}
-            onSelect={(selectedItem, index) => {
-              setSession(selectedItem);
-              console.log(selectedItem);
-            }}
-            defaultButtonText="Select Session"
-            buttonTextAfterSelection={(selectedItem, index) => {
-              return selectedItem;
-            }}
-            rowTextForSelection={(item, index) => {
-              return item;
-            }}
-            buttonStyle={styles.dropdownButtonStyle}
-            buttonTextStyle={styles.dropdownButtonTextStyle}
-            dropdownStyle={styles.dropdownMenuStyle}
-            rowStyle={styles.dropdownRowStyle}
-            rowTextStyle={styles.dropdownRowTextStyle}
-            renderDropdownIcon={() => (
-              <View style={styles.dropdownIcon}>
-                <Image
-                  source={require('../../assets/arrow3.png')}
-                  style={styles.dropdownIconStyle}
-                />
-              </View>
-            )}
-          />
-          <View style={styles.tableheader}>
-            <View style={styles.columnContainer}>
-              <Text style={styles.columnHeader}>Courses</Text>
             </View>
-            <View style={styles.columnContainer}>
-              <Text style={styles.columnHeader}>Code</Text>
-            </View>
-          </View>
-
+          )}
           <FlatList
-            data={courses}
+            data={assignedTo}
             style={styles.flatlist}
-            showsVerticalScrollIndicator={false}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item}) => (
               <View style={styles.listItem}>
                 <View style={styles.column}>
-                  <Text style={styles.data_name}>{item.c_title}</Text>
-                </View>
-
-                <View style={styles.column}>
-                  <Text style={styles.data_code}>{item.c_code}</Text>
-                </View>
-
-                <View style={styles.column}>
-                  {year !== '' && session !== '' && (
-                    <View style={styles.buttonsContainer}>
-                      <TouchableOpacity
-                        style={styles.viewButton}
-                        activeOpacity={0.5}
-                        onPress={() => handleView(item)}>
-                        <Image
-                          source={require('../../assets/view_icon.png')}
-                          style={styles.viewIcon}
-                          resizeMode="contain"
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  )}
+                  <Text style={styles.data_name}>
+                    {item.f_name}
+                    <Text style={{color: 'blue'}}>
+                      {item.role === 'senior' ? ' (Senior)' : ''}
+                    </Text>
+                  </Text>
                 </View>
               </View>
             )}
@@ -210,10 +122,18 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   label: {
-    fontSize: 15,
+    marginTop: 20,
+    fontSize: 25,
+    textAlign: 'center',
+    color: 'yellow',
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
+  },
+  name: {
+    marginTop: 10,
+    fontSize: 25,
+    textAlign: 'center',
     color: 'white',
-    marginLeft: 10,
-    marginBottom: 5,
   },
   dropdownButtonStyle: {
     width: '50%',
@@ -248,25 +168,21 @@ const styles = StyleSheet.create({
   dropdownIcon: {
     alignSelf: 'center',
   },
+  no_data: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: 'red',
+    textAlign: 'center',
+    // borderWidth: 2,
+    // borderColor: 'black',
+  },
   data_name: {
     fontSize: 17,
     fontWeight: 'bold',
     color: 'black',
-    marginLeft: 20,
-    // textAlign: 'center',
-    // borderWidth: 2,
-    // borderColor: 'black',
-    width: 220,
-  },
-  data_code: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: 'blue',
-    marginLeft: 120,
     textAlign: 'center',
     // borderWidth: 2,
     // borderColor: 'black',
-    width: 80,
   },
   input: {
     height: 41,
@@ -293,6 +209,7 @@ const styles = StyleSheet.create({
   },
   columnHeader: {
     fontSize: 20,
+    width: 250,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
@@ -301,7 +218,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 2,
     borderBottomColor: 'black',
-    height: 45,
+    width: '90%',
+    marginLeft: '5%',
+    height: 55,
     borderRadius: 15,
     color: 'black',
     justifyContent: 'space-between',
@@ -312,7 +231,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flatlist: {
-    marginTop: 5,
+    marginTop: 20,
   },
   backgroundImage: {
     flex: 1,
@@ -367,12 +286,12 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     flexDirection: 'row',
-    maxWidth: 30,
+    maxWidth: 80,
     // marginLeft: 10,
     // borderWidth: 2,
     // borderColor: 'black',
     justifyContent: 'center',
-    marginLeft: 85,
+    marginLeft: 100,
   },
   viewButton: {
     padding: 2,
@@ -386,4 +305,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HodScreen13;
+export default HodScreen14;

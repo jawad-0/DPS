@@ -15,26 +15,30 @@ import {useNavigation} from '@react-navigation/native';
 
 const HodScreen03 = () => {
   const navigation = useNavigation();
-  const [facultyMembers, setFacultyMembers] = useState([]);
+  const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    fetchData();
+    fetchCourses();
   }, []);
 
   const handleView = item => {
-    navigation.navigate('HodScreen05', {courseId: item.c_id, courseTitle: item.c_title, courseCode: item.c_code});
+    navigation.navigate('HodScreen05', {
+      courseId: item.c_id,
+      courseTitle: item.c_title,
+      courseCode: item.c_code,
+    });
   };
 
   const handleSearch = text => {
     const apiEndpoint = `http://${ip}:${course_port}/searchCourse?search=${text}`;
 
     if (text.trim() === '') {
-      fetchData();
+      fetchCourses();
     } else {
       fetch(apiEndpoint)
         .then(response => response.json())
         .then(data => {
-          setFacultyMembers(data);
+          setCourses(data);
         })
         .catch(error => {
           console.error('Error searching data:', error);
@@ -42,14 +46,14 @@ const HodScreen03 = () => {
     }
   };
 
-  const fetchData = () => {
+  const fetchCourses = () => {
     const apiEndpoint = `http://${ip}:${course_port}/getCourse`;
     // Keyboard.dismiss();
     fetch(apiEndpoint)
       .then(response => response.json())
       .then(data => {
         // console.log('Data fetched successfully:', data);
-        setFacultyMembers(data);
+        setCourses(data);
       })
       .catch(error => {
         console.error('Error fetching data:', error);
@@ -84,7 +88,7 @@ const HodScreen03 = () => {
           />
 
           <FlatList
-            data={facultyMembers}
+            data={courses}
             style={styles.flatlist}
             showsVerticalScrollIndicator={false}
             keyExtractor={(item, index) => index.toString()}

@@ -185,7 +185,6 @@ const FctScreen11 = ({route}) => {
         invalidCLONumbers.push(clo.clo_number);
       }
     }
-
     if (invalidCLONumbers.length > 0) {
       const errorMessage = `Invalid CLO Numbers: ${invalidCLONumbers.join(
         ', ',
@@ -195,7 +194,6 @@ const FctScreen11 = ({route}) => {
       console.log('Validation Result: false');
       return false;
     }
-
     console.log('All CLOs are valid.');
     return true;
   };
@@ -748,8 +746,12 @@ const FctScreen11 = ({route}) => {
                   <View style={styles.listItem}>
                     <View style={styles.column}>
                       <Text style={styles.data_text}>
-                        Question # {index + 1} :
+                        Question # {index + 1} :{' '}
+                        {item.q_status === 'uploaded' && (
+                          <Text style={{color: 'green'}}>(Uploaded)</Text>
+                        )}
                       </Text>
+
                       <Text style={styles.data_text}>{item.q_text}</Text>
                       {item.imageData && (
                         <Image

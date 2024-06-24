@@ -87,6 +87,12 @@ const HodScreen01 = () => {
             onPress={() => navigation.navigate('HodScreen12')}>
             <Text style={styles.buttonText}>Manage{'\n'}Session</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button1}
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate('HodScreen13')}>
+            <Text style={styles.buttonText}>History Of{'\n'}Assigned Courses</Text>
+          </TouchableOpacity>
         </ScrollView>
       </View>
     </ImageBackground>
@@ -134,6 +140,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#00DDDD',
     padding: 10,
     height: 105,
+    width: 185,
+    borderWidth: 2,
+    borderRadius: 15,
+    alignItems: 'center',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    marginBottom: 30,
+  },
+  button1: {
+    backgroundColor: '#00DDDD',
+    padding: 10,
+    height: 115,
     width: 185,
     borderWidth: 2,
     borderRadius: 15,

@@ -3,6 +3,7 @@ import {
   View,
   Text,
   Image,
+  Modal,
   FlatList,
   Keyboard,
   TextInput,
@@ -17,16 +18,28 @@ import {useNavigation} from '@react-navigation/native';
 const DtcScreen06 = () => {
   const navigation = useNavigation();
   const [facultyMembers, setFacultyMembers] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    fetchData();
+    fetchApprovedPapers();
   }, []);
+
+  const handleItemPress = item => {
+    setSelectedItem(item);
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setSelectedItem(null);
+  };
 
   const handleSearch = text => {
     const apiEndpoint = `http://${ip}:${approved_port}/searchapprovedpapers?search=${text}`;
 
     if (text.trim() === '') {
-      fetchData();
+      fetchApprovedPapers();
     } else {
       fetch(apiEndpoint)
         .then(response => response.json())
@@ -57,7 +70,7 @@ const DtcScreen06 = () => {
       .then(data => {
         console.log('Paper status updated successfully:', data);
         ToastAndroid.show('Paper status updated', ToastAndroid.SHORT);
-        fetchData();
+        fetchApprovedPapers();
       })
       .catch(error => {
         console.error('Error editing paper status:', error);
@@ -65,7 +78,7 @@ const DtcScreen06 = () => {
       });
   };
 
-  const fetchData = () => {
+  const fetchApprovedPapers = () => {
     const apiEndpoint = `http://${ip}:${approved_port}/getapprovedpapers`;
     // Keyboard.dismiss();
     fetch(apiEndpoint)
@@ -99,6 +112,44 @@ const DtcScreen06 = () => {
         </View>
         {/* <ScrollView> */}
         <View style={styles.form}>
+          {selectedItem && (
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={modalVisible}
+              onRequestClose={handleCloseModal}>
+              <View style={styles.modalContainer}>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalText}>
+                    Session: {selectedItem.session}
+                  </Text>
+                  <Text style={styles.modalText}>
+                    Year: {selectedItem.year}
+                  </Text>
+                  <Text style={styles.modalText}>
+                    Term:{' '}
+                    <Text style={{fontWeight: 'bold', color: 'green'}}>
+                      {selectedItem.term}
+                    </Text>
+                  </Text>
+                  <Text style={styles.modalText}>
+                    Degree: {selectedItem.degree}
+                  </Text>
+                  <Text style={styles.modalText}>
+                    Date: {selectedItem.exam_date}
+                  </Text>
+                  <Text style={styles.modalText}>
+                    Duration: {selectedItem.duration}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={handleCloseModal}>
+                    <Text style={styles.closeButtonText}>Close</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
+          )}
           <TextInput
             style={styles.searchinput}
             placeholder="Search"
@@ -125,7 +176,10 @@ const DtcScreen06 = () => {
             style={styles.flatlist}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({item}) => (
-              <View style={styles.listItem}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={styles.listItem}
+                onPress={() => handleItemPress(item)}>
                 <View style={styles.column}>
                   <Text style={styles.data_name}>{item.c_title}</Text>
                 </View>
@@ -138,7 +192,7 @@ const DtcScreen06 = () => {
                     <Text style={styles.label}>Print</Text>
                   </TouchableOpacity>
                 </View>
-              </View>
+              </TouchableOpacity>
             )}
           />
         </View>
@@ -173,7 +227,6 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 15,
-    marginLeft: 45,
     textAlign: 'center',
     color: 'blue',
     width: 40,
@@ -247,10 +300,10 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   printButton: {
-    backgroundColor: '#E6E6FA',
+    backgroundColor: 'white',
     borderRadius: 10,
     width: 80,
-    marginLeft: 60,
+    marginLeft: 80,
   },
   backIcon: {
     height: 20,
@@ -261,6 +314,38 @@ const styles = StyleSheet.create({
     width: 30,
     marginLeft: 50,
     alignSelf: 'center',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: 250,
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 10,
+    color: 'black',
+  },
+  closeButton: {
+    marginTop: 10,
+    height: 30,
+    width: 70,
+    backgroundColor: 'red',
+    borderRadius: 10,
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    height: 30,
+    textAlign: 'center',
+    textAlignVertical: 'center',
   },
 });
 
