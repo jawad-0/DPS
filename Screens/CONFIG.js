@@ -14,7 +14,8 @@
 // export const ip = "192.168.248.153";
 // export const ip = "192.168.206.153";
 // export const ip = "192.168.142.153";
-export const ip = "192.168.166.153";
+// export const ip = "192.168.166.153";
+export const ip = "192.168.182.154";
 
 // <--!!-->
 export const port = "8000";

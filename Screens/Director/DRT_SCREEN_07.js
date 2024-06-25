@@ -19,16 +19,20 @@ import {ip, port} from '../CONFIG';
 
 const DrtScreen07 = ({route}) => {
   const navigation = useNavigation();
-  const {term, paperId, courseId, questionId, difficulty} = route.params;
+  const {term, paperId, courseId, questionId, difficulty, mapped_clos} =
+    route.params;
   const [paperheaderfaculty, setPaperHeaderFaculty] = useState('');
   const [paperheader, setPaperHeader] = useState([]);
   const [questions, setQuestion] = useState('');
   const [validMidCLOS, setValidMidCLOS] = useState([]);
   const [validFinalCLOS, setValidFinalCLOS] = useState([]);
+  const [questionValidMidCLOS, setQuestionValidMidCLOS] = useState([]);
+  const [questionValidFinalCLOS, setQuestionValidFinalCLOS] = useState([]);
 
   useEffect(() => {
     // console.log(paperId);
     console.log(difficulty);
+    console.log(mapped_clos);
     fetchAdditionalQuestions();
     fetchPaperHeader();
     fetchbyTerm(term);
@@ -46,12 +50,17 @@ const DrtScreen07 = ({route}) => {
     }
   };
 
-  const handleSwappingStatus = item => {
+  const handleSwappingStatus = async item => {
     const id1 = questionId;
     const id2 = item.q_id;
     // console.log(id1);
     // console.log(id2);
     // console.log(paperId);
+    const isValid = await validateQuestionCLOS(id2, term);
+    if (!isValid) {
+      ToastAndroid.show('CLOS not matching!', ToastAndroid.SHORT);
+      return;
+    }
     if (!matchDifficulty(item)) {
       return;
     }
@@ -75,6 +84,68 @@ const DrtScreen07 = ({route}) => {
       .catch(error => {
         console.error('Error updating status:', error);
       });
+  };
+
+  const validateQuestionCLOS = async (q_id, term) => {
+    let isValid = false;
+    let questionValidCLOS = [];
+    try {
+      if (term === 'Mid') {
+        // console.log('> Mid Paper');
+        questionValidCLOS = await fetchQuestionValidMidCLOS(q_id);
+        // console.log('> Mid Question CLO Check');
+        console.log(`Question ID ${q_id} is selected`);
+        // console.log('Fetched Mid Question CLOs:', questionValidCLOS);
+        console.log('Valid Mid CLOS:', validMidCLOS);
+        isValid = matchCLOSValidity(questionValidCLOS, validMidCLOS);
+        // console.log(`Validation Result: ${isValid}`);
+      } else if (term === 'Final') {
+        // console.log('> Final Paper');
+        questionValidCLOS = await fetchQuestionValidFinalCLOS(q_id);
+        // console.log('> Mid Question CLO Check');
+        console.log(`Question ID ${q_id} is selected`);
+        // console.log('Fetched Final Question CLOs:', questionValidCLOS);
+        console.log('Valid Final CLOS:', validFinalCLOS);
+        isValid = matchCLOSValidity(questionValidCLOS, validFinalCLOS);
+        // console.log(`Validation Result: ${isValid}`);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+
+    return isValid;
+  };
+
+  const matchCLOSValidity = (questionValidCLOS, validCLOS, courseId) => {
+    console.log('Checking CLO Validity...');
+    console.log('Question Valid CLOS:', questionValidCLOS);
+    console.log('Paper Valid CLOS:', validCLOS);
+
+    // Create a Set of valid CLO numbers for faster lookup
+    const validCLONumbers = new Set(validCLOS.map(clo => clo.clo_number));
+    console.log('Valid CLO Numbers:', validCLONumbers);
+
+    // Collect invalid CLO numbers
+    const invalidCLONumbers = [];
+
+    // Check if every CLO number in questionValidCLOS is also in validCLONumbers
+    for (const clo of questionValidCLOS) {
+      //   if (!validCLONumbers.has(clo.clo_number) || clo.c_id !== courseId) {
+      if (!validCLONumbers.has(clo.clo_number)) {
+        invalidCLONumbers.push(clo.clo_number);
+      }
+    }
+    if (invalidCLONumbers.length > 0) {
+      const errorMessage = `Invalid CLO Numbers: ${invalidCLONumbers.join(
+        ', ',
+      )}`;
+      console.log(errorMessage);
+      ToastAndroid.show(errorMessage, ToastAndroid.SHORT);
+      console.log('Validation Result: false');
+      return false;
+    }
+    console.log('All CLOs are valid.');
+    return true;
   };
 
   const fetchbyTerm = term => {
@@ -113,12 +184,72 @@ const DrtScreen07 = ({route}) => {
       });
   };
 
+  const fetchQuestionValidMidCLOS = async questionId => {
+    console.log('Fetching Mid CLOs...');
+    const apiEndpoint = `http://${ip}:${port}/getQuestionValidMidCLOS/${questionId}`;
+    try {
+      const response = await fetch(apiEndpoint);
+      const data = await response.json();
+      console.log('Mid CLOs Data Fetched:', data);
+      setQuestionValidMidCLOS(data);
+      return data; // Return the fetched data directly
+    } catch (error) {
+      console.error('Error fetching mid CLOs:', error);
+      return []; // Return an empty array in case of error
+    }
+  };
+
+  const fetchQuestionValidFinalCLOS = async questionId => {
+    console.log('Fetching Final CLOs...');
+    const apiEndpoint = `http://${ip}:${port}/getQuestionValidFinalCLOS/${questionId}`;
+    try {
+      const response = await fetch(apiEndpoint);
+      const data = await response.json();
+      console.log('Final CLOs Data Fetched:', data);
+      setQuestionValidFinalCLOS(data);
+      return data; // Return the fetched data directly
+    } catch (error) {
+      console.error('Error fetching final CLOs:', error);
+      return []; // Return an empty array in case of error
+    }
+  };
+
+  //   const fetchAdditionalQuestions = () => {
+  //     const apiEndpoint = `http://${ip}:${port}/getadditionalQuestion/${paperId}`;
+  //     fetch(apiEndpoint)
+  //       .then(response => response.json())
+  //       .then(data => {
+  //         // console.log('Data fetched successfully:', data);
+  //         setQuestion(data);
+  //       })
+  //       .catch(error => {
+  //         console.error('Error fetching data:', error);
+  //       });
+  //   };
+
   const fetchAdditionalQuestions = () => {
-    const apiEndpoint = `http://${ip}:${port}/getadditionalQuestion/${paperId}`;
-    fetch(apiEndpoint)
+    const paperId = 1;
+    // const cloFilters = ['CLO-2', 'CLO-3'];
+    let cloFilters = [];
+    if (mapped_clos) {
+      cloFilters = mapped_clos.split(',').map(filter => filter.trim());
+    } else {
+      console.warn('mapped_clos is null or undefined');
+      return;
+    }
+    // const difficulty = 'easy';
+    const apiEndpoint = `http://${ip}:${port}/getadditionalquestion/${paperId}?clos=${cloFilters.join(
+      ',',
+    )}&difficulty=${difficulty}`;
+
+    fetch(apiEndpoint, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
       .then(response => response.json())
       .then(data => {
-        // console.log('Data fetched successfully:', data);
         setQuestion(data);
       })
       .catch(error => {

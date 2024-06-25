@@ -362,12 +362,18 @@ const FctScreen08 = ({route}) => {
           fetchPaper();
           fetchQuestions(paperId);
           handleClear();
+        } else if (status === 409) {
+          handleClear();
+          ToastAndroid.show(
+            'Similar question already exists.',
+            ToastAndroid.LONG,
+          );
         } else {
           ToastAndroid.show(`${body.error}`, ToastAndroid.LONG);
         }
       })
       .catch(error => {
-        ToastAndroid.show('Failed to add paper.', ToastAndroid.LONG);
+        ToastAndroid.show('Failed to add question.', ToastAndroid.LONG);
       });
   };
 
@@ -380,6 +386,7 @@ const FctScreen08 = ({route}) => {
     const apiEndpoint = `http://${ip}:${port}/editQuestion/${questionId}`;
 
     const formData = new FormData();
+    formData.append('p_id', paperId);
     formData.append('q_text', questiontext);
     formData.append('q_marks', marks);
     formData.append('q_difficulty', difficulty);
@@ -416,6 +423,10 @@ const FctScreen08 = ({route}) => {
           fetchPaper();
           fetchQuestions(paperId);
           handleClear();
+        } else if (status === 409) {
+          setMode('add');
+          handleClear();
+          ToastAndroid.show(`${body.message}`, ToastAndroid.LONG);
         } else {
           ToastAndroid.show(`${body.error}`, ToastAndroid.LONG);
         }

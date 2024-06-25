@@ -59,6 +59,7 @@ const FctScreen11 = ({route}) => {
   const [invalidFinalCLOS, setInvalidFinalCLOS] = useState([]);
   const [questionValidMidCLOS, setQuestionValidMidCLOS] = useState([]);
   const [questionValidFinalCLOS, setQuestionValidFinalCLOS] = useState([]);
+  const [selectedCLOS, setSelectedCLOS] = useState([]);
 
   useEffect(() => {
     fetchPaper();
@@ -146,7 +147,7 @@ const FctScreen11 = ({route}) => {
         // console.log('> Mid Question CLO Check');
         console.log(`Question ID ${q_id} is selected`);
         // console.log('Fetched Mid Question CLOs:', questionValidCLOS);
-        console.log('Valid Mid CLOS:', validMidCLOS);
+        // console.log('Valid Mid CLOS:', validMidCLOS);
         isValid = matchCLOSValidity(questionValidCLOS, validMidCLOS);
         // console.log(`Validation Result: ${isValid}`);
       } else if (term === 'Final') {
@@ -162,18 +163,17 @@ const FctScreen11 = ({route}) => {
     } catch (error) {
       console.error('Error:', error);
     }
-
     return isValid;
   };
 
   const matchCLOSValidity = (questionValidCLOS, validCLOS, courseId) => {
-    console.log('Checking CLO Validity...');
-    console.log('Question Valid CLOS:', questionValidCLOS);
-    console.log('Paper Valid CLOS:', validCLOS);
+    // console.log('Checking CLO Validity...');
+    // console.log('Question Valid CLOS:', questionValidCLOS);
+    // console.log('Paper Valid CLOS:', validCLOS);
 
     // Create a Set of valid CLO numbers for faster lookup
     const validCLONumbers = new Set(validCLOS.map(clo => clo.clo_number));
-    console.log('Valid CLO Numbers:', validCLONumbers);
+    // console.log('Valid CLO Numbers:', validCLONumbers);
 
     // Collect invalid CLO numbers
     const invalidCLONumbers = [];
@@ -263,12 +263,11 @@ const FctScreen11 = ({route}) => {
   };
 
   const fetchQuestionValidMidCLOS = async questionId => {
-    console.log('Fetching Mid CLOs...');
     const apiEndpoint = `http://${ip}:${port}/getQuestionValidMidCLOS/${questionId}`;
     try {
       const response = await fetch(apiEndpoint);
       const data = await response.json();
-      console.log('Mid CLOs Data Fetched:', data);
+      //   console.log('Mid CLOs Data Fetched:', data);
       setQuestionValidMidCLOS(data);
       return data; // Return the fetched data directly
     } catch (error) {
@@ -290,6 +289,25 @@ const FctScreen11 = ({route}) => {
       console.error('Error fetching final CLOs:', error);
       return []; // Return an empty array in case of error
     }
+  };
+
+  const fetchSelectedQuestionCLOS = checkedQuestions => {
+    // console.log(questionIds);
+    const apiEndpoint = `http://${ip}:${port}/getSelectedQuestionCLOS/${checkedQuestions.join(
+      ',',
+    )}`;
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.clo_numbers) {
+          const cloNumbers = data.clo_numbers.split(',');
+          setSelectedCLOS(cloNumbers);
+        }
+        // console.log('CLO numbers fetched successfully:', data);
+      })
+      .catch(error => {
+        console.error('Error fetching CLO numbers:', error);
+      });
   };
 
   const fetchDifficulty = numberOfQuestions => {
@@ -363,11 +381,42 @@ const FctScreen11 = ({route}) => {
     return true;
   };
 
+  const checkMissingCLOS = () => {
+    let missingCLOs = [];
+    if (term == 'Mid') {
+      missingCLOs = validMidCLOS.filter(
+        clo => !selectedCLOS.includes(clo.clo_number),
+      );
+    } else if (term == 'Final') {
+      missingCLOs = validFinalCLOS.filter(
+        clo => !selectedCLOS.includes(clo.clo_number),
+      );
+    }
+    if (missingCLOs.length > 0) {
+      let missingCLONumbers = missingCLOs.map(clo => clo.clo_number).join(', ');
+      console.log('Missing CLO numbers:', missingCLONumbers);
+      ToastAndroid.show(
+        'Missing CLO numbers: ' + missingCLONumbers,
+        ToastAndroid.SHORT,
+      );
+      return false;
+    } else {
+      console.log('All required CLOs are present.');
+      return true;
+    }
+  };
+
   const handleSubmit = () => {
+    if (checkedQuestions.length > 0) {
+      fetchSelectedQuestionCLOS(checkedQuestions);
+    }
     if (!checkCountBeforeSubmission()) {
       return;
     }
     if (!checkDifficultyBeforeSubmission()) {
+      return;
+    }
+    if (!checkMissingCLOS()) {
       return;
     }
 
@@ -775,7 +824,7 @@ const FctScreen11 = ({route}) => {
                           <View style={styles.checkboxBorder1}>
                             <CheckBox
                               value={
-                                item.q_status === 'uploaded' ||
+                                // item.q_status === 'uploaded' ||
                                 checkedQuestions.includes(item.q_id)
                               }
                               onValueChange={() => handleCheckBoxChange(item)}

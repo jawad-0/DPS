@@ -40,6 +40,9 @@ const DrtScreen06 = ({route}) => {
   const [session, setSession] = useState('');
   const [status, setStatus] = useState('');
   const [questions, setQuestion] = useState('');
+  const [validMidCLOS, setValidMidCLOS] = useState([]);
+  const [validFinalCLOS, setValidFinalCLOS] = useState([]);
+  const [selectedCLOS, setSelectedCLOS] = useState([]);
 
   useEffect(() => {
     fetchQuestions();
@@ -93,6 +96,7 @@ const DrtScreen06 = ({route}) => {
       courseId: courseId,
       questionId: item.q_id,
       difficulty: item.q_difficulty,
+      mapped_clos: item.mapped_clos,
     });
   };
 
@@ -148,6 +152,51 @@ const DrtScreen06 = ({route}) => {
     }));
   };
 
+  const fetchValidMidCLOS = courseId => {
+    const apiEndpoint = `http://${ip}:${port}/getValidMidCLOS/${courseId}`;
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        console.log('Data fetched successfully:', data);
+        setValidMidCLOS(data);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  };
+
+  const fetchValidFinalCLOS = courseId => {
+    const apiEndpoint = `http://${ip}:${port}/getValidFinalCLOS/${courseId}`;
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        console.log('Data fetched successfully:', data);
+        setValidFinalCLOS(data);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  };
+
+  const fetchSelectedQuestionCLOS = checkedQuestions => {
+    // console.log(questionIds);
+    const apiEndpoint = `http://${ip}:${port}/getSelectedQuestionCLOS/${checkedQuestions.join(
+      ',',
+    )}`;
+    fetch(apiEndpoint)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.clo_numbers) {
+          const cloNumbers = data.clo_numbers.split(',');
+          setSelectedCLOS(cloNumbers);
+        }
+        // console.log('CLO numbers fetched successfully:', data);
+      })
+      .catch(error => {
+        console.error('Error fetching CLO numbers:', error);
+      });
+  };
+
   const fetchQuestionsCount = paperId => {
     const apiEndpoint = `http://${ip}:${port}/getNumberOfQuestions/${paperId}`;
     fetch(apiEndpoint)
@@ -176,10 +225,41 @@ const DrtScreen06 = ({route}) => {
     }
   };
 
+  const checkMissingCLOS = () => {
+    let missingCLOs = [];
+    if (term == 'Mid') {
+      missingCLOs = validMidCLOS.filter(
+        clo => !selectedCLOS.includes(clo.clo_number),
+      );
+    } else if (term == 'Final') {
+      missingCLOs = validFinalCLOS.filter(
+        clo => !selectedCLOS.includes(clo.clo_number),
+      );
+    }
+    if (missingCLOs.length > 0) {
+      let missingCLONumbers = missingCLOs.map(clo => clo.clo_number).join(', ');
+      console.log('Missing CLO numbers:', missingCLONumbers);
+      ToastAndroid.show(
+        'Missing CLO numbers: ' + missingCLONumbers,
+        ToastAndroid.SHORT,
+      );
+      return false;
+    } else {
+      console.log('All required CLOs are present.');
+      return true;
+    }
+  };
+
   const handlePaperApprove = () => {
+    // if (checkedQuestions.length > 0) {
+    //   fetchSelectedQuestionCLOS(checkedQuestions);
+    // }
     if (!checkCountBeforeSubmission()) {
       return;
     }
+    // if (!checkMissingCLOS()) {
+    //   return;
+    // }
     const apiEndpoint = `http://${ip}:${port}/edituploadedquestionstatus`;
     const acceptedQIds = Object.keys(acceptOptions).filter(
       key => acceptOptions[key],
@@ -548,8 +628,8 @@ const DrtScreen06 = ({route}) => {
                 justifyContent: 'center',
               }}>
               <Text style={styles.counterText}>
-                <Text style={{color: 'blue'}}>Accepted: </Text> {selectedCount}
-                /{questionsCount}{' '}
+                <Text style={{color: 'blue'}}>Accepted: </Text> {selectedCount}/
+                {questionsCount}{' '}
               </Text>
             </View>
             <FlatList
